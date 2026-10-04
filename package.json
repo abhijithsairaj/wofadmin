@@ -1,0 +1,27 @@
+{
+  "name": "wofadmin",
+  "version": "1.0.0",
+  "description": "WOF RUSH - 3D Endless Delivery Runner & Restaurant Operating Admin Console for Cloudflare Workers & Pages",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "wrangler pages dev .",
+    "dev:worker": "wrangler dev",
+    "deploy:pages": "wrangler pages deploy .",
+    "deploy:worker": "wrangler deploy",
+    "test": "node --check server.js && node --check _worker.js"
+  },
+  "keywords": [
+    "cloudflare-workers",
+    "cloudflare-pages",
+    "threejs",
+    "restaurant-dashboard",
+    "food-cost-calculator",
+    "milestone-rewards"
+  ],
+  "author": "abhijithsairaj",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.109.2"
+  }
+}

@@ -151,6 +151,11 @@ ORDER #1042 DISPATCHED!
 ```text
 d:\wof rush\
 ├── index.html         # Main game shell, responsive HUD, modals, touch controls & Stripe Admin Console
+├── _worker.js         # Cloudflare Workers & Pages edge handler with REST API & KV persistence
+├── wrangler.toml      # Wrangler configuration for Cloudflare Workers & Pages
+├── _routes.json       # Cloudflare Pages route optimizer (routes /api/* to edge worker)
+├── _headers           # Security headers, CORS headers, and asset caching rules
+├── package.json       # Node & Cloudflare scripts (dev, deploy, start, test)
 ├── server.js          # Node.js backend server with REST APIs (/api/leads, /api/items, /api/offers, /api/recipes)
 ├── three.min.js       # Local Three.js r128 bundle (with CDN fallback)
 ├── data/
@@ -170,42 +175,109 @@ d:\wof rush\
 
 ---
 
-## 🚀 How to Run Locally
+## ⚡ Cloudflare Workers & Pages Deployment
 
-You can run WOF RUSH directly in any modern browser:
+WOF RUSH is designed to run natively on the **Cloudflare Edge** as a high-performance **Cloudflare Pages** and **Cloudflare Workers** application with zero cold starts, global asset caching, and serverless REST APIs.
 
-### Option 1: Direct File Open
-Double-click `index.html` or open `file:///d:/wof%20rush/index.html` in Chrome, Edge, Firefox, or Safari.
+### Architecture Overview
+- **Edge Routing (`_worker.js`)**: A universal V8 isolate worker handling `/api/leads`, `/api/items`, `/api/offers`, and `/api/recipes`, with seamless fallback to `env.ASSETS` for 3D game models, HTML, audio, and styles.
+- **Route Optimization (`_routes.json`)**: Configured to route only `/api/*` requests to worker execution, allowing static game assets to bypass worker compute quotas and serve directly from Cloudflare's global CDN edge cache.
+- **Security & Headers (`_headers`)**: Enforces CORS preflights, `X-Content-Type-Options`, `X-Frame-Options`, and aggressive immutable caching for `three.min.js` and assets.
+- **Edge Persistence**: Dual-layer persistence:
+  - **Cloudflare KV (`WOF_KV`)**: Global persistent storage across all Cloudflare edge regions.
+  - **Zero-Config Fallback**: Automatic in-memory and static asset seeding if KV is not yet bound.
 
-### Option 2: Local HTTP Server (Python)
+---
+
+### Option 1: Deploy with Cloudflare Pages (Git Integration - Recommended)
+
+1. **Push to GitHub**:
+   Ensure your code is pushed to your GitHub repository:
+   ```bash
+   git push origin main
+   ```
+2. **Connect to Cloudflare Pages**:
+   - Go to the **Cloudflare Dashboard** → **Workers & Pages** → **Create Application** → **Pages** → **Connect to Git**.
+   - Select your repository: `https://github.com/abhijithsairaj/wofadmin`.
+3. **Build Settings**:
+   - **Framework preset**: `None`
+   - **Build command**: *(leave blank)*
+   - **Build output directory**: `.`
+4. **Deploy**:
+   - Click **Save and Deploy**. Cloudflare Pages will automatically detect `_worker.js`, `_routes.json`, and static assets, deploying your app in seconds!
+
+---
+
+### Option 2: Deploy via Wrangler CLI
+
+#### Deploy to Cloudflare Pages:
 ```powershell
-cd "d:\wof rush"
-python -m http.server 8080
+# Authenticate with Cloudflare
+npx wrangler login
+
+# Deploy directly to Cloudflare Pages
+npm run deploy:pages
+# or: npx wrangler pages deploy .
 ```
-Then visit: `http://localhost:8080`
 
-### Option 3: Local HTTP Server (Node.js)
+#### Deploy to Cloudflare Workers (Static Assets):
 ```powershell
-npx serve "d:\wof rush"
+# Deploy as a Cloudflare Worker with Static Assets
+npm run deploy:worker
+# or: npx wrangler deploy
 ```
 
 ---
 
-## 🌐 Deployment for Marketing Campaigns
+### Option 3: Optional Cloudflare KV Edge Persistence
+
+To persist changes to Menu Items, Milestone Offers, and Customer Leads across multiple regions forever:
+
+1. **Create a KV Namespace**:
+   ```powershell
+   npx wrangler kv:namespace create WOF_KV
+   ```
+2. **Add Binding to `wrangler.toml`**:
+   Uncomment and paste the generated namespace ID in `wrangler.toml`:
+   ```toml
+   [[kv_namespaces]]
+   binding = "WOF_KV"
+   id = "<YOUR_GENERATED_KV_ID>"
+   ```
+3. For Cloudflare Pages via Dashboard:
+   - Go to **Project Settings** → **Functions** → **KV namespace bindings**.
+   - Bind variable name `WOF_KV` to your created KV namespace.
+
+---
+
+## 🚀 Running Locally
+
+### Option A: Local Cloudflare Edge Preview (Wrangler)
+```powershell
+npm run dev
+# or: npx wrangler pages dev .
+```
+
+### Option B: Local Node.js Server
+```powershell
+npm start
+# or: node server.js
+```
+Then visit: `http://localhost:8080` (or the port assigned by Wrangler).
+
+---
+
+## 🌐 Marketing Campaign Deployment
 
 To deploy WOF RUSH for real-world marketing (QR codes on takeaway bags, table stands, menu flyers, Instagram bio):
 
-1. **Deploy to Web**:
-   - Upload the project files directly to any static web host:
-     - **GitHub Pages**
-     - **Vercel** (`vercel deploy`)
-     - **Netlify** (`netlify deploy`)
-     - Subdomain on WOF's server: `https://woffoods.in/rush`
+1. **Deploy to Cloudflare**:
+   Deploy using the steps above to get your custom domain (e.g. `https://wofadmin.pages.dev` or `https://rush.woffoods.in`).
 2. **Generate QR Codes**:
-   - Create a QR code pointing to `https://woffoods.in/rush` and print it on:
+   - Print QR codes pointing to your live URL on:
      - Burger packaging & fry boxes
      - Delivery takeaway bags
      - Table tents at the Selvapuram outlet
-     - Receipts with "Beat Today's Score to win Free Fries!"
+     - Receipts with *"Beat Today's Score to win Free Fries!"*
 3. **Local Store Challenge**:
-   - Anyone scoring over 20,000 points shows their voucher code to the counter staff to instantly claim ₹50 off or free fries!
+   - Customers showing verified voucher codes with phone numbers at the counter claim immediate discounts or free items.
