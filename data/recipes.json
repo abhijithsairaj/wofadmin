@@ -1,0 +1,302 @@
+[
+  {
+    "id": "rec-ff-01",
+    "name": "Classic French Fries",
+    "station": "Hot Kitchen",
+    "category": "Fries & Loaded Fries",
+    "portion": "150g portion (Standard)",
+    "suggestedPrice": 89,
+    "rawMaterials": [
+      { "name": "French Fries (Frozen)", "recipeQty": 150, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 120 },
+      { "name": "Table Salt", "recipeQty": 1, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 25 },
+      { "name": "Table Ketchup Dip", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 110 },
+      { "name": "Frying Oil Absorption", "recipeQty": 15, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 140 }
+    ]
+  },
+  {
+    "id": "rec-ff-02",
+    "name": "Peri Peri Fries",
+    "station": "Hot Kitchen",
+    "category": "Fries & Loaded Fries",
+    "portion": "150g portion with Seasoning & Dip",
+    "suggestedPrice": 119,
+    "rawMaterials": [
+      { "name": "French Fries (Frozen)", "recipeQty": 150, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 120 },
+      { "name": "Table Salt", "recipeQty": 1, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 25 },
+      { "name": "Peri Peri Seasoning", "recipeQty": 8, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 180 },
+      { "name": "Peri Peri Mayo", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 190 },
+      { "name": "Frying Oil Absorption", "recipeQty": 15, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 140 }
+    ]
+  },
+  {
+    "id": "rec-ff-03",
+    "name": "Cheese Loaded Fries",
+    "station": "Hot Kitchen",
+    "category": "Fries & Loaded Fries",
+    "portion": "Loaded Tray (120g Fries + Sauces)",
+    "suggestedPrice": 149,
+    "rawMaterials": [
+      { "name": "French Fries (Frozen)", "recipeQty": 120, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 120 },
+      { "name": "White Sauce", "recipeQty": 80, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 180 },
+      { "name": "Melted Cheese", "recipeQty": 40, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 420 },
+      { "name": "Aromatic Pepper Salt & Herbs", "recipeQty": 2, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 150 },
+      { "name": "Lettuce", "recipeQty": 5, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 80 },
+      { "name": "Ketchup", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 110 }
+    ]
+  },
+  {
+    "id": "rec-ff-04",
+    "name": "Chicken Loaded Fries",
+    "station": "Hot Kitchen",
+    "category": "Fries & Loaded Fries",
+    "portion": "Loaded Tray (120g Fries + 60g Chicken)",
+    "suggestedPrice": 179,
+    "rawMaterials": [
+      { "name": "French Fries (Frozen)", "recipeQty": 120, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 120 },
+      { "name": "Crispy Fried Chicken Dices", "recipeQty": 60, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 260 },
+      { "name": "Peri Peri Mayo", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 190 },
+      { "name": "Plain Mayo", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 150 },
+      { "name": "Parsley & Lettuce", "recipeQty": 5, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 80 }
+    ]
+  },
+  {
+    "id": "rec-wr-01",
+    "name": "Classic Veg Wrap",
+    "station": "Hot Kitchen",
+    "category": "Gourmet Wraps",
+    "portion": "1 Roll (Base + 60g Veggies)",
+    "suggestedPrice": 129,
+    "rawMaterials": [
+      { "name": "Fresh Tortilla", "recipeQty": 1, "recipeUom": "pcs", "packQty": 10, "packUom": "pcs", "packPrice": 90 },
+      { "name": "Lettuce", "recipeQty": 5, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 80 },
+      { "name": "Refined Oil", "recipeQty": 10, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 140 },
+      { "name": "Butter", "recipeQty": 5, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 250 },
+      { "name": "Onion, Tomato, Capsicum Mix", "recipeQty": 60, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 50 },
+      { "name": "Plain Mayo", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 150 },
+      { "name": "Salt, Pepper, Chilli Masala", "recipeQty": 2, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 120 }
+    ]
+  },
+  {
+    "id": "rec-wr-02",
+    "name": "Spicy Paneer Wrap",
+    "station": "Hot Kitchen",
+    "category": "Gourmet Wraps",
+    "portion": "1 Roll (40g Paneer + 60g Veggies)",
+    "suggestedPrice": 159,
+    "rawMaterials": [
+      { "name": "Fresh Tortilla", "recipeQty": 1, "recipeUom": "pcs", "packQty": 10, "packUom": "pcs", "packPrice": 90 },
+      { "name": "Lettuce", "recipeQty": 5, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 80 },
+      { "name": "Refined Oil", "recipeQty": 10, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 140 },
+      { "name": "Butter", "recipeQty": 5, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 250 },
+      { "name": "Paneer Cubes", "recipeQty": 40, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 360 },
+      { "name": "Onion, Tomato, Capsicum Mix", "recipeQty": 60, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 50 },
+      { "name": "Peri Peri Sauce", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 180 },
+      { "name": "Salt, Pepper, Chilli Masala", "recipeQty": 2, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 120 }
+    ]
+  },
+  {
+    "id": "rec-wr-03",
+    "name": "Peri Peri Chicken Wrap",
+    "station": "Hot Kitchen",
+    "category": "Gourmet Wraps",
+    "portion": "1 Roll (60g Chicken Strips + Veggies)",
+    "suggestedPrice": 179,
+    "rawMaterials": [
+      { "name": "Fresh Tortilla", "recipeQty": 1, "recipeUom": "pcs", "packQty": 10, "packUom": "pcs", "packPrice": 90 },
+      { "name": "Lettuce", "recipeQty": 5, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 80 },
+      { "name": "Refined Oil", "recipeQty": 10, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 140 },
+      { "name": "Butter", "recipeQty": 5, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 250 },
+      { "name": "Chicken Strips", "recipeQty": 60, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 260 },
+      { "name": "Onion, Tomato, Jalapeno Mix", "recipeQty": 60, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 65 },
+      { "name": "Peri Peri Mayo", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 190 },
+      { "name": "Peri Peri Powder", "recipeQty": 10, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 180 }
+    ]
+  },
+  {
+    "id": "rec-bg-01",
+    "name": "Veggie Delight Burger",
+    "station": "Hot Kitchen",
+    "category": "Gourmet Burgers",
+    "portion": "1 Burger (Standard Build)",
+    "suggestedPrice": 139,
+    "rawMaterials": [
+      { "name": "Burger Bun", "recipeQty": 1, "recipeUom": "pcs", "packQty": 6, "packUom": "pcs", "packPrice": 60 },
+      { "name": "Butter", "recipeQty": 5, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 250 },
+      { "name": "Cheese Slice", "recipeQty": 1, "recipeUom": "pcs", "packQty": 20, "packUom": "pcs", "packPrice": 200 },
+      { "name": "Lettuce", "recipeQty": 5, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 80 },
+      { "name": "Veg Patty", "recipeQty": 1, "recipeUom": "pcs", "packQty": 10, "packUom": "pcs", "packPrice": 180 },
+      { "name": "Fresh Tomato Slices (3 pcs)", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 40 },
+      { "name": "Fresh Onion Slices (3 pcs)", "recipeQty": 20, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 45 },
+      { "name": "Fresh Cucumber Slices (3 pcs)", "recipeQty": 20, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 35 },
+      { "name": "Mayo Sauce", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 150 },
+      { "name": "Ketchup", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 110 }
+    ]
+  },
+  {
+    "id": "rec-bg-02",
+    "name": "Crispy Fried Chicken Burger",
+    "station": "Hot Kitchen",
+    "category": "Gourmet Burgers",
+    "portion": "1 Burger (100g Fillet)",
+    "suggestedPrice": 189,
+    "rawMaterials": [
+      { "name": "Burger Bun", "recipeQty": 1, "recipeUom": "pcs", "packQty": 6, "packUom": "pcs", "packPrice": 60 },
+      { "name": "Butter", "recipeQty": 5, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 250 },
+      { "name": "Cheese Slice", "recipeQty": 1, "recipeUom": "pcs", "packQty": 20, "packUom": "pcs", "packPrice": 200 },
+      { "name": "Lettuce", "recipeQty": 5, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 80 },
+      { "name": "Fried Chicken Fillet", "recipeQty": 100, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 260 },
+      { "name": "Fresh Onion Slices", "recipeQty": 20, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 45 },
+      { "name": "Signature Mayo", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 180 },
+      { "name": "Ketchup Dip", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 110 }
+    ]
+  },
+  {
+    "id": "rec-bg-03",
+    "name": "Chicken Cheesy Lava Burger",
+    "station": "Hot Kitchen",
+    "category": "Gourmet Burgers",
+    "portion": "1 Burger (100g Fillet + Lava Sauce)",
+    "suggestedPrice": 239,
+    "rawMaterials": [
+      { "name": "Burger Bun", "recipeQty": 1, "recipeUom": "pcs", "packQty": 6, "packUom": "pcs", "packPrice": 60 },
+      { "name": "Butter", "recipeQty": 5, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 250 },
+      { "name": "Cheese Slice", "recipeQty": 1, "recipeUom": "pcs", "packQty": 20, "packUom": "pcs", "packPrice": 200 },
+      { "name": "Lettuce", "recipeQty": 5, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 80 },
+      { "name": "Fried Chicken Fillet", "recipeQty": 100, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 260 },
+      { "name": "Jalapeno Slices (6 Nos)", "recipeQty": 15, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 160 },
+      { "name": "Jalapeno Mayo", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 190 },
+      { "name": "Lava: White Sauce", "recipeQty": 80, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 180 },
+      { "name": "Lava: Mozzarella Cheese", "recipeQty": 40, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 450 },
+      { "name": "Seasoning & Herbs", "recipeQty": 2, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 150 }
+    ]
+  },
+  {
+    "id": "rec-sw-01",
+    "name": "Crispy Chicken Sandwich",
+    "station": "Hot Kitchen",
+    "category": "Gourmet Sandwiches",
+    "portion": "2 Slices Bread + 60g Fillet",
+    "suggestedPrice": 159,
+    "rawMaterials": [
+      { "name": "Bread Slices", "recipeQty": 2, "recipeUom": "pcs", "packQty": 20, "packUom": "pcs", "packPrice": 60 },
+      { "name": "Butter", "recipeQty": 5, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 250 },
+      { "name": "Cheese Slice", "recipeQty": 1, "recipeUom": "pcs", "packQty": 20, "packUom": "pcs", "packPrice": 200 },
+      { "name": "Lettuce", "recipeQty": 5, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 80 },
+      { "name": "Fried Chicken Breast Fillet", "recipeQty": 60, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 260 },
+      { "name": "Fresh Sliced Tomato", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 40 },
+      { "name": "Special Mayo Sauce", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 180 },
+      { "name": "Ketchup Dip", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 110 }
+    ]
+  },
+  {
+    "id": "rec-pa-01",
+    "name": "Alfredo Pasta (White)",
+    "station": "Hot Kitchen",
+    "category": "Signature Italian Pastas",
+    "portion": "1 Full Plate (Pan Sauté)",
+    "suggestedPrice": 219,
+    "rawMaterials": [
+      { "name": "Butter", "recipeQty": 5, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 250 },
+      { "name": "Minced Garlic", "recipeQty": 5, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 120 },
+      { "name": "Alfredo Powder", "recipeQty": 15, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 450 },
+      { "name": "Water", "recipeQty": 200, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 2 },
+      { "name": "Pasta Vegetable Mix (Zucchini/Capsicum/Onion)", "recipeQty": 60, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 110 },
+      { "name": "Cheese Blend", "recipeQty": 30, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 420 },
+      { "name": "Parsley & Oregano", "recipeQty": 2, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 150 }
+    ]
+  },
+  {
+    "id": "rec-sh-01",
+    "name": "Classic Vanilla Shake",
+    "station": "Cold Station",
+    "category": "Standard Milk Shakes",
+    "portion": "350ml glass/cup",
+    "suggestedPrice": 99,
+    "rawMaterials": [
+      { "name": "Vanilla Ice Cream", "recipeQty": 60, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 160 },
+      { "name": "Fresh Milk", "recipeQty": 200, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 55 },
+      { "name": "Sugar Syrup", "recipeQty": 20, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 45 },
+      { "name": "Vanilla Essence", "recipeQty": 1, "recipeUom": "ml", "packQty": 100, "packUom": "ml", "packPrice": 60 }
+    ]
+  },
+  {
+    "id": "rec-sh-02",
+    "name": "Cold Coffee (Thick Shake)",
+    "station": "Cold Station",
+    "category": "Premium Thick Shakes",
+    "portion": "350ml tall glass/cup",
+    "suggestedPrice": 129,
+    "rawMaterials": [
+      { "name": "Frozen Milk Base", "recipeQty": 140, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 55 },
+      { "name": "Fresh Milk", "recipeQty": 90, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 55 },
+      { "name": "Sugar Syrup", "recipeQty": 20, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 45 },
+      { "name": "Ice Cream", "recipeQty": 50, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 160 },
+      { "name": "Coffee Powder Sachet (2 Pcs)", "recipeQty": 2, "recipeUom": "pcs", "packQty": 1, "packUom": "pcs", "packPrice": 2 }
+    ]
+  },
+  {
+    "id": "rec-sh-03",
+    "name": "Brownie Blast Thick Shake",
+    "station": "Cold Station",
+    "category": "Premium Thick Shakes",
+    "portion": "350ml glass/cup with brownie",
+    "suggestedPrice": 149,
+    "rawMaterials": [
+      { "name": "Frozen Milk Base", "recipeQty": 140, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 55 },
+      { "name": "Fresh Milk", "recipeQty": 90, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 55 },
+      { "name": "Sugar Syrup", "recipeQty": 20, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 45 },
+      { "name": "Ice Cream", "recipeQty": 50, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 160 },
+      { "name": "Fresh Fudgy Brownie (1/2 Piece)", "recipeQty": 40, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 350 },
+      { "name": "Chocolate Sauce Drizzle", "recipeQty": 15, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 180 }
+    ]
+  },
+  {
+    "id": "rec-mo-01",
+    "name": "Mint Mojito",
+    "station": "Cold Station",
+    "category": "Refreshers & Mojitos",
+    "portion": "350ml tall glass",
+    "suggestedPrice": 89,
+    "rawMaterials": [
+      { "name": "Sugar Syrup", "recipeQty": 20, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 45 },
+      { "name": "Lemon Mint Syrup", "recipeQty": 20, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 160 },
+      { "name": "Fresh Mint Leaves (7 Nos)", "recipeQty": 3, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 40 },
+      { "name": "Fresh Lemon", "recipeQty": 1, "recipeUom": "pcs", "packQty": 10, "packUom": "pcs", "packPrice": 40 },
+      { "name": "Ice Cubes (6 Nos)", "recipeQty": 6, "recipeUom": "pcs", "packQty": 100, "packUom": "pcs", "packPrice": 15 },
+      { "name": "Sprite", "recipeQty": 100, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 45 },
+      { "name": "Club Soda", "recipeQty": 100, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 30 }
+    ]
+  },
+  {
+    "id": "rec-fa-01",
+    "name": "Classic Royal Falooda",
+    "station": "Cold Station",
+    "category": "Royal Falooda",
+    "portion": "350ml sundae glass",
+    "suggestedPrice": 139,
+    "rawMaterials": [
+      { "name": "Assorted Jelly (Mango/Strawberry)", "recipeQty": 20, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 140 },
+      { "name": "Diced Seasonal Fresh Fruits", "recipeQty": 150, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 90 },
+      { "name": "Boiled Falooda Vermicelli (Sev)", "recipeQty": 15, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 80 },
+      { "name": "Chilled Flavored Milk & Rose Sauce Blend", "recipeQty": 100, "recipeUom": "ml", "packQty": 1000, "packUom": "ml", "packPrice": 65 },
+      { "name": "Bloomed Sabja / Chia Seeds", "recipeQty": 10, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 120 },
+      { "name": "Premium Mixed Nuts (Cashew/Almond/Pista)", "recipeQty": 15, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 850 },
+      { "name": "Premium Vanilla Ice Cream Scoop", "recipeQty": 60, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 160 }
+    ]
+  },
+  {
+    "id": "rec-br-01",
+    "name": "Sizzling Brownie with Ice Cream",
+    "station": "Cold Station",
+    "category": "Gourmet Brownies & Plated Desserts",
+    "portion": "Sizzler Hot Plate Platter",
+    "suggestedPrice": 169,
+    "rawMaterials": [
+      { "name": "Butter (for hot plate sizzle)", "recipeQty": 5, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 250 },
+      { "name": "Warm Fudgy Brownie", "recipeQty": 1, "recipeUom": "pcs", "packQty": 10, "packUom": "pcs", "packPrice": 280 },
+      { "name": "Rich Chocolate Sauce", "recipeQty": 10, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 180 },
+      { "name": "Vanilla Ice Cream", "recipeQty": 60, "recipeUom": "g", "packQty": 1000, "packUom": "g", "packPrice": 160 },
+      { "name": "Choco Chips", "recipeQty": 5, "recipeUom": "g", "packQty": 500, "packUom": "g", "packPrice": 140 }
+    ]
+  }
+]

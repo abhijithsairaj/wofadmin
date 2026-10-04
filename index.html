@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>WOF RUSH — Coimbatore Street Endless Runner</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍔</text></svg>">
+</head>
+<body>
+  <!-- 3D WebGL Canvas Container -->
+  <div id="game-container"></div>
+  <!-- Screen flash overlay for hit/collect/powerup feedback -->
+  <div id="screen-flash" style="position:fixed;inset:0;pointer-events:none;z-index:500;opacity:0;background:transparent;transition:opacity 0.06s;"></div>
+
+  <!-- HOME SCREEN -->
+  <div id="home-screen" class="ui-overlay">
+    <div class="home-header">
+      <div class="brand-badge">📍 SELVAPURAM, COIMBATORE</div>
+      <h1 class="game-title">WOF RUSH</h1>
+      <p class="game-subtitle">RUN • GRAB • DODGE • DELIVER</p>
+    </div>
+
+    <div class="home-center">
+      <button id="play-btn" class="play-button">PLAY NOW ▶</button>
+
+      <div class="home-card">
+        <div class="challenge-info">
+          <h4>TODAY'S CHALLENGE</h4>
+          <p id="daily-challenge-status">Reach 1,500m & Deliver 1 Order</p>
+        </div>
+        <div class="challenge-reward">₹50 OFF</div>
+      </div>
+
+      <div class="home-menu-buttons">
+        <button id="leaderboard-btn" class="secondary-btn">🏆 LEADERBOARD</button>
+        <button id="how-to-play-btn" class="secondary-btn">🎮 HOW TO PLAY</button>
+      </div>
+    </div>
+
+    <div class="home-footer">
+      <div class="best-score-container">
+        <div class="best-score-badge" id="best-score-badge">
+          <span class="trophy-icon">🏆</span>
+          <span id="home-best-label">BEST:</span>
+          <span id="home-best-score" class="best-score-num">NO RUNS YET</span>
+        </div>
+        <button id="reset-score-btn" class="reset-score-btn hidden" title="Clear test score">↺ RESET</button>
+      </div>
+      <div class="home-actions-row">
+        <button id="admin-btn" class="icon-btn" title="Admin Console">🔑</button>
+        <button id="sound-toggle-btn" class="icon-btn" title="Toggle Sound">🔊</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IN-GAME HUD -->
+  <div id="game-screen" class="ui-overlay hidden">
+    <!-- Top Stats Bar -->
+    <div class="hud-top-bar">
+      <div class="hud-stats-group">
+        <div class="hud-score-card">
+          <div class="stat-label">SCORE</div>
+          <div id="hud-score" class="stat-value">0</div>
+        </div>
+        <div id="hud-distance" class="hud-distance-card">0m</div>
+      </div>
+
+      <div class="hud-center-group">
+        <div id="hud-multiplier" class="hud-multiplier-badge hidden">x1 COMBO</div>
+      </div>
+
+      <div class="hud-controls-group">
+        <button id="hud-sound-btn" class="icon-btn" title="Toggle Sound">🔊</button>
+        <button id="hud-pause-btn" class="icon-btn" title="Pause Game">⏸️</button>
+      </div>
+    </div>
+
+    <!-- Active Powerup Indicators -->
+    <div id="powerups-container" class="powerups-container"></div>
+
+    <!-- Delivery Run Mission Card -->
+    <div id="delivery-card" class="delivery-card hidden">
+      <div class="delivery-header">
+        <span id="delivery-order-title" class="delivery-title">DELIVERY RUN #1042</span>
+        <span id="delivery-timer-text" class="delivery-timer">25s</span>
+      </div>
+      <div class="delivery-timer-track">
+        <div id="delivery-timer-bar" class="delivery-timer-bar"></div>
+      </div>
+      <div id="delivery-items-list" class="delivery-items-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- WOF Signature Meal Slots -->
+    <div class="hud-meal-container">
+      <div class="meal-label">WOF MEAL COMBO (MAIN + SIDE + DRINK = +500)</div>
+      <div class="meal-slots-row">
+        <div id="slot-main" class="meal-slot">
+          <span class="slot-icon">🍔</span>
+          <span class="slot-name">MAIN</span>
+        </div>
+        <div id="slot-side" class="meal-slot">
+          <span class="slot-icon">🍟</span>
+          <span class="slot-name">SIDE</span>
+        </div>
+        <div id="slot-drink" class="meal-slot">
+          <span class="slot-icon">🥤</span>
+          <span class="slot-name">DRINK</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Text Notifications -->
+    <div id="toast-container"></div>
+
+    <!-- Mobile Touch Controls -->
+    <div class="touch-controls">
+      <button id="touch-jump" class="touch-btn">▲</button>
+      <button id="touch-left" class="touch-btn">◀</button>
+      <button id="touch-slide" class="touch-btn">▼</button>
+      <button id="touch-right" class="touch-btn">▶</button>
+    </div>
+  </div>
+
+  <!-- PAUSE MODAL -->
+  <div id="pause-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>GAME PAUSED</h3>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <button id="resume-btn" class="primary-btn">RESUME ▶</button>
+        <button id="quit-to-menu-btn" class="secondary-btn">MAIN MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER / RUN SUMMARY SCREEN -->
+  <div id="game-over-screen" class="ui-overlay hidden">
+    <div class="game-over-card">
+      <div class="game-over-header">
+        <div id="game-over-title-badge" class="game-over-badge">RUN COMPLETE!</div>
+        <h2 id="game-over-headline">TRY AGAIN?</h2>
+      </div>
+
+      <!-- Hero Score Box -->
+      <div class="run-score-box">
+        <div class="score-row-main">
+          <div class="score-title">SCORE</div>
+          <div id="final-score" class="score-num">0</div>
+        </div>
+        <div id="new-high-score-banner" class="new-best-tag hidden">🌟 NEW BEST SCORE! 🌟</div>
+      </div>
+
+      <!-- Quick Run Stats Grid -->
+      <div class="run-stats-grid">
+        <div class="stat-chip">
+          <span class="label">DISTANCE</span>
+          <span id="final-distance" class="val">0 m</span>
+        </div>
+        <div class="stat-chip">
+          <span class="label">WOF MEALS</span>
+          <span id="final-meals" class="val">0</span>
+        </div>
+        <div class="stat-chip">
+          <span class="label">DELIVERIES</span>
+          <span id="final-deliveries" class="val">0</span>
+        </div>
+        <div class="stat-chip">
+          <span class="label">EASTER EGGS</span>
+          <span id="final-easter-eggs" class="val">0</span>
+        </div>
+      </div>
+
+      <!-- Hero Play Again Button (One-tap instant replay) -->
+      <button id="restart-btn" class="play-again-hero-btn">PLAY AGAIN ↺</button>
+
+      <!-- WOF Voucher Ticket (Conditioned on 1,000m+) -->
+      <div id="voucher-card" class="voucher-ticket">
+        <div id="voucher-header" class="ticket-header">🎉 1,000m REWARD UNLOCKED!</div>
+        <div id="voucher-title" class="voucher-title">WOF FEAST VOUCHER</div>
+        <div id="voucher-discount" class="voucher-discount">₹50 OFF on orders above ₹299</div>
+
+        <!-- Progress Bar when distance < 1,000m -->
+        <div id="voucher-progress-box" class="voucher-progress-box hidden">
+          <div class="voucher-progress-label">
+            <span>🎯 1,000m Coupon Goal:</span>
+            <span id="voucher-dist-text">0m / 1,000m</span>
+          </div>
+          <div class="voucher-progress-track">
+            <div id="voucher-progress-fill" class="voucher-progress-fill" style="width: 0%;"></div>
+          </div>
+          <div class="voucher-progress-hint">Run <b id="voucher-dist-rem">1,000m</b> more to unlock exclusive WOF discounts!</div>
+        </div>
+
+        <!-- Voucher Code Row when distance >= 1,000m -->
+        <div id="voucher-code-row" class="voucher-code-row">
+          <div id="voucher-code" class="voucher-code">WOF50-9942</div>
+          <button id="copy-voucher-btn" class="copy-btn">COPY CODE</button>
+        </div>
+        <div id="voucher-note" class="voucher-note">Redeem online at woffoods.in or at Selvapuram outlet!</div>
+      </div>
+
+      <!-- Lead Capture Form (Name + Phone) with strict autocomplete="off" -->
+      <div id="submit-score-section" class="submit-lead-card">
+        <div class="submit-lead-title">📋 RECORD SCORE & CLAIM OFFERS</div>
+        <div class="submit-lead-inputs">
+          <input type="text" id="player-name-input" name="wof_player_name" placeholder="Your Name" maxlength="25" autocomplete="off" autocorrect="off" spellcheck="false">
+          <div class="phone-input-wrapper">
+            <span class="phone-prefix">🇮🇳 +91</span>
+            <input type="tel" id="player-phone-input" name="wof_player_mobile" placeholder="10-digit mobile" maxlength="10" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          </div>
+        </div>
+        <button id="submit-score-btn" class="claim-submit-btn">SAVE RUN & RECORD PHONE ▶</button>
+        <div id="submit-feedback-msg" class="submit-feedback hidden"></div>
+      </div>
+
+      <div class="game-over-secondary-buttons">
+        <button id="home-btn" class="secondary-btn">🏠 MAIN MENU</button>
+        <button id="go-leaderboard-btn" class="secondary-btn">🏆 LEADERBOARD</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD MODAL -->
+  <div id="leaderboard-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🏆 SELVAPURAM LEADERBOARD</h3>
+        <button id="close-leaderboard-btn" class="close-btn">✕</button>
+      </div>
+      <div id="leaderboard-list" class="leaderboard-list">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO PLAY MODAL -->
+  <div id="how-to-play-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🎮 HOW TO PLAY</h3>
+        <button id="close-how-to-play-btn" class="close-btn">✕</button>
+      </div>
+      <div class="how-to-play-body">
+        <div class="htp-section">
+          <h4>CONTROLS</h4>
+          <div class="controls-grid">
+            <div class="control-item"><b>← → / A D:</b> Switch Lane</div>
+            <div class="control-item"><b>↑ / W / Space:</b> Jump</div>
+            <div class="control-item"><b>↓ / S:</b> Slide Duck</div>
+            <div class="control-item"><b>Mobile:</b> Swipe or Onscreen Tap</div>
+          </div>
+        </div>
+
+        <div class="htp-section">
+          <h4>🍔 WOF MEAL MECHANIC</h4>
+          <p>Collect <b>1 Main (Burger/Pizza/Wrap)</b> + <b>1 Side (Fries/Waffle)</b> + <b>1 Drink (Soda/Falooda)</b> to trigger <b>WOF MEAL (+500 PTS)</b> and boost combo multiplier!</p>
+        </div>
+
+        <div class="htp-section">
+          <h4>📦 DELIVERY RUN MISSIONS</h4>
+          <p>When an urgent order appears (e.g. Order #1042), race to collect the specified food items before the timer runs out for a <b>+2,500 PTS delivery bonus</b>!</p>
+        </div>
+
+        <div class="htp-section">
+          <h4>⚡ OBSTACLES & POWER-UPS</h4>
+          <p>Dodge Coimbatore Auto-Rickshaws, scooters and vendor carts. Slide under overhead signs and jump over road barriers! Grab <b>Shields</b>, <b>Fries Magnets</b>, <b>Turbo Boost</b>, and <b>Burger Smash</b>!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN CONSOLE MODAL (STRIPE-LIKE DASHBOARD WITH SIDEPANEL) -->
+  <div id="admin-modal" class="modal-overlay hidden">
+    <!-- Passcode Auth Gate -->
+    <div id="admin-auth-gate" class="admin-auth-box">
+      <div style="font-size:32px; margin-bottom:6px;">🔑</div>
+      <h3 style="color:var(--wof-yellow); margin:0;">WOF RUSH MANAGEMENT SYSTEM</h3>
+      <p style="color:#94A3B8; font-size:13px; margin:4px 0 16px 0;">Enter Administrator Passcode to unlock Stripe-style restaurant intelligence dashboard:</p>
+      <div class="admin-auth-input-row">
+        <input type="password" id="admin-pass-input" placeholder="Passcode (Default: wof2026)">
+        <button id="admin-login-btn" class="primary-btn">UNLOCK DASHBOARD ▶</button>
+      </div>
+      <div id="admin-auth-err" class="admin-auth-err hidden">Incorrect passcode. (Default: wof2026)</div>
+    </div>
+
+    <!-- Stripe-Style Dashboard Container -->
+    <div id="admin-dashboard-view" class="stripe-dashboard-shell hidden">
+      <!-- LEFT SIDEBAR -->
+      <aside class="stripe-sidebar" id="stripe-sidebar">
+        <!-- Sidebar Brand Area -->
+        <div class="stripe-brand-section">
+          <div class="stripe-brand-header">
+            <span class="stripe-brand-logo">🍔</span>
+            <div class="stripe-brand-text">
+              <span class="brand-name">WOF RUSH OS</span>
+              <span class="brand-location">SELVAPURAM OUTLET</span>
+            </div>
+          </div>
+          <div class="stripe-env-badge">
+            <span class="pulse-dot"></span> LIVE PRODUCTION
+          </div>
+        </div>
+
+        <!-- Sidebar Navigation Items -->
+        <nav class="stripe-nav-scroll">
+          <div class="stripe-nav-group-title">COST INTELLIGENCE</div>
+          <button class="stripe-nav-item active" data-tab="items">
+            <span class="nav-icon">🍔</span>
+            <span class="nav-label">Menu &amp; Cost Tracker</span>
+            <span class="nav-badge" id="nav-count-items">12</span>
+          </button>
+          <button class="stripe-nav-item" data-tab="calculator">
+            <span class="nav-icon">🧮</span>
+            <span class="nav-label">Food Cost Calculator</span>
+            <span class="nav-tag">RECIPES</span>
+          </button>
+          <button class="stripe-nav-item" data-tab="food-cost">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Margin &amp; Profit Analyzer</span>
+          </button>
+
+          <div class="stripe-nav-group-title" style="margin-top:16px;">GROWTH &amp; REWARDS</div>
+          <button class="stripe-nav-item" data-tab="offers">
+            <span class="nav-icon">🎁</span>
+            <span class="nav-label">Milestone Offers</span>
+            <span class="nav-badge offers-badge" id="nav-count-offers">6</span>
+          </button>
+          <button class="stripe-nav-item" data-tab="leads">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">Player Leads &amp; CRM</span>
+            <span class="nav-badge" id="nav-count-leads">0</span>
+          </button>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="stripe-sidebar-footer">
+          <div class="store-user-card">
+            <div class="user-avatar">🧑‍🍳</div>
+            <div class="user-meta">
+              <span class="user-name">Store Admin</span>
+              <span class="user-store">Selvapuram Central</span>
+            </div>
+          </div>
+          <button id="stripe-exit-btn" class="stripe-exit-button" title="Return to Arcade Game">
+            <span>← Exit to Game</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN APP PANEL -->
+      <main class="stripe-main-panel">
+        <!-- TOP APP BAR -->
+        <header class="stripe-topbar">
+          <div class="topbar-left">
+            <button id="stripe-mobile-toggle" class="stripe-hamburger-btn" title="Toggle Sidebar">☰</button>
+            <div class="stripe-breadcrumbs">
+              <span class="crumb-root">Dashboard</span>
+              <span class="crumb-sep">/</span>
+              <span id="stripe-active-crumb" class="crumb-active">Menu &amp; Cost Tracker</span>
+            </div>
+          </div>
+          <div class="topbar-right">
+            <div class="sync-pill" title="Server Database Connected">
+              <span class="sync-dot"></span> Live Sync
+            </div>
+            <button id="topbar-quick-action-btn" class="stripe-primary-btn">+ ADD ITEM</button>
+            <button id="close-admin-btn" class="stripe-close-btn" title="Close Dashboard">✕</button>
+          </div>
+        </header>
+
+        <!-- DASHBOARD BODY CONTAINER -->
+        <div class="stripe-body-scroll">
+          <!-- ==========================================
+               TAB 1: MENU ITEMS & COST TRACKER
+               ========================================== -->
+          <div id="admin-tab-items" class="admin-tab-content">
+            <!-- Header Banner -->
+            <div class="section-hero-header">
+              <div>
+                <h2>Menu Items &amp; Unit Economics</h2>
+                <p>Track wholesale costs, portion economics, selling prices, and food cost percentage across WOF signature menu.</p>
+              </div>
+              <div class="hero-actions">
+                <button id="admin-add-item-btn" class="stripe-primary-btn">+ ADD CUSTOM ITEM</button>
+                <button id="admin-export-items-csv-btn" class="stripe-secondary-btn">📥 EXPORT CSV</button>
+              </div>
+            </div>
+
+            <!-- Stripe Stat Metric Cards -->
+            <div class="stripe-stats-grid">
+              <div class="stripe-stat-card">
+                <span class="stat-title">TOTAL MENU ITEMS</span>
+                <div class="stat-value" id="kpi-total-items">12</div>
+                <span class="stat-sub">Across 4 food categories</span>
+              </div>
+              <div class="stripe-stat-card">
+                <span class="stat-title">AVG FOOD COST %</span>
+                <div class="stat-value" id="kpi-avg-food-cost" style="color: #10B981;">25.4%</div>
+                <span class="stat-pill success">Optimal &lt; 30%</span>
+              </div>
+              <div class="stripe-stat-card">
+                <span class="stat-title">AVG SELLING PRICE</span>
+                <div class="stat-value" id="kpi-avg-price">₹165</div>
+                <span class="stat-sub">Average ticket price</span>
+              </div>
+              <div class="stripe-stat-card">
+                <span class="stat-title">AVG GROSS MARGIN</span>
+                <div class="stat-value" id="kpi-avg-margin">74.6%</div>
+                <span class="stat-sub">Contribution margin</span>
+              </div>
+            </div>
+
+            <!-- Filters & Search Toolbar -->
+            <div class="stripe-toolbar">
+              <div class="category-pills-row">
+                <button class="cat-pill active" data-cat="all">All Items (<span id="cat-count-all">12</span>)</button>
+                <button class="cat-pill" data-cat="main">🍔 Mains (<span id="cat-count-main">6</span>)</button>
+                <button class="cat-pill" data-cat="side">🍟 Sides (<span id="cat-count-side">3</span>)</button>
+                <button class="cat-pill" data-cat="drink">🥤 Drinks (<span id="cat-count-drink">2</span>)</button>
+                <button class="cat-pill" data-cat="combo">🎁 Combos (<span id="cat-count-combo">1</span>)</button>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <input type="text" id="admin-items-search-input" placeholder="🔍 Search item name, ingredient..." class="stripe-search-box">
+                <select id="admin-items-health-filter" class="stripe-select">
+                  <option value="all">All Food Cost Ranges</option>
+                  <option value="healthy">🟢 Healthy (&lt; 30%)</option>
+                  <option value="moderate">🟡 Moderate (30% - 35%)</option>
+                  <option value="warning">🔴 High Cost (&gt; 35%)</option>
+                </select>
+                <select id="admin-items-sort-select" class="stripe-select">
+                  <option value="margin-desc">Highest Margin % First</option>
+                  <option value="foodcost-asc">Lowest Food Cost % First</option>
+                  <option value="price-desc">Highest Price First</option>
+                  <option value="price-asc">Lowest Price First</option>
+                  <option value="cost-desc">Highest Cost First</option>
+                  <option value="name-asc">Item Name (A-Z)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Master Items Table -->
+            <div class="stripe-table-card">
+              <table class="stripe-table">
+                <thead>
+                  <tr>
+                    <th>ITEM</th>
+                    <th>CATEGORY</th>
+                    <th>PORTION</th>
+                    <th>PRICE (₹)</th>
+                    <th>COST (₹)</th>
+                    <th>GROSS PROFIT</th>
+                    <th>FOOD COST %</th>
+                    <th>MARGIN %</th>
+                    <th>MARKUP</th>
+                    <th>HEALTH</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-items-tbody">
+                  <!-- Populated dynamically via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ==========================================
+               TAB 2: FOOD COST CALCULATOR (RECIPE & RAW MATERIALS)
+               ========================================== -->
+          <div id="admin-tab-calculator" class="admin-tab-content hidden">
+            <!-- Header Banner -->
+            <div class="section-hero-header">
+              <div>
+                <h2>Food Cost Calculator &amp; Raw Material Formulation</h2>
+                <p>Pull any recipe from the WOF Standard Manual, customize raw material quantities, Units of Measurement (UoM) and purchase prices to calculate exact production food cost.</p>
+              </div>
+              <div class="hero-actions">
+                <button id="calc-open-paste-modal-btn" class="stripe-secondary-btn">📋 PASTE / UPLOAD RECIPE</button>
+                <button id="calc-save-item-btn" class="stripe-primary-btn">💾 SAVE TO MENU TRACKER</button>
+              </div>
+            </div>
+
+            <!-- WOF Standard Recipe Puller Bar -->
+            <div class="recipe-puller-banner">
+              <div class="puller-left">
+                <span class="puller-icon">📖</span>
+                <div>
+                  <div class="puller-title">WOF RECIPE STANDARD MANUAL EXTRACTOR</div>
+                  <div class="puller-sub">Select any recipe below to pull all raw materials, portion specs, and measurement units automatically:</div>
+                </div>
+              </div>
+              <div class="puller-controls">
+                <select id="calc-recipe-select" class="stripe-select" style="min-width: 320px; font-weight:700;">
+                  <!-- Populated dynamically from data/recipes.json via JS -->
+                </select>
+                <button id="calc-pull-recipe-btn" class="stripe-primary-btn" style="white-space:nowrap;">PULL RECIPE ⚡</button>
+              </div>
+            </div>
+
+            <!-- Two-Column Calculator Layout -->
+            <div class="cost-calc-container">
+              <!-- Left Column: Raw Materials Breakdown Table -->
+              <div class="calc-panel">
+                <div class="calc-panel-header">
+                  <h4>📝 RECIPE RAW MATERIALS &amp; UOM PRICING</h4>
+                  <span id="calc-active-item-tag" class="category-tag main">HOT KITCHEN</span>
+                </div>
+
+                <!-- Recipe Basic Info -->
+                <div class="admin-form-grid">
+                  <div class="calc-field-group">
+                    <label>Recipe Item Name *</label>
+                    <input type="text" id="calc-item-name" class="calc-input" value="Classic French Fries">
+                  </div>
+                  <div class="calc-field-group">
+                    <label>Station / Category</label>
+                    <select id="calc-item-category" class="calc-select">
+                      <option value="main">🍔 Main (Burger, Pizza, Wrap)</option>
+                      <option value="side">🍟 Side (Fries, Waffle, Appetizer)</option>
+                      <option value="drink">🥤 Drink (Shake, Mojito, Soda)</option>
+                      <option value="combo">🎁 Combo Meal</option>
+                    </select>
+                  </div>
+                  <div class="calc-field-group admin-form-full">
+                    <label>Portion / Serve Specification</label>
+                    <input type="text" id="calc-item-portion" class="calc-input" value="150g portion (Standard)">
+                  </div>
+                </div>
+
+                <!-- Raw Materials Table -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                  <span style="font-size:12px; font-weight:800; color:#E2E8F0;">PULLED RAW MATERIALS LIST:</span>
+                  <button id="calc-add-raw-mat-btn" class="add-ing-row-btn">+ ADD RAW MATERIAL</button>
+                </div>
+
+                <div class="calc-table-wrap">
+                  <table class="calc-ingredients-table">
+                    <thead>
+                      <tr>
+                        <th style="width:28%;">Raw Material</th>
+                        <th style="width:12%;">Recipe Qty</th>
+                        <th style="width:12%;">Recipe UoM</th>
+                        <th style="width:14%;">Purchase Pack Size</th>
+                        <th style="width:10%;">Pack UoM</th>
+                        <th style="width:12%;">Pack Price (₹)</th>
+                        <th style="width:12%;">Food Cost (₹)</th>
+                        <th style="width:4%;"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="calc-raw-materials-tbody">
+                      <!-- Populated dynamically via JS -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Secondary Costs -->
+                <div class="secondary-cost-grid">
+                  <div class="calc-field-group">
+                    <label>📦 Packaging &amp; Disposables (₹)</label>
+                    <input type="number" id="calc-packaging-cost" class="calc-input" value="4.00" step="0.50" min="0">
+                    <small style="color:#94A3B8; font-size:10px;">Fries cone, pouch, bag, dip cup, tissues</small>
+                  </div>
+                  <div class="calc-field-group">
+                    <label>⚠️ Kitchen Wastage &amp; Shrinkage (%)</label>
+                    <input type="number" id="calc-wastage-pct" class="calc-input" value="4" step="0.5" min="0" max="25">
+                    <small style="color:#94A3B8; font-size:10px;">Standard kitchen prep shrinkage buffer (3-5%)</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Food Cost Hero Display & Smart Pricing -->
+              <div class="calc-panel">
+                <div class="calc-panel-header">
+                  <h4>💰 RECIPE ITEM FOOD COST SCREEN</h4>
+                </div>
+
+                <!-- Hero Food Cost Metric Box -->
+                <div class="calc-summary-hero">
+                  <div class="calc-hero-row">
+                    <span style="font-size:12px; font-weight:800; letter-spacing:1px; color:#FDE047;">RECIPE ITEM FOOD COST</span>
+                    <span id="calc-total-food-cost-hero" class="calc-hero-val">₹24.50</span>
+                  </div>
+                  <div class="calc-cost-breakdown-list">
+                    <div class="breakdown-row">
+                      <span>Total Raw Materials:</span>
+                      <b id="calc-raw-materials-cost">₹19.50</b>
+                    </div>
+                    <div class="breakdown-row">
+                      <span>Packaging &amp; Disposables:</span>
+                      <b id="calc-packaging-cost-display">₹4.00</b>
+                    </div>
+                    <div class="breakdown-row">
+                      <span>Wastage Allowance (4%):</span>
+                      <b id="calc-wastage-cost-display">₹0.78</b>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Selling Price & Margin Evaluation -->
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:10px;">
+                  <div class="calc-field-group">
+                    <label style="color:#FDE047; font-weight:800; font-size:12px;">Selling Price for Item (₹)</label>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <span style="font-weight:900; color:#FFF; font-size:18px;">₹</span>
+                      <input type="number" id="calc-selling-price-input" class="calc-input" value="89" step="1" min="1" style="font-size:20px; font-weight:900; color:#FDE047;">
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800;">
+                      <span>FOOD COST PERCENTAGE:</span>
+                      <span id="calc-food-cost-pct-display" style="color:#10B981;">27.5% (Optimal ✓)</span>
+                    </div>
+                    <div class="food-cost-gauge">
+                      <div id="calc-gauge-fill" class="food-cost-gauge-fill" style="width: 27.5%; background: #10B981;"></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:10px; color:#94A3B8;">
+                      <span>0% (Free)</span>
+                      <span style="color:#10B981;">&lt; 30% Optimal</span>
+                      <span style="color:#F59E0B;">30-35% Moderate</span>
+                      <span style="color:#EF4444;">&gt; 35% High</span>
+                    </div>
+                  </div>
+
+                  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; border-top:1px solid rgba(255,255,255,0.08); padding-top:10px;">
+                    <div>
+                      <div style="font-size:10px; color:#94A3B8; font-weight:700;">GROSS PROFIT</div>
+                      <div id="calc-gross-profit-display" style="font-size:16px; font-weight:900; color:#FFF;">₹64.50</div>
+                    </div>
+                    <div>
+                      <div style="font-size:10px; color:#94A3B8; font-weight:700;">GROSS MARGIN</div>
+                      <div id="calc-gross-margin-display" style="font-size:16px; font-weight:900; color:#10B981;">72.5%</div>
+                    </div>
+                    <div>
+                      <div style="font-size:10px; color:#94A3B8; font-weight:700;">MARKUP FACTOR</div>
+                      <div id="calc-markup-display" style="font-size:16px; font-weight:900; color:#38BDF8;">3.63x</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Smart Target Price Suggester -->
+                <div class="smart-pricing-card">
+                  <h5>🎯 TARGET FOOD COST % PRICE SUGGESTER</h5>
+                  <p style="font-size:11px; color:#94A3B8; margin:0;">
+                    Calculate recommended menu price to achieve your target food cost:
+                  </p>
+                  <div style="display:flex; gap:10px; align-items:center;">
+                    <div class="calc-field-group" style="flex:1;">
+                      <label>Target Food Cost %</label>
+                      <input type="number" id="calc-target-fc-input" class="calc-input" value="28" step="1" min="10" max="60">
+                    </div>
+                    <label style="display:flex; align-items:center; gap:6px; font-size:11px; color:#E2E8F0; cursor:pointer; margin-top:16px;">
+                      <input type="checkbox" id="calc-charm-pricing-cb" checked>
+                      Round to ₹9 (e.g. ₹89, ₹99)
+                    </label>
+                  </div>
+                  <div class="suggested-price-display">
+                    <div>
+                      <div style="font-size:10px; font-weight:800; color:#38BDF8; letter-spacing:1px;">SUGGESTED MENU PRICE</div>
+                      <div style="font-size:11px; color:#94A3B8;">For <span id="calc-target-fc-lbl">28</span>% Target Food Cost</div>
+                    </div>
+                    <div id="calc-suggested-price-display" class="suggested-price-num">₹89</div>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <button id="calc-save-item-btn-bottom" class="claim-submit-btn">💾 SAVE TO MENU ITEMS TRACKER</button>
+                  <div style="display:flex; gap:8px;">
+                    <button id="calc-copy-summary-btn" class="stripe-secondary-btn" style="flex:1;">📋 COPY COST SHEET</button>
+                    <button id="calc-reset-btn" class="stripe-secondary-btn">🔄 RESET</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==========================================
+               TAB 3: FOOD COST % & MARGIN ANALYZER
+               ========================================== -->
+          <div id="admin-tab-food-cost" class="admin-tab-content hidden">
+            <!-- Header Banner -->
+            <div class="section-hero-header">
+              <div>
+                <h2>Food Cost % &amp; Profit Margin Intelligence</h2>
+                <p>Interactive what-if price sensitivity simulations, monthly CoGS inventory accounting, and Boston Consulting Group menu engineering matrix.</p>
+              </div>
+            </div>
+
+            <!-- Module 1: What-If Price & Food Cost Simulator -->
+            <div class="analyzer-card">
+              <h4>🎛️ WHAT-IF PRICE &amp; FOOD COST SENSITIVITY SIMULATOR</h4>
+              <p style="font-size:12px; color:#94A3B8; margin:0;">
+                Slide selling price and food cost to inspect the complete Rupee allocation across food cost, kitchen labor, store rent, and net profit.
+              </p>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; background:rgba(255,255,255,0.03); padding:16px; border-radius:12px;">
+                <div class="calc-field-group">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label style="font-size:13px; font-weight:800; color:#FDE047;">SELLING PRICE</label>
+                    <span id="sim-price-val" style="font-family:'Montserrat',sans-serif; font-size:18px; font-weight:900; color:#FFF;">₹189</span>
+                  </div>
+                  <input type="range" id="sim-price-slider" min="30" max="600" step="5" value="189" style="width:100%; accent-color:#FDE047;">
+                  <div style="display:flex; justify-content:space-between; font-size:10px; color:#94A3B8;">
+                    <span>₹30</span>
+                    <span>₹300</span>
+                    <span>₹600</span>
+                  </div>
+                </div>
+
+                <div class="calc-field-group">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label style="font-size:13px; font-weight:800; color:#F97316;">FOOD &amp; PACKAGING COST</label>
+                    <span id="sim-cost-val" style="font-family:'Montserrat',sans-serif; font-size:18px; font-weight:900; color:#F97316;">₹54</span>
+                  </div>
+                  <input type="range" id="sim-cost-slider" min="10" max="300" step="1" value="54" style="width:100%; accent-color:#F97316;">
+                  <div style="display:flex; justify-content:space-between; font-size:10px; color:#94A3B8;">
+                    <span>₹10</span>
+                    <span>₹150</span>
+                    <span>₹300</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Rupee Breakdown Bar -->
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800; margin-bottom:4px;">
+                  <span>WHERE EVERY ₹100 EARNED GOES:</span>
+                  <span id="sim-health-badge" class="cost-badge healthy">🟢 28.6% Food Cost (Ideal Benchmark)</span>
+                </div>
+                <div class="rupee-breakdown-bar">
+                  <div id="sim-seg-food" class="breakdown-seg food" style="width: 28.6%;">Food 28.6%</div>
+                  <div id="sim-seg-labor" class="breakdown-seg labor" style="width: 28%;">Labor 28%</div>
+                  <div id="sim-seg-overhead" class="breakdown-seg overhead" style="width: 18%;">Overhead 18%</div>
+                  <div id="sim-seg-profit" class="breakdown-seg profit" style="width: 25.4%;">Net Profit 25.4%</div>
+                </div>
+                <div class="breakdown-legend">
+                  <div class="legend-item"><div class="legend-dot" style="background:#EF4444;"></div> <span>Food Cost (CoGS): <b id="sim-food-lbl">28.6% (₹54)</b></span></div>
+                  <div class="legend-item"><div class="legend-dot" style="background:#F59E0B;"></div> <span>Kitchen &amp; Service Labor: <b>28.0% (~₹52.92)</b></span></div>
+                  <div class="legend-item"><div class="legend-dot" style="background:#38BDF8;"></div> <span>Store Rent &amp; Utilities: <b>18.0% (~₹34.02)</b></span></div>
+                  <div class="legend-item"><div class="legend-dot" style="background:#10B981;"></div> <span>Store Net Operating Profit: <b id="sim-net-profit-lbl">25.4% (~₹48.06)</b></span></div>
+                </div>
+              </div>
+
+              <!-- Dynamic Advice Box & Inflation Simulator -->
+              <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:12px; margin-top:4px;">
+                <div id="sim-advice-box" style="background:rgba(0,0,0,0.4); border-left:4px solid #10B981; padding:12px 14px; border-radius:0 8px 8px 0; font-size:12px; line-height:1.5; color:#E2E8F0;">
+                  <!-- Populated dynamically via JS -->
+                </div>
+                <div style="background:rgba(0,0,0,0.4); border-left:4px solid #FDE047; padding:12px 14px; border-radius:0 8px 8px 0; font-size:12px; line-height:1.4; color:#94A3B8;">
+                  <b style="color:#FDE047;">🌾 Wholesale Material Inflation Impact:</b>
+                  <div id="sim-inflation-details" style="margin-top:4px;">
+                    If supplier ingredient prices surge by +10%, food cost climbs to <b>31.4%</b> (+₹5.40). Selling price would need to be <b>₹208</b> to preserve target margin.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Module 2: Monthly / Period Inventory CoGS Calculator -->
+            <div class="analyzer-card">
+              <h4>📦 RESTAURANT INVENTORY FOOD COST CALCULATOR (PERIOD CoGS METHOD)</h4>
+              <p style="font-size:12px; color:#94A3B8; margin:0;">
+                Standard restaurant accounting formula: <code style="color:#FDE047; font-family:monospace;">Food Cost % = (Beginning Inv + Purchases - Ending Inv) / Food Sales × 100</code>
+              </p>
+
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;">
+                <div class="calc-field-group">
+                  <label>1. Beginning Inventory (₹)</label>
+                  <input type="number" id="period-inv-begin" class="calc-input" value="45000" step="1000">
+                </div>
+                <div class="calc-field-group">
+                  <label>2. Food &amp; Beverage Purchases (₹)</label>
+                  <input type="number" id="period-purchases" class="calc-input" value="120000" step="1000">
+                </div>
+                <div class="calc-field-group">
+                  <label>3. Ending Inventory (₹)</label>
+                  <input type="number" id="period-inv-end" class="calc-input" value="38000" step="1000">
+                </div>
+                <div class="calc-field-group">
+                  <label>4. Total Food Sales (₹)</label>
+                  <input type="number" id="period-sales" class="calc-input" value="450000" step="5000">
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; background:rgba(0,0,0,0.5); padding:14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1);">
+                <div>
+                  <div style="font-size:11px; color:#94A3B8; font-weight:700;">COST OF FOOD CONSUMED (CoGS)</div>
+                  <div id="period-cogs-val" style="font-family:'Montserrat',sans-serif; font-size:22px; font-weight:900; color:#FDE047;">₹127,000</div>
+                </div>
+                <div>
+                  <div style="font-size:11px; color:#94A3B8; font-weight:700;">ACTUAL PERIOD FOOD COST %</div>
+                  <div id="period-fc-val" style="font-family:'Montserrat',sans-serif; font-size:22px; font-weight:900; color:#10B981;">28.2%</div>
+                </div>
+                <div>
+                  <div style="font-size:11px; color:#94A3B8; font-weight:700;">INVENTORY STATUS ASSESSMENT</div>
+                  <div id="period-status-val" class="cost-badge healthy" style="margin-top:4px; font-size:12px;">🟢 Optimal (Under 30% Target)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Module 3: Menu Engineering Matrix -->
+            <div class="analyzer-card">
+              <h4>⭐ WOF MENU ENGINEERING MATRIX (PROFITABILITY VS. POPULARITY)</h4>
+              <p style="font-size:12px; color:#94A3B8; margin:0;">
+                Classifies current menu items into 4 strategic restaurant quadrants based on Contribution Margin (Profit) and Sales Volume.
+              </p>
+
+              <div class="menu-engineering-grid">
+                <div class="matrix-quadrant stars">
+                  <div class="quadrant-header">
+                    <span class="quadrant-title">⭐ STARS (High Profit, High Volume)</span>
+                    <span class="cost-badge healthy">PRIORITY</span>
+                  </div>
+                  <div class="quadrant-advice">Top performers! Protect recipe consistency, maintain quality, and feature prominently.</div>
+                  <div id="matrix-stars-list" class="quadrant-items-container"></div>
+                </div>
+
+                <div class="matrix-quadrant plowhorses">
+                  <div class="quadrant-header">
+                    <span class="quadrant-title">🐎 PLOWHORSES (Low Profit, High Volume)</span>
+                    <span class="cost-badge moderate">OPTIMIZE</span>
+                  </div>
+                  <div class="quadrant-advice">High volume staples with thin margins. Modestly increase price or optimize recipe portions.</div>
+                  <div id="matrix-plowhorses-list" class="quadrant-items-container"></div>
+                </div>
+
+                <div class="matrix-quadrant puzzles">
+                  <div class="quadrant-header">
+                    <span class="quadrant-title">🧩 PUZZLES (High Profit, Low Volume)</span>
+                    <span class="cost-badge healthy" style="color:#38BDF8; border-color:#38BDF8;">PROMOTE</span>
+                  </div>
+                  <div class="quadrant-advice">High profit margin but under-ordered. Feature in delivery runs, social promos, and combo meals.</div>
+                  <div id="matrix-puzzles-list" class="quadrant-items-container"></div>
+                </div>
+
+                <div class="matrix-quadrant dogs">
+                  <div class="quadrant-header">
+                    <span class="quadrant-title">🐶 DOGS (Low Profit, Low Volume)</span>
+                    <span class="cost-badge warning">RE-ENGINEER</span>
+                  </div>
+                  <div class="quadrant-advice">Low profit and low popularity. Re-engineer ingredients or replace with a new seasonal item.</div>
+                  <div id="matrix-dogs-list" class="quadrant-items-container"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==========================================
+               TAB 4: MILESTONE OFFERS MANAGER (CRUD)
+               ========================================== -->
+          <div id="admin-tab-offers" class="admin-tab-content hidden">
+            <!-- Header Banner -->
+            <div class="section-hero-header">
+              <div>
+                <h2>Milestone Rewards &amp; Voucher Offers (CRUD)</h2>
+                <p>Configure dynamic rewards awarded when runners cross distance milestones (e.g. 1,000m, 2,000m), achieve combo score milestones (e.g. 35,000 pts), or complete emergency deliveries.</p>
+              </div>
+              <div class="hero-actions">
+                <button id="admin-add-offer-btn" class="stripe-primary-btn">+ CREATE MILESTONE OFFER</button>
+                <button id="admin-reset-offers-btn" class="stripe-secondary-btn" title="Reset to standard WOF rewards">🔄 RESET DEFAULTS</button>
+              </div>
+            </div>
+
+            <!-- Offers KPI Cards -->
+            <div class="stripe-stats-grid">
+              <div class="stripe-stat-card">
+                <span class="stat-title">ACTIVE MILESTONE OFFERS</span>
+                <div class="stat-value" id="kpi-total-offers" style="color:var(--wof-yellow);">6</div>
+                <span class="stat-sub">Live in game rewards engine</span>
+              </div>
+              <div class="stripe-stat-card">
+                <span class="stat-title">DISTANCE OFFERS</span>
+                <div class="stat-value" id="kpi-dist-offers">3</div>
+                <span class="stat-sub">1,000m, 2,000m, 3,000m milestones</span>
+              </div>
+              <div class="stripe-stat-card">
+                <span class="stat-title">SCORE OFFERS</span>
+                <div class="stat-value" id="kpi-score-offers">1</div>
+                <span class="stat-sub">High-score arcade combos</span>
+              </div>
+              <div class="stripe-stat-card">
+                <span class="stat-title">MISSION OFFERS</span>
+                <div class="stat-value" id="kpi-mission-offers">2</div>
+                <span class="stat-sub">Deliveries &amp; WOF Meal streaks</span>
+              </div>
+            </div>
+
+            <!-- Toolbar & Filter -->
+            <div class="stripe-toolbar">
+              <div class="category-pills-row">
+                <button class="cat-pill active offer-filter-btn" data-filter="all">All Offers (<span id="offers-count-all">6</span>)</button>
+                <button class="cat-pill offer-filter-btn" data-filter="distance">🎯 Distance Milestones (<span id="offers-count-dist">3</span>)</button>
+                <button class="cat-pill offer-filter-btn" data-filter="score">⭐ Score Milestones (<span id="offers-count-score">1</span>)</button>
+                <button class="cat-pill offer-filter-btn" data-filter="missions">📦 Missions &amp; Meals (<span id="offers-count-missions">2</span>)</button>
+              </div>
+              <input type="text" id="admin-offers-search-input" placeholder="🔍 Search offer title, reward, code..." class="stripe-search-box" style="max-width:280px;">
+            </div>
+
+            <!-- Offers CRUD Table -->
+            <div class="stripe-table-card">
+              <table class="stripe-table">
+                <thead>
+                  <tr>
+                    <th>MILESTONE CONDITION</th>
+                    <th>OFFER TITLE</th>
+                    <th>REWARD / DISCOUNT</th>
+                    <th>VOUCHER PREFIX</th>
+                    <th>MIN ORDER</th>
+                    <th>STATUS</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-offers-tbody">
+                  <!-- Populated dynamically via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ==========================================
+               TAB 5: PLAYER LEADS & CRM
+               ========================================== -->
+          <div id="admin-tab-leads" class="admin-tab-content hidden">
+            <!-- Header Banner -->
+            <div class="section-hero-header">
+              <div>
+                <h2>Customer Leads &amp; Voucher Redemptions</h2>
+                <p>Real-time customer mobile phone numbers, distances achieved, and voucher claims from the Selvapuram outlet arcade runner.</p>
+              </div>
+              <div class="hero-actions">
+                <button id="admin-copy-phones-btn" class="stripe-secondary-btn">📋 COPY PHONES FOR WHATSAPP</button>
+                <button id="admin-export-csv-btn" class="stripe-primary-btn">📥 EXPORT LEADS CSV</button>
+                <button id="admin-refresh-btn" class="stripe-secondary-btn">🔄 REFRESH</button>
+              </div>
+            </div>
+
+            <!-- KPI Metrics Grid -->
+            <div class="stripe-stats-grid">
+              <div class="stripe-stat-card">
+                <span class="stat-title">TOTAL CUSTOMER LEADS</span>
+                <div class="stat-value" id="kpi-total-players">0</div>
+                <span class="stat-sub">Registered mobile numbers</span>
+              </div>
+              <div class="stripe-stat-card">
+                <span class="stat-title">TOTAL DISTANCE RUN</span>
+                <div class="stat-value" id="kpi-total-distance">0 km</div>
+                <span class="stat-sub">Across Selvapuram streets</span>
+              </div>
+              <div class="stripe-stat-card">
+                <span class="stat-title">VOUCHERS AWARDED</span>
+                <div class="stat-value" id="kpi-coupons-issued">0</div>
+                <span class="stat-sub">Crossed milestone goals</span>
+              </div>
+              <div class="stripe-stat-card">
+                <span class="stat-title">REDEEMED AT OUTLET</span>
+                <div class="stat-value" id="kpi-coupons-redeemed">0</div>
+                <span class="stat-sub">Claimed food orders</span>
+              </div>
+            </div>
+
+            <!-- Action / Filter Toolbar -->
+            <div class="stripe-toolbar">
+              <input type="text" id="admin-search-input" placeholder="🔍 Search Name, Phone, or Coupon..." class="stripe-search-box" style="max-width:340px;">
+              <div style="font-size:12px; color:#94A3B8;">
+                Click any customer phone number to launch direct WhatsApp chat!
+              </div>
+            </div>
+
+            <!-- Scrollable Leads Table -->
+            <div class="stripe-table-card">
+              <table class="stripe-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>DATE / TIME</th>
+                    <th>PLAYER NAME</th>
+                    <th>PHONE NUMBER</th>
+                    <th>DISTANCE</th>
+                    <th>SCORE</th>
+                    <th>COUPON AWARDED</th>
+                    <th>STATUS</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-leads-tbody">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT CUSTOM MENU ITEM SUBMODAL -->
+  <div id="admin-item-submodal" class="admin-submodal hidden">
+    <div class="admin-submodal-content">
+      <div class="modal-header">
+        <h4 id="item-modal-title" style="color:var(--wof-yellow); margin:0;">+ ADD CUSTOM MENU ITEM</h4>
+        <button id="close-item-submodal-btn" class="close-btn">✕</button>
+      </div>
+      <form id="admin-item-form" onsubmit="return false;" class="admin-form-grid">
+        <input type="hidden" id="edit-item-id">
+        <div class="calc-field-group admin-form-full">
+          <label>Item Name *</label>
+          <input type="text" id="edit-item-name" class="calc-input" placeholder="e.g. Cheesy Paneer Supreme Burger" required>
+        </div>
+        <div class="calc-field-group">
+          <label>Category *</label>
+          <select id="edit-item-category" class="calc-select">
+            <option value="main">🍔 Main</option>
+            <option value="side">🍟 Side</option>
+            <option value="drink">🥤 Drink</option>
+            <option value="combo">🎁 Combo</option>
+          </select>
+        </div>
+        <div class="calc-field-group">
+          <label>Icon Emoji</label>
+          <input type="text" id="edit-item-icon" class="calc-input" placeholder="🍔" maxlength="2">
+        </div>
+        <div class="calc-field-group">
+          <label>Selling Price (₹) *</label>
+          <input type="number" id="edit-item-price" class="calc-input" placeholder="149" step="1" min="1" required>
+        </div>
+        <div class="calc-field-group">
+          <label>Food &amp; Pkg Cost (₹) *</label>
+          <input type="number" id="edit-item-cost" class="calc-input" placeholder="44.50" step="0.5" min="0" required>
+        </div>
+        <div class="calc-field-group admin-form-full">
+          <label>Portion Description</label>
+          <input type="text" id="edit-item-portion" class="calc-input" placeholder="e.g. 1 portion / 200g">
+        </div>
+        <div class="calc-field-group">
+          <label>Monthly Units Sold (Popularity)</label>
+          <input type="number" id="edit-item-popularity" class="calc-input" placeholder="800" min="0">
+        </div>
+        <div class="calc-field-group">
+          <label>Target Food Cost %</label>
+          <input type="number" id="edit-item-target-fc" class="calc-input" placeholder="30" min="10" max="60">
+        </div>
+
+        <div class="admin-form-full" style="background:rgba(255,255,255,0.05); padding:10px; border-radius:8px; display:flex; justify-content:space-between; font-size:12px;">
+          <span>Calculated Food Cost: <b id="edit-item-fc-preview" style="color:#10B981;">--%</b></span>
+          <span>Gross Margin: <b id="edit-item-margin-preview" style="color:var(--wof-yellow);">--%</b></span>
+        </div>
+
+        <div class="admin-form-full" style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+          <button type="button" id="cancel-item-submodal-btn" class="stripe-secondary-btn">CANCEL</button>
+          <button type="submit" id="save-item-submodal-btn" class="stripe-primary-btn">SAVE ITEM ✓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT MILESTONE OFFER SUBMODAL -->
+  <div id="admin-offer-submodal" class="admin-submodal hidden">
+    <div class="admin-submodal-content">
+      <div class="modal-header">
+        <h4 id="offer-modal-title" style="color:#FDE047; margin:0;">+ CREATE MILESTONE REWARD OFFER</h4>
+        <button id="close-offer-submodal-btn" class="close-btn">✕</button>
+      </div>
+      <form id="admin-offer-form" onsubmit="return false;" class="admin-form-grid">
+        <input type="hidden" id="edit-offer-id">
+        <div class="calc-field-group admin-form-full">
+          <label>Offer / Voucher Title *</label>
+          <input type="text" id="edit-offer-title" class="calc-input" placeholder="e.g. WOF MIDNIGHT FEAST VOUCHER" required>
+        </div>
+
+        <div class="calc-field-group">
+          <label>Milestone Condition Type *</label>
+          <select id="edit-offer-type" class="calc-select">
+            <option value="distance">🎯 Distance Run (meters)</option>
+            <option value="score">⭐ Arcade Score (points)</option>
+            <option value="deliveries">📦 Emergency Deliveries Done</option>
+            <option value="meals">🍔 WOF Meal Combos Completed</option>
+          </select>
+        </div>
+
+        <div class="calc-field-group">
+          <label id="edit-offer-threshold-lbl">Threshold Value * (e.g. 1000m)</label>
+          <input type="number" id="edit-offer-threshold" class="calc-input" placeholder="1000" min="1" required>
+        </div>
+
+        <div class="calc-field-group admin-form-full">
+          <label>Reward / Discount Description *</label>
+          <input type="text" id="edit-offer-reward" class="calc-input" placeholder="e.g. FREE FRIES with any burger meal" required>
+        </div>
+
+        <div class="calc-field-group">
+          <label>Coupon Code Prefix *</label>
+          <input type="text" id="edit-offer-prefix" class="calc-input" placeholder="e.g. WOF-FREEFRIES" style="text-transform:uppercase;" required>
+          <small style="color:#94A3B8; font-size:10px;">A 4-digit unique code will be appended (e.g. WOF-FREEFRIES-8412)</small>
+        </div>
+
+        <div class="calc-field-group">
+          <label>Min Order Value (₹)</label>
+          <input type="number" id="edit-offer-min-order" class="calc-input" placeholder="0" min="0">
+        </div>
+
+        <div class="calc-field-group admin-form-full">
+          <label>Offer Terms / Description</label>
+          <input type="text" id="edit-offer-desc" class="calc-input" placeholder="e.g. Awarded when runner crosses 1,000m milestone in Selvapuram">
+        </div>
+
+        <div class="admin-form-full" style="display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" id="edit-offer-active" checked style="width:18px; height:18px; accent-color:#10B981;">
+          <label for="edit-offer-active" style="cursor:pointer; font-weight:700; color:#E2E8F0; font-size:13px;">Enable this milestone offer in game rewards engine</label>
+        </div>
+
+        <div class="admin-form-full" style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+          <button type="button" id="cancel-offer-submodal-btn" class="stripe-secondary-btn">CANCEL</button>
+          <button type="submit" id="save-offer-submodal-btn" class="stripe-primary-btn">SAVE OFFER ✓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- PASTE / UPLOAD CUSTOM RECIPE SPEC TEXT MODAL -->
+  <div id="admin-recipe-paste-modal" class="admin-submodal hidden">
+    <div class="admin-submodal-content" style="max-width:580px;">
+      <div class="modal-header">
+        <h4 style="color:#FDE047; margin:0;">📋 PASTE RECIPE SPECIFICATION</h4>
+        <button id="close-recipe-paste-btn" class="close-btn">✕</button>
+      </div>
+      <div style="font-size:12px; color:#94A3B8; line-height:1.4;">
+        Paste any ingredient specification or formulation text (e.g. from the WOF Hot/Cold manual). The parser will automatically extract the raw materials, quantities, and units!
+      </div>
+      <textarea id="recipe-paste-textarea" class="calc-input" style="height:150px; font-family:monospace; font-size:12px; resize:vertical;" placeholder="Example:
+Fries (120g) + Salt (1g) + White Sauce (80g) + Melted Cheese (40g) + Ketchup (30g) + Lettuce (5g)"></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button type="button" id="cancel-recipe-paste-btn" class="stripe-secondary-btn">CANCEL</button>
+        <button type="button" id="apply-recipe-paste-btn" class="stripe-primary-btn">EXTRACT RAW MATERIALS ⚡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="three.min.js"></script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+    }
+  </script>
+  <script src="js/audio.js"></script>
+  <script src="js/models.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>
