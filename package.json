@@ -10,7 +10,7 @@
     "dev": "wrangler pages dev .",
     "dev:worker": "wrangler dev",
     "deploy:pages": "wrangler pages deploy .",
-    "deploy:worker": "wrangler deploy",
+    "deploy:worker": "wrangler deploy -c wrangler.worker.toml",
     "test": "node --check server.js && node --check _worker.js"
   },
   "keywords": [
