@@ -5,6 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "build": "echo 'No build step required for static assets'",
+    "deploy": "wrangler pages deploy .",
     "dev": "wrangler pages dev .",
     "dev:worker": "wrangler dev",
     "deploy:pages": "wrangler pages deploy .",
@@ -22,6 +24,6 @@
   "author": "abhijithsairaj",
   "license": "MIT",
   "devDependencies": {
-    "wrangler": "^3.109.2"
+    "wrangler": "^4.0.0"
   }
 }
