@@ -43,7 +43,8 @@ const rootFiles = [
   'three.min.js',
   '_worker.js',
   '_headers',
-  '_routes.json'
+  '_routes.json',
+  'package.json'
 ];
 
 for (const file of rootFiles) {
@@ -52,6 +53,12 @@ for (const file of rootFiles) {
     copyFile(fullPath, path.join(distDir, file));
   }
 }
+
+// Also create dist/build.js in case working directory / Root directory is set to dist
+fs.writeFileSync(
+  path.join(distDir, 'build.js'),
+  "console.log('✅ Dist assets already present and ready for deployment.');\n"
+);
 
 // Directories to copy to dist
 const dirs = ['css', 'js', 'data'];
