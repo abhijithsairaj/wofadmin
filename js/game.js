@@ -17,16 +17,16 @@ class WOFGame {
     this.playerY = 0;
     this.velocityY = 0;
     this.gravity = -38;
-    this.jumpForce = 13.5;
+    this.jumpForce = 14.5;
     this.isJumping = false;
     this.isSliding = false;
     this.slideTimer = 0;
     this.slideDuration = 0.65;
 
-    // Movement & Speed
-    this.baseSpeed = 22;
+    // Movement & Speed (Increased baseline & dynamic arcade acceleration)
+    this.baseSpeed = 26;
     this.speed = this.baseSpeed;
-    this.maxSpeed = 48;
+    this.maxSpeed = 54;
     this.distance = 0;
     this.coins = 0;
     this.score = 0;
@@ -34,18 +34,10 @@ class WOFGame {
     this.comboCounter = 0;
     this.sameFoodStreak = { type: null, count: 0 };
 
-    // Active Meal Tracker [Main, Side, Drink]
-    this.activeMeal = { main: null, side: null, drink: null };
+    // Guaranteed Rare Food Milestones (Every 200–300m interval)
+    this.nextFoodSpawnDist = 220;
     this.mealsCompleted = 0;
-    this.nextFoodDistance = 250; // Rare food items appear every 200-300m
-
-    // Delivery Run System
-    this.deliveryActive = false;
-    this.deliveryOrder = null;
-    this.deliveryTimer = 0;
-    this.deliveryDuration = 28;
     this.deliveriesCompleted = 0;
-    this.nextDeliveryDistance = 350;
 
     // Power-ups (Coin Magnet, Invincible Star, Delivery Scooter + aliases)
     this.activePowerups = {
@@ -477,13 +469,17 @@ class WOFGame {
     const laneIndices = [0, 1, 2];
     const dist = this.distance;
 
-    // Dynamic difficulty tiers
-    const isEasy   = dist < 500;
-    const isMedium = dist >= 500 && dist < 1500;
-    const isHard   = dist >= 1500 && dist < 2500;
-    const isRush   = dist >= 2500;
+    // Dynamic difficulty tiers:
+    // Tier 1 (0 - 250m): 2 segments/chunk, single lane threats, introductory pace
+    // Tier 2 (250 - 700m): 3 segments/chunk, 55% 2-lane blocks
+    // Tier 3 (700 - 1500m): 3 segments/chunk, 75% 2-lane blocks, lane-shifting autos
+    // Tier 4 (1500m+ RUSH): 3 segments/chunk, 85% 2-lane blocks, maximum dodge intensity
+    const isTier1 = dist < 250;
+    const isTier2 = dist >= 250 && dist < 700;
+    const isTier3 = dist >= 700 && dist < 1500;
+    const isRush  = dist >= 1500;
 
-    const segmentOffsets = isRush ? [8, 20, 32] : (isHard ? [10, 28] : [14, 30]);
+    const segmentOffsets = isTier1 ? [14, 28] : [9, 21, 33];
 
     segmentOffsets.forEach(offset => {
       const spawnZ = chunkZ - offset;
@@ -491,15 +487,17 @@ class WOFGame {
       // Determine obstacle layout based on difficulty
       let blockedLanes = [];
 
-      if (isEasy) {
+      if (isTier1) {
         blockedLanes = [Math.floor(Math.random() * 3)];
-      } else if (isMedium) {
-        const numBlocks = Math.random() < 0.40 ? 2 : 1;
+      } else if (isTier2) {
+        const numBlocks = Math.random() < 0.55 ? 2 : 1;
         blockedLanes = [...laneIndices].sort(() => Math.random() - 0.5).slice(0, numBlocks);
-      } else if (isHard) {
-        blockedLanes = [...laneIndices].sort(() => Math.random() - 0.5).slice(0, 2);
+      } else if (isTier3) {
+        const numBlocks = Math.random() < 0.75 ? 2 : 1;
+        blockedLanes = [...laneIndices].sort(() => Math.random() - 0.5).slice(0, numBlocks);
       } else {
-        blockedLanes = [...laneIndices].sort(() => Math.random() - 0.5).slice(0, 2);
+        const numBlocks = Math.random() < 0.85 ? 2 : 1;
+        blockedLanes = [...laneIndices].sort(() => Math.random() - 0.5).slice(0, numBlocks);
       }
 
       blockedLanes.forEach(laneIdx => {
@@ -507,16 +505,28 @@ class WOFGame {
         const r = Math.random();
         let obs;
 
-        if (r < 0.36) {
+        if (r < 0.38) {
           // Coimbatore Auto-Rickshaw
           obs = window.modelFactory.createRickshaw();
           obs.position.set(laneX, 0, spawnZ);
-        } else if (r < 0.60) {
-          // Jumpable Road Barrier (Construction barrier with flashing light)
+
+          // Moving auto-rickshaws shifting lanes (adds dynamic dodging challenge)
+          if (dist > 400 && Math.random() < (isRush ? 0.45 : 0.28)) {
+            obs.userData.isMoving = true;
+            obs.userData.moveOriginX = laneX;
+            obs.userData.moveDir = laneIdx === 0 ? 1 : (laneIdx === 2 ? -1 : (Math.random() < 0.5 ? 1 : -1));
+            obs.userData.moveSpeed = 1.6 + Math.min(dist / 600, 2.4);
+            obs.userData.moveRange = 1.8;
+          }
+        } else if (r < 0.62) {
+          // Jumpable Road Barrier
           obs = window.modelFactory.createRoadBarrier();
           obs.position.set(laneX, 0, spawnZ);
+
+          // Parabolic arch of coins over the barrier
+          this.spawnCoinArch(laneX, spawnZ);
         } else if (r < 0.78) {
-          // Roadside Tea / Food Vendor Cart
+          // Roadside Tea Vendor Cart
           obs = window.modelFactory.createVendorCart();
           obs.position.set(laneX, 0, spawnZ);
         } else if (r < 0.90) {
@@ -537,19 +547,19 @@ class WOFGame {
         this.obstacles.push(obs);
       });
 
-      // Spawn Golden Coins in open lanes
+      // Spawn Golden Coins in all open lanes (continuous coin running)
       const freeLanes = laneIndices.filter(l => !blockedLanes.includes(l));
-      if (freeLanes.length > 0) {
-        const coinLane = freeLanes[Math.floor(Math.random() * freeLanes.length)];
-        this.spawnCoinRow(this.lanes[coinLane], spawnZ - 3, 5);
-      }
+      freeLanes.forEach(coinLane => {
+        this.spawnCoinRow(this.lanes[coinLane], spawnZ - 2, 5);
+      });
     });
 
-    // Check if it's time for a rare Food Collectible (every 200–300m interval)
-    if (this.distance >= this.nextFoodDistance) {
+    // Guaranteed Rare Food Collectible every 200–300m
+    const lookaheadDist = Math.abs(chunkZ);
+    if (lookaheadDist >= this.nextFoodSpawnDist) {
       const openLane = this.lanes[Math.floor(Math.random() * 3)];
       this.spawnRareFood(openLane, chunkZ - 20);
-      this.nextFoodDistance = this.distance + 220 + Math.random() * 80;
+      this.nextFoodSpawnDist = lookaheadDist + 220 + Math.random() * 80;
     }
 
     // Power-Up Spawn (16% chance per chunk: Coin Magnet, Invincible Star, Delivery Scooter)
@@ -558,6 +568,23 @@ class WOFGame {
       const pZ = chunkZ - 24;
       this.spawnPowerup(pLane, pZ);
     }
+  }
+
+  // Spawn parabolic arch of golden coins over jumpable barrier
+  spawnCoinArch(laneX, centerZ) {
+    const archPoints = [
+      { y: 1.1, dz: 2.2 },
+      { y: 1.9, dz: 1.1 },
+      { y: 2.5, dz: 0.0 }, // Peak over barrier
+      { y: 1.9, dz: -1.1 },
+      { y: 1.1, dz: -2.2 }
+    ];
+    archPoints.forEach(pt => {
+      const coin = window.modelFactory.createCoinItem();
+      coin.position.set(laneX, pt.y, centerZ + pt.dz);
+      this.scene.add(coin);
+      this.collectibles.push(coin);
+    });
   }
 
   // Spawn row of golden coins (Subway Surfers signature collectibles)
@@ -576,15 +603,23 @@ class WOFGame {
     const foodType = types[Math.floor(Math.random() * types.length)];
     let item;
     switch (foodType) {
-      case 'burger': item = window.modelFactory.createBurgerItem(1.25); break;
-      case 'fries': item = window.modelFactory.createFriesItem(1.25); break;
-      case 'drink': item = window.modelFactory.createDrinkItem(1.25); break;
-      case 'pizza': item = window.modelFactory.createPizzaItem(1.25); break;
-      case 'waffle': item = window.modelFactory.createWaffleItem(1.25); break;
-      case 'falooda': item = window.modelFactory.createFaloodaItem(1.25); break;
-      default: item = window.modelFactory.createBurgerItem(1.25); break;
+      case 'burger': item = window.modelFactory.createBurgerItem(1.35); break;
+      case 'fries': item = window.modelFactory.createFriesItem(1.35); break;
+      case 'drink': item = window.modelFactory.createDrinkItem(1.35); break;
+      case 'pizza': item = window.modelFactory.createPizzaItem(1.35); break;
+      case 'waffle': item = window.modelFactory.createWaffleItem(1.35); break;
+      case 'falooda': item = window.modelFactory.createFaloodaItem(1.35); break;
+      default: item = window.modelFactory.createBurgerItem(1.35); break;
     }
-    item.position.set(laneX, 1.3, z);
+
+    // Golden halo glow for rare food feast
+    const haloGeo = new THREE.TorusGeometry(0.75, 0.04, 8, 20);
+    const haloMat = new THREE.MeshBasicMaterial({ color: 0xFFD700 });
+    const halo = new THREE.Mesh(haloGeo, haloMat);
+    halo.rotation.x = Math.PI / 2;
+    item.add(halo);
+
+    item.position.set(laneX, 1.4, z);
     item.userData.points = 500; // Special high-value feast reward!
     this.scene.add(item);
     this.collectibles.push(item);
@@ -782,15 +817,9 @@ class WOFGame {
     this.scoreMultiplier = 1;
     this.comboCounter = 0;
     this.sameFoodStreak = { type: null, count: 0 };
-    this.activeMeal = { main: null, side: null, drink: null };
     this.mealsCompleted = 0;
-    this.nextFoodDistance = 250;
-
-    this.deliveryActive = false;
-    this.deliveryOrder = null;
-    this.deliveryTimer = 0;
+    this.nextFoodSpawnDist = 220;
     this.deliveriesCompleted = 0;
-    this.nextDeliveryDistance = 350;
 
     this.easterEggsFound = 0;
     this.lastNearMissTime = 0;
@@ -899,7 +928,6 @@ class WOFGame {
     this.updatePlayerPhysics(dt);
     this.updateWorldMovement(dt);
     this.updatePowerups(dt);
-    this.updateDeliveryRun(dt);
     this.updateCollectibles(dt);
     this.updateObstaclesAndCollisions(dt);
     this.updateParticles(dt);
@@ -916,8 +944,8 @@ class WOFGame {
 
   // Dynamic speed & difficulty scaling
   updateSpeedAndDifficulty(dt) {
-    // Speed increases gradually with distance
-    const targetSpeed = Math.min(this.baseSpeed + (this.distance / 120), this.maxSpeed);
+    // Speed increases more aggressively with distance for a serious arcade challenge
+    const targetSpeed = Math.min(this.baseSpeed + (this.distance / 48), this.maxSpeed);
     const hasScooter = (this.activePowerups.delivery_scooter && this.activePowerups.delivery_scooter.active) ||
                        (this.activePowerups.turbo && this.activePowerups.turbo.active);
     const speedBoost = hasScooter ? 1.45 : 1.0;
@@ -936,8 +964,8 @@ class WOFGame {
 
   // Smooth player interpolation, jumping & sliding
   updatePlayerPhysics(dt) {
-    // Lateral lane transition (snappy spring lerp — faster than before for arcade feel)
-    const lerpFactor = Math.min(dt * 18, 1.0);
+    // Lateral lane transition (snappy spring lerp — tuned for high-speed evasion)
+    const lerpFactor = Math.min(dt * 22, 1.0);
     this.playerX += (this.targetX - this.playerX) * lerpFactor;
 
     // Jump Physics
@@ -1383,128 +1411,20 @@ class WOFGame {
       return;
     }
 
-    // 3. Rare Food Collectible (+500 PTS Special Feast Reward)
+    // 3. Rare Food Collectible (+500 PTS Special Feast Milestone Reward)
     const fType = uData.foodType;
-    const cat = uData.category;
     const pts = (uData.points || 500) * this.scoreMultiplier;
     this.score += pts;
     this.mealsCompleted++;
-    this.spawnCollectParticles(col.position.x, col.position.y, col.position.z, 0xFF9100, 14);
+    this.comboCounter++;
+    this.scoreMultiplier = Math.min(this.scoreMultiplier + 1, 8);
+
+    this.spawnCollectParticles(col.position.x, col.position.y, col.position.z, 0xFF9100, 18);
     this.triggerScreenFlash('#FF9100', 0.25, 0.3);
     window.audioManager.playMealComplete();
 
     if (window.uiManager) {
-      window.uiManager.showFloatingToast(`🍔 FRESH ${fType ? fType.toUpperCase() : 'FEAST'}! +${pts} PTS!`, '#FF9800', 2200);
-    }
-
-    // Update Signature WOF Meal Slots (Main + Side + Drink)
-    if (cat === 'main') this.activeMeal.main = fType;
-    else if (cat === 'side') this.activeMeal.side = fType;
-    else if (cat === 'drink') this.activeMeal.drink = fType;
-
-    if (window.uiManager) {
-      window.uiManager.updateMealSlots(this.activeMeal);
-    }
-
-    // Check if WOF Meal is complete!
-    if (this.activeMeal.main && this.activeMeal.side && this.activeMeal.drink) {
-      this.completeMeal();
-    }
-
-    // Check active delivery order item
-    if (this.deliveryActive && this.deliveryOrder) {
-      if (this.deliveryOrder[fType] && this.deliveryOrder[fType] > 0) {
-        this.deliveryOrder[fType]--;
-        if (window.uiManager) {
-          window.uiManager.updateDeliveryProgress(this.deliveryOrder);
-        }
-        // Check if delivery complete!
-        if (this.deliveryOrder.burger <= 0 && this.deliveryOrder.fries <= 0 && this.deliveryOrder.drink <= 0) {
-          this.completeDelivery();
-        }
-      }
-    }
-  }
-
-  completeMeal() {
-    this.mealsCompleted++;
-    const bonus = 500 * this.scoreMultiplier;
-    this.score += bonus;
-    this.comboCounter++;
-    this.scoreMultiplier = Math.min(this.scoreMultiplier + 1, 12);
-
-    this.spawnCollectParticles(this.playerX, this.playerY + 1.2, 0, 0xFFD700, 18);
-    this.triggerScreenFlash('#FFD700', 0.32, 0.4);
-    this.cameraShake.intensity = Math.max(this.cameraShake.intensity, 0.16);
-
-    window.audioManager.playMealComplete();
-
-    // Reset meal slots for next combo
-    this.activeMeal = { main: null, side: null, drink: null };
-
-    if (window.uiManager) {
-      window.uiManager.showMealCompleteBanner(bonus);
-      window.uiManager.updateMealSlots(this.activeMeal);
-    }
-  }
-
-  // --- DELIVERY RUN EVENTS ---
-  updateDeliveryRun(dt) {
-    // Check if it's time to trigger a new delivery run
-    if (!this.deliveryActive && this.distance >= this.nextDeliveryDistance) {
-      this.triggerDeliveryRun();
-    }
-
-    if (this.deliveryActive) {
-      this.deliveryTimer -= dt;
-      if (window.uiManager) {
-        window.uiManager.updateDeliveryTimer(Math.max(0, Math.ceil(this.deliveryTimer)));
-      }
-
-      if (this.deliveryTimer <= 0) {
-        // Order Cold!
-        this.deliveryActive = false;
-        this.nextDeliveryDistance = this.distance + 400 + Math.random() * 200;
-        if (window.uiManager) {
-          window.uiManager.showFloatingToast('ORDER COLD! (Keep running!)', '#E53935');
-          window.uiManager.hideDeliveryCard();
-        }
-      }
-    }
-  }
-
-  triggerDeliveryRun() {
-    this.deliveryActive = true;
-    this.deliveryTimer = this.deliveryDuration;
-    const orderNum = 1000 + Math.floor(Math.random() * 900);
-    this.deliveryOrder = {
-      orderNum,
-      burger: 1,
-      fries: 1,
-      drink: 1
-    };
-
-    window.audioManager.playDeliveryAlert();
-    if (window.uiManager) {
-      window.uiManager.showDeliveryCard(this.deliveryOrder, this.deliveryDuration);
-    }
-  }
-
-  completeDelivery() {
-    this.deliveryActive = false;
-    this.deliveriesCompleted++;
-    const bonus = 2500;
-    this.score += bonus;
-    this.nextDeliveryDistance = this.distance + 450 + Math.random() * 250;
-
-    this.spawnCollectParticles(this.playerX, this.playerY + 1.2, 0, 0x00E676, 22);
-    this.triggerScreenFlash('#00E676', 0.35, 0.45);
-    this.cameraShake.intensity = Math.max(this.cameraShake.intensity, 0.22);
-
-    window.audioManager.playDeliverySuccess();
-    if (window.uiManager) {
-      window.uiManager.showDeliverySuccessBanner(this.deliveryOrder.orderNum, bonus);
-      window.uiManager.hideDeliveryCard();
+      window.uiManager.showFloatingToast(`🍔 WOF ${fType ? fType.toUpperCase() : 'FEAST'}! +${pts} PTS!`, '#FF9800', 2500);
     }
   }
 

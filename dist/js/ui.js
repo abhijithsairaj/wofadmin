@@ -848,8 +848,9 @@ class UIManager {
   }
 
   updateMealSlots(meal) {
+    if (!this.slotMain) return;
     // Main Slot
-    if (meal.main) {
+    if (meal && meal.main) {
       const icon = meal.main === 'pizza' ? '🍕' : (meal.main === 'wrap' ? '🌯' : '🍔');
       this.slotMain.innerHTML = `<span class="slot-icon">${icon}</span> <span class="slot-name">${meal.main.toUpperCase()}</span>`;
       this.slotMain.classList.add('filled');
@@ -859,7 +860,8 @@ class UIManager {
     }
 
     // Side Slot
-    if (meal.side) {
+    if (!this.slotSide) return;
+    if (meal && meal.side) {
       const icon = meal.side === 'waffle' ? '🧇' : '🍟';
       this.slotSide.innerHTML = `<span class="slot-icon">${icon}</span> <span class="slot-name">${meal.side.toUpperCase()}</span>`;
       this.slotSide.classList.add('filled');
@@ -869,7 +871,8 @@ class UIManager {
     }
 
     // Drink Slot
-    if (meal.drink) {
+    if (!this.slotDrink) return;
+    if (meal && meal.drink) {
       const icon = meal.drink === 'falooda' ? '🧋' : '🥤';
       this.slotDrink.innerHTML = `<span class="slot-icon">${icon}</span> <span class="slot-name">${meal.drink.toUpperCase()}</span>`;
       this.slotDrink.classList.add('filled');
@@ -883,20 +886,24 @@ class UIManager {
     this.showFloatingToast(`🔥 WOF MEAL COMPLETE! +${bonus} PTS! 🔥`, '#FFD000', 2500);
 
     [this.slotMain, this.slotSide, this.slotDrink].forEach(slot => {
-      slot.classList.add('celebrate');
-      setTimeout(() => slot.classList.remove('celebrate'), 1000);
+      if (slot) {
+        slot.classList.add('celebrate');
+        setTimeout(() => slot.classList.remove('celebrate'), 1000);
+      }
     });
   }
 
   // --- DELIVERY CARD UPDATES ---
   showDeliveryCard(order, duration) {
+    if (!this.deliveryCard) return;
     this.deliveryCard.classList.remove('hidden');
-    this.deliveryOrderTitle.textContent = `DELIVERY RUN #${order.orderNum}`;
+    if (this.deliveryOrderTitle) this.deliveryOrderTitle.textContent = `DELIVERY RUN #${order.orderNum}`;
     this.deliveryTotalDuration = duration;
     this.updateDeliveryProgress(order);
   }
 
   updateDeliveryProgress(order) {
+    if (!this.deliveryItemsList) return;
     let html = '';
     html += `<span class="delivery-item ${order.burger === 0 ? 'done' : ''}">🍔 Burger ${order.burger === 0 ? '✓' : '1'}</span>`;
     html += `<span class="delivery-item ${order.fries === 0 ? 'done' : ''}">🍟 Fries ${order.fries === 0 ? '✓' : '1'}</span>`;
@@ -905,14 +912,16 @@ class UIManager {
   }
 
   updateDeliveryTimer(secondsRemaining) {
+    if (!this.deliveryTimerText) return;
     this.deliveryTimerText.textContent = `${secondsRemaining}s`;
-    if (this.deliveryTotalDuration) {
+    if (this.deliveryTotalDuration && this.deliveryTimerBar) {
       const percent = (secondsRemaining / this.deliveryTotalDuration) * 100;
       this.deliveryTimerBar.style.width = `${percent}%`;
     }
   }
 
   hideDeliveryCard() {
+    if (!this.deliveryCard) return;
     this.deliveryCard.classList.add('hidden');
   }
 
