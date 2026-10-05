@@ -1,0 +1,74 @@
+[
+  {
+    "id": "off-1001",
+    "title": "WOF CRISPY REWARD",
+    "conditionType": "distance",
+    "threshold": 1000,
+    "reward": "FREE FRIES with any burger meal",
+    "codePrefix": "WOF-FREEFRIES",
+    "minOrder": 0,
+    "active": true,
+    "description": "Awarded to players who cross 1,000 meters in a single run.",
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "off-1002",
+    "title": "WOF CRAVE VOUCHER",
+    "conditionType": "distance",
+    "threshold": 2000,
+    "reward": "₹50 OFF on orders above ₹299",
+    "codePrefix": "WOF-MEAL-50",
+    "minOrder": 299,
+    "active": true,
+    "description": "Awarded when runner crosses 2,000 meters milestone.",
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "off-1003",
+    "title": "WOF VIP FEAST VOUCHER",
+    "conditionType": "distance",
+    "threshold": 3000,
+    "reward": "₹100 OFF on orders above ₹499",
+    "codePrefix": "WOFRUSH-100",
+    "minOrder": 499,
+    "active": true,
+    "description": "Awarded to elite runners crossing 3,000 meters in Selvapuram.",
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "off-1004",
+    "title": "WOF HIGH ROLLER SCORE VOUCHER",
+    "conditionType": "score",
+    "threshold": 35000,
+    "reward": "₹75 OFF on orders above ₹349",
+    "codePrefix": "WOF-SCORE-75",
+    "minOrder": 349,
+    "active": true,
+    "description": "Awarded when runner achieves 35,000+ arcade combo score.",
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "off-1005",
+    "title": "WOF EXPRESS COURIER REWARD",
+    "conditionType": "deliveries",
+    "threshold": 2,
+    "reward": "FREE Kovai Falooda Shake with any order",
+    "codePrefix": "WOF-FAL-FREE",
+    "minOrder": 199,
+    "active": true,
+    "description": "Awarded when player successfully delivers 2 or more emergency orders.",
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "off-1006",
+    "title": "WOF COMBO MASTER REWARD",
+    "conditionType": "meals",
+    "threshold": 4,
+    "reward": "25% OFF on all Gourmet Wraps & Burgers",
+    "codePrefix": "WOF-COMBO-25",
+    "minOrder": 249,
+    "active": true,
+    "description": "Awarded when player collects 4 complete Main + Side + Drink combos.",
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  }
+]

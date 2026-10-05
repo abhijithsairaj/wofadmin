@@ -4,7 +4,7 @@ compatibility_flags = ["nodejs_compat"]
 
 # Cloudflare Pages Build Output Directory
 # Defines the directory containing static assets and _worker.js
-pages_build_output_dir = "."
+pages_build_output_dir = "dist"
 
 # Cloudflare KV Namespace configuration (Optional - for persistent edge storage)
 # To bind KV in Cloudflare:

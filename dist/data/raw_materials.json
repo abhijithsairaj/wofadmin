@@ -1,0 +1,927 @@
+[
+  {
+    "id": "mat-chk-bl",
+    "name": "Chicken (Boneless)",
+    "category": "Poultry & Meats",
+    "standardUnit": "kg",
+    "costPerUnit": 260,
+    "notes": "Fresh chilled boneless chicken breast/thigh",
+    "usedInRecipes": [
+      "Crispy Fried Chicken Burger",
+      "Chicken Loaded Fries"
+    ]
+  },
+  {
+    "id": "mat-chk-bi",
+    "name": "Chicken (Bone-in)",
+    "category": "Poultry & Meats",
+    "standardUnit": "kg",
+    "costPerUnit": 180,
+    "notes": "Fresh curry cut bone-in chicken",
+    "usedInRecipes": []
+  },
+  {
+    "id": "mat-bun-01",
+    "name": "Burger Bun (Sesame)",
+    "category": "Bakery & Breads",
+    "standardUnit": "pcs",
+    "costPerUnit": 10,
+    "notes": "Standard 4.5 inch sesame bun (6-pack @ ₹60)",
+    "usedInRecipes": [
+      "WOF Classic Burger",
+      "Veggie Delight Burger",
+      "Double Smash Burger"
+    ]
+  },
+  {
+    "id": "mat-bun-02",
+    "name": "Brioche Bun",
+    "category": "Bakery & Breads",
+    "standardUnit": "pcs",
+    "costPerUnit": 15,
+    "notes": "Gourmet glazed brioche bun (6-pack @ ₹90)",
+    "usedInRecipes": [
+      "Double Smash Burger"
+    ]
+  },
+  {
+    "id": "mat-but-01",
+    "name": "Butter",
+    "category": "Dairy & Cheese",
+    "standardUnit": "kg",
+    "costPerUnit": 500,
+    "notes": "Pasteurized salted table butter (500g @ ₹250)",
+    "usedInRecipes": [
+      "Classic Veg Wrap",
+      "Spicy Paneer Wrap",
+      "Peri Peri Chicken Wrap",
+      "Veggie Delight Burger",
+      "Crispy Fried Chicken Burger",
+      "Chicken Cheesy Lava Burger",
+      "Crispy Chicken Sandwich",
+      "Alfredo Pasta (White)"
+    ]
+  },
+  {
+    "id": "mat-011",
+    "name": "French Fries (Frozen)",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 120,
+    "notes": "Extracted from Classic French Fries (1000g @ ₹120)",
+    "usedInRecipes": [
+      "Classic French Fries",
+      "Peri Peri Fries",
+      "Cheese Loaded Fries",
+      "Chicken Loaded Fries"
+    ]
+  },
+  {
+    "id": "mat-012",
+    "name": "Table Salt",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 25,
+    "notes": "Extracted from Classic French Fries (1000g @ ₹25)",
+    "usedInRecipes": [
+      "Classic French Fries",
+      "Peri Peri Fries"
+    ]
+  },
+  {
+    "id": "mat-013",
+    "name": "Table Ketchup Dip",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 110,
+    "notes": "Extracted from Classic French Fries (1000g @ ₹110)",
+    "usedInRecipes": [
+      "Classic French Fries"
+    ]
+  },
+  {
+    "id": "mat-014",
+    "name": "Frying Oil Absorption",
+    "category": "Oils & Beverages",
+    "standardUnit": "L",
+    "costPerUnit": 140,
+    "notes": "Extracted from Classic French Fries (1000ml @ ₹140)",
+    "usedInRecipes": [
+      "Classic French Fries",
+      "Peri Peri Fries"
+    ]
+  },
+  {
+    "id": "mat-015",
+    "name": "Peri Peri Seasoning",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 360,
+    "notes": "Extracted from Peri Peri Fries (500g @ ₹180)",
+    "usedInRecipes": [
+      "Peri Peri Fries"
+    ]
+  },
+  {
+    "id": "mat-016",
+    "name": "Peri Peri Mayo",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 190,
+    "notes": "Extracted from Peri Peri Fries (1000g @ ₹190)",
+    "usedInRecipes": [
+      "Peri Peri Fries",
+      "Chicken Loaded Fries",
+      "Peri Peri Chicken Wrap"
+    ]
+  },
+  {
+    "id": "mat-017",
+    "name": "White Sauce",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 180,
+    "notes": "Extracted from Cheese Loaded Fries (1000g @ ₹180)",
+    "usedInRecipes": [
+      "Cheese Loaded Fries"
+    ]
+  },
+  {
+    "id": "mat-018",
+    "name": "Melted Cheese",
+    "category": "Dairy & Cheese",
+    "standardUnit": "kg",
+    "costPerUnit": 420,
+    "notes": "Extracted from Cheese Loaded Fries (1000g @ ₹420)",
+    "usedInRecipes": [
+      "Cheese Loaded Fries"
+    ]
+  },
+  {
+    "id": "mat-019",
+    "name": "Aromatic Pepper Salt & Herbs",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 300,
+    "notes": "Extracted from Cheese Loaded Fries (500g @ ₹150)",
+    "usedInRecipes": [
+      "Cheese Loaded Fries"
+    ]
+  },
+  {
+    "id": "mat-020",
+    "name": "Lettuce",
+    "category": "Fresh Produce",
+    "standardUnit": "kg",
+    "costPerUnit": 80,
+    "notes": "Extracted from Cheese Loaded Fries (1000g @ ₹80)",
+    "usedInRecipes": [
+      "Cheese Loaded Fries",
+      "Classic Veg Wrap",
+      "Spicy Paneer Wrap",
+      "Peri Peri Chicken Wrap",
+      "Veggie Delight Burger",
+      "Crispy Fried Chicken Burger",
+      "Chicken Cheesy Lava Burger",
+      "Crispy Chicken Sandwich"
+    ]
+  },
+  {
+    "id": "mat-021",
+    "name": "Ketchup",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 110,
+    "notes": "Extracted from Cheese Loaded Fries (1000g @ ₹110)",
+    "usedInRecipes": [
+      "Cheese Loaded Fries",
+      "Veggie Delight Burger"
+    ]
+  },
+  {
+    "id": "mat-022",
+    "name": "Crispy Fried Chicken Dices",
+    "category": "Poultry & Meats",
+    "standardUnit": "kg",
+    "costPerUnit": 260,
+    "notes": "Extracted from Chicken Loaded Fries (1000g @ ₹260)",
+    "usedInRecipes": [
+      "Chicken Loaded Fries"
+    ]
+  },
+  {
+    "id": "mat-023",
+    "name": "Plain Mayo",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 150,
+    "notes": "Extracted from Chicken Loaded Fries (1000g @ ₹150)",
+    "usedInRecipes": [
+      "Chicken Loaded Fries",
+      "Classic Veg Wrap"
+    ]
+  },
+  {
+    "id": "mat-024",
+    "name": "Parsley & Lettuce",
+    "category": "Fresh Produce",
+    "standardUnit": "kg",
+    "costPerUnit": 80,
+    "notes": "Extracted from Chicken Loaded Fries (1000g @ ₹80)",
+    "usedInRecipes": [
+      "Chicken Loaded Fries"
+    ]
+  },
+  {
+    "id": "mat-025",
+    "name": "Fresh Tortilla",
+    "category": "Bakery & Breads",
+    "standardUnit": "pcs",
+    "costPerUnit": 9,
+    "notes": "Extracted from Classic Veg Wrap (10pcs @ ₹90)",
+    "usedInRecipes": [
+      "Classic Veg Wrap",
+      "Spicy Paneer Wrap",
+      "Peri Peri Chicken Wrap"
+    ]
+  },
+  {
+    "id": "mat-026",
+    "name": "Refined Oil",
+    "category": "Oils & Beverages",
+    "standardUnit": "L",
+    "costPerUnit": 140,
+    "notes": "Extracted from Classic Veg Wrap (1000ml @ ₹140)",
+    "usedInRecipes": [
+      "Classic Veg Wrap",
+      "Spicy Paneer Wrap",
+      "Peri Peri Chicken Wrap"
+    ]
+  },
+  {
+    "id": "mat-027",
+    "name": "Onion, Tomato, Capsicum Mix",
+    "category": "Fresh Produce",
+    "standardUnit": "kg",
+    "costPerUnit": 50,
+    "notes": "Extracted from Classic Veg Wrap (1000g @ ₹50)",
+    "usedInRecipes": [
+      "Classic Veg Wrap",
+      "Spicy Paneer Wrap"
+    ]
+  },
+  {
+    "id": "mat-028",
+    "name": "Salt, Pepper, Chilli Masala",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 240,
+    "notes": "Extracted from Classic Veg Wrap (500g @ ₹120)",
+    "usedInRecipes": [
+      "Classic Veg Wrap",
+      "Spicy Paneer Wrap"
+    ]
+  },
+  {
+    "id": "mat-029",
+    "name": "Paneer Cubes",
+    "category": "Dairy & Cheese",
+    "standardUnit": "kg",
+    "costPerUnit": 360,
+    "notes": "Extracted from Spicy Paneer Wrap (1000g @ ₹360)",
+    "usedInRecipes": [
+      "Spicy Paneer Wrap"
+    ]
+  },
+  {
+    "id": "mat-030",
+    "name": "Peri Peri Sauce",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 180,
+    "notes": "Extracted from Spicy Paneer Wrap (1000g @ ₹180)",
+    "usedInRecipes": [
+      "Spicy Paneer Wrap"
+    ]
+  },
+  {
+    "id": "mat-031",
+    "name": "Chicken Strips",
+    "category": "Poultry & Meats",
+    "standardUnit": "kg",
+    "costPerUnit": 260,
+    "notes": "Extracted from Peri Peri Chicken Wrap (1000g @ ₹260)",
+    "usedInRecipes": [
+      "Peri Peri Chicken Wrap"
+    ]
+  },
+  {
+    "id": "mat-032",
+    "name": "Onion, Tomato, Jalapeno Mix",
+    "category": "Fresh Produce",
+    "standardUnit": "kg",
+    "costPerUnit": 65,
+    "notes": "Extracted from Peri Peri Chicken Wrap (1000g @ ₹65)",
+    "usedInRecipes": [
+      "Peri Peri Chicken Wrap"
+    ]
+  },
+  {
+    "id": "mat-033",
+    "name": "Peri Peri Powder",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 360,
+    "notes": "Extracted from Peri Peri Chicken Wrap (500g @ ₹180)",
+    "usedInRecipes": [
+      "Peri Peri Chicken Wrap"
+    ]
+  },
+  {
+    "id": "mat-034",
+    "name": "Burger Bun",
+    "category": "Bakery & Breads",
+    "standardUnit": "pcs",
+    "costPerUnit": 10,
+    "notes": "Extracted from Veggie Delight Burger (6pcs @ ₹60)",
+    "usedInRecipes": [
+      "Veggie Delight Burger",
+      "Crispy Fried Chicken Burger",
+      "Chicken Cheesy Lava Burger"
+    ]
+  },
+  {
+    "id": "mat-035",
+    "name": "Cheese Slice",
+    "category": "Dairy & Cheese",
+    "standardUnit": "kg",
+    "costPerUnit": 10,
+    "notes": "Extracted from Veggie Delight Burger (20pcs @ ₹200)",
+    "usedInRecipes": [
+      "Veggie Delight Burger",
+      "Crispy Fried Chicken Burger",
+      "Chicken Cheesy Lava Burger",
+      "Crispy Chicken Sandwich"
+    ]
+  },
+  {
+    "id": "mat-036",
+    "name": "Veg Patty",
+    "category": "Poultry & Meats",
+    "standardUnit": "kg",
+    "costPerUnit": 18,
+    "notes": "Extracted from Veggie Delight Burger (10pcs @ ₹180)",
+    "usedInRecipes": [
+      "Veggie Delight Burger"
+    ]
+  },
+  {
+    "id": "mat-037",
+    "name": "Fresh Tomato Slices (3 pcs)",
+    "category": "Fresh Produce",
+    "standardUnit": "kg",
+    "costPerUnit": 40,
+    "notes": "Extracted from Veggie Delight Burger (1000g @ ₹40)",
+    "usedInRecipes": [
+      "Veggie Delight Burger"
+    ]
+  },
+  {
+    "id": "mat-038",
+    "name": "Fresh Onion Slices (3 pcs)",
+    "category": "Fresh Produce",
+    "standardUnit": "kg",
+    "costPerUnit": 45,
+    "notes": "Extracted from Veggie Delight Burger (1000g @ ₹45)",
+    "usedInRecipes": [
+      "Veggie Delight Burger"
+    ]
+  },
+  {
+    "id": "mat-039",
+    "name": "Fresh Cucumber Slices (3 pcs)",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 35,
+    "notes": "Extracted from Veggie Delight Burger (1000g @ ₹35)",
+    "usedInRecipes": [
+      "Veggie Delight Burger"
+    ]
+  },
+  {
+    "id": "mat-040",
+    "name": "Mayo Sauce",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 150,
+    "notes": "Extracted from Veggie Delight Burger (1000g @ ₹150)",
+    "usedInRecipes": [
+      "Veggie Delight Burger"
+    ]
+  },
+  {
+    "id": "mat-041",
+    "name": "Fried Chicken Fillet",
+    "category": "Poultry & Meats",
+    "standardUnit": "kg",
+    "costPerUnit": 260,
+    "notes": "Extracted from Crispy Fried Chicken Burger (1000g @ ₹260)",
+    "usedInRecipes": [
+      "Crispy Fried Chicken Burger",
+      "Chicken Cheesy Lava Burger"
+    ]
+  },
+  {
+    "id": "mat-042",
+    "name": "Fresh Onion Slices",
+    "category": "Fresh Produce",
+    "standardUnit": "kg",
+    "costPerUnit": 45,
+    "notes": "Extracted from Crispy Fried Chicken Burger (1000g @ ₹45)",
+    "usedInRecipes": [
+      "Crispy Fried Chicken Burger"
+    ]
+  },
+  {
+    "id": "mat-043",
+    "name": "Signature Mayo",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 180,
+    "notes": "Extracted from Crispy Fried Chicken Burger (1000g @ ₹180)",
+    "usedInRecipes": [
+      "Crispy Fried Chicken Burger"
+    ]
+  },
+  {
+    "id": "mat-044",
+    "name": "Ketchup Dip",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 110,
+    "notes": "Extracted from Crispy Fried Chicken Burger (1000g @ ₹110)",
+    "usedInRecipes": [
+      "Crispy Fried Chicken Burger",
+      "Crispy Chicken Sandwich"
+    ]
+  },
+  {
+    "id": "mat-045",
+    "name": "Jalapeno Slices (6 Nos)",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 320,
+    "notes": "Extracted from Chicken Cheesy Lava Burger (500g @ ₹160)",
+    "usedInRecipes": [
+      "Chicken Cheesy Lava Burger"
+    ]
+  },
+  {
+    "id": "mat-046",
+    "name": "Jalapeno Mayo",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 190,
+    "notes": "Extracted from Chicken Cheesy Lava Burger (1000g @ ₹190)",
+    "usedInRecipes": [
+      "Chicken Cheesy Lava Burger"
+    ]
+  },
+  {
+    "id": "mat-047",
+    "name": "Lava: White Sauce",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 180,
+    "notes": "Extracted from Chicken Cheesy Lava Burger (1000g @ ₹180)",
+    "usedInRecipes": [
+      "Chicken Cheesy Lava Burger"
+    ]
+  },
+  {
+    "id": "mat-048",
+    "name": "Lava: Mozzarella Cheese",
+    "category": "Dairy & Cheese",
+    "standardUnit": "kg",
+    "costPerUnit": 450,
+    "notes": "Extracted from Chicken Cheesy Lava Burger (1000g @ ₹450)",
+    "usedInRecipes": [
+      "Chicken Cheesy Lava Burger"
+    ]
+  },
+  {
+    "id": "mat-049",
+    "name": "Seasoning & Herbs",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 300,
+    "notes": "Extracted from Chicken Cheesy Lava Burger (500g @ ₹150)",
+    "usedInRecipes": [
+      "Chicken Cheesy Lava Burger"
+    ]
+  },
+  {
+    "id": "mat-050",
+    "name": "Bread Slices",
+    "category": "Bakery & Breads",
+    "standardUnit": "pcs",
+    "costPerUnit": 3,
+    "notes": "Extracted from Crispy Chicken Sandwich (20pcs @ ₹60)",
+    "usedInRecipes": [
+      "Crispy Chicken Sandwich"
+    ]
+  },
+  {
+    "id": "mat-051",
+    "name": "Fried Chicken Breast Fillet",
+    "category": "Poultry & Meats",
+    "standardUnit": "kg",
+    "costPerUnit": 260,
+    "notes": "Extracted from Crispy Chicken Sandwich (1000g @ ₹260)",
+    "usedInRecipes": [
+      "Crispy Chicken Sandwich"
+    ]
+  },
+  {
+    "id": "mat-052",
+    "name": "Fresh Sliced Tomato",
+    "category": "Fresh Produce",
+    "standardUnit": "kg",
+    "costPerUnit": 40,
+    "notes": "Extracted from Crispy Chicken Sandwich (1000g @ ₹40)",
+    "usedInRecipes": [
+      "Crispy Chicken Sandwich"
+    ]
+  },
+  {
+    "id": "mat-053",
+    "name": "Special Mayo Sauce",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 180,
+    "notes": "Extracted from Crispy Chicken Sandwich (1000g @ ₹180)",
+    "usedInRecipes": [
+      "Crispy Chicken Sandwich"
+    ]
+  },
+  {
+    "id": "mat-054",
+    "name": "Minced Garlic",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 120,
+    "notes": "Extracted from Alfredo Pasta (White) (1000g @ ₹120)",
+    "usedInRecipes": [
+      "Alfredo Pasta (White)"
+    ]
+  },
+  {
+    "id": "mat-055",
+    "name": "Alfredo Powder",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 450,
+    "notes": "Extracted from Alfredo Pasta (White) (1000g @ ₹450)",
+    "usedInRecipes": [
+      "Alfredo Pasta (White)"
+    ]
+  },
+  {
+    "id": "mat-056",
+    "name": "Water",
+    "category": "Oils & Beverages",
+    "standardUnit": "L",
+    "costPerUnit": 2,
+    "notes": "Extracted from Alfredo Pasta (White) (1000ml @ ₹2)",
+    "usedInRecipes": [
+      "Alfredo Pasta (White)"
+    ]
+  },
+  {
+    "id": "mat-057",
+    "name": "Pasta Vegetable Mix (Zucchini/Capsicum/Onion)",
+    "category": "Fresh Produce",
+    "standardUnit": "kg",
+    "costPerUnit": 110,
+    "notes": "Extracted from Alfredo Pasta (White) (1000g @ ₹110)",
+    "usedInRecipes": [
+      "Alfredo Pasta (White)"
+    ]
+  },
+  {
+    "id": "mat-058",
+    "name": "Cheese Blend",
+    "category": "Dairy & Cheese",
+    "standardUnit": "kg",
+    "costPerUnit": 420,
+    "notes": "Extracted from Alfredo Pasta (White) (1000g @ ₹420)",
+    "usedInRecipes": [
+      "Alfredo Pasta (White)"
+    ]
+  },
+  {
+    "id": "mat-059",
+    "name": "Parsley & Oregano",
+    "category": "Fresh Produce",
+    "standardUnit": "kg",
+    "costPerUnit": 300,
+    "notes": "Extracted from Alfredo Pasta (White) (500g @ ₹150)",
+    "usedInRecipes": [
+      "Alfredo Pasta (White)"
+    ]
+  },
+  {
+    "id": "mat-060",
+    "name": "Vanilla Ice Cream",
+    "category": "Dairy & Cheese",
+    "standardUnit": "kg",
+    "costPerUnit": 160,
+    "notes": "Extracted from Classic Vanilla Shake (1000g @ ₹160)",
+    "usedInRecipes": [
+      "Classic Vanilla Shake",
+      "Sizzling Brownie with Ice Cream"
+    ]
+  },
+  {
+    "id": "mat-061",
+    "name": "Fresh Milk",
+    "category": "Dairy & Cheese",
+    "standardUnit": "L",
+    "costPerUnit": 55,
+    "notes": "Extracted from Classic Vanilla Shake (1000ml @ ₹55)",
+    "usedInRecipes": [
+      "Classic Vanilla Shake",
+      "Cold Coffee (Thick Shake)",
+      "Brownie Blast Thick Shake"
+    ]
+  },
+  {
+    "id": "mat-062",
+    "name": "Sugar Syrup",
+    "category": "Sauces & Condiments",
+    "standardUnit": "L",
+    "costPerUnit": 45,
+    "notes": "Extracted from Classic Vanilla Shake (1000ml @ ₹45)",
+    "usedInRecipes": [
+      "Classic Vanilla Shake",
+      "Cold Coffee (Thick Shake)",
+      "Brownie Blast Thick Shake",
+      "Mint Mojito"
+    ]
+  },
+  {
+    "id": "mat-063",
+    "name": "Vanilla Essence",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 0.6,
+    "notes": "Extracted from Classic Vanilla Shake (100ml @ ₹60)",
+    "usedInRecipes": [
+      "Classic Vanilla Shake"
+    ]
+  },
+  {
+    "id": "mat-064",
+    "name": "Frozen Milk Base",
+    "category": "Dairy & Cheese",
+    "standardUnit": "L",
+    "costPerUnit": 55,
+    "notes": "Extracted from Cold Coffee (Thick Shake) (1000ml @ ₹55)",
+    "usedInRecipes": [
+      "Cold Coffee (Thick Shake)",
+      "Brownie Blast Thick Shake"
+    ]
+  },
+  {
+    "id": "mat-065",
+    "name": "Ice Cream",
+    "category": "Dairy & Cheese",
+    "standardUnit": "kg",
+    "costPerUnit": 160,
+    "notes": "Extracted from Cold Coffee (Thick Shake) (1000g @ ₹160)",
+    "usedInRecipes": [
+      "Cold Coffee (Thick Shake)",
+      "Brownie Blast Thick Shake"
+    ]
+  },
+  {
+    "id": "mat-066",
+    "name": "Coffee Powder Sachet (2 Pcs)",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 2,
+    "notes": "Extracted from Cold Coffee (Thick Shake) (1pcs @ ₹2)",
+    "usedInRecipes": [
+      "Cold Coffee (Thick Shake)"
+    ]
+  },
+  {
+    "id": "mat-067",
+    "name": "Fresh Fudgy Brownie (1/2 Piece)",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 350,
+    "notes": "Extracted from Brownie Blast Thick Shake (1000g @ ₹350)",
+    "usedInRecipes": [
+      "Brownie Blast Thick Shake"
+    ]
+  },
+  {
+    "id": "mat-068",
+    "name": "Chocolate Sauce Drizzle",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 180,
+    "notes": "Extracted from Brownie Blast Thick Shake (1000g @ ₹180)",
+    "usedInRecipes": [
+      "Brownie Blast Thick Shake"
+    ]
+  },
+  {
+    "id": "mat-069",
+    "name": "Lemon Mint Syrup",
+    "category": "Sauces & Condiments",
+    "standardUnit": "L",
+    "costPerUnit": 160,
+    "notes": "Extracted from Mint Mojito (1000ml @ ₹160)",
+    "usedInRecipes": [
+      "Mint Mojito"
+    ]
+  },
+  {
+    "id": "mat-070",
+    "name": "Fresh Mint Leaves (7 Nos)",
+    "category": "Fresh Produce",
+    "standardUnit": "kg",
+    "costPerUnit": 80,
+    "notes": "Extracted from Mint Mojito (500g @ ₹40)",
+    "usedInRecipes": [
+      "Mint Mojito"
+    ]
+  },
+  {
+    "id": "mat-071",
+    "name": "Fresh Lemon",
+    "category": "Fresh Produce",
+    "standardUnit": "kg",
+    "costPerUnit": 4,
+    "notes": "Extracted from Mint Mojito (10pcs @ ₹40)",
+    "usedInRecipes": [
+      "Mint Mojito"
+    ]
+  },
+  {
+    "id": "mat-072",
+    "name": "Ice Cubes (6 Nos)",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 0.15,
+    "notes": "Extracted from Mint Mojito (100pcs @ ₹15)",
+    "usedInRecipes": [
+      "Mint Mojito"
+    ]
+  },
+  {
+    "id": "mat-073",
+    "name": "Sprite",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 0.05,
+    "notes": "Extracted from Mint Mojito (1000ml @ ₹45)",
+    "usedInRecipes": [
+      "Mint Mojito"
+    ]
+  },
+  {
+    "id": "mat-074",
+    "name": "Club Soda",
+    "category": "Oils & Beverages",
+    "standardUnit": "L",
+    "costPerUnit": 30,
+    "notes": "Extracted from Mint Mojito (1000ml @ ₹30)",
+    "usedInRecipes": [
+      "Mint Mojito"
+    ]
+  },
+  {
+    "id": "mat-075",
+    "name": "Assorted Jelly (Mango/Strawberry)",
+    "category": "Packaging",
+    "standardUnit": "pcs",
+    "costPerUnit": 0.14,
+    "notes": "Extracted from Classic Royal Falooda (1000g @ ₹140)",
+    "usedInRecipes": [
+      "Classic Royal Falooda"
+    ]
+  },
+  {
+    "id": "mat-076",
+    "name": "Diced Seasonal Fresh Fruits",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 90,
+    "notes": "Extracted from Classic Royal Falooda (1000g @ ₹90)",
+    "usedInRecipes": [
+      "Classic Royal Falooda"
+    ]
+  },
+  {
+    "id": "mat-077",
+    "name": "Boiled Falooda Vermicelli (Sev)",
+    "category": "Oils & Beverages",
+    "standardUnit": "L",
+    "costPerUnit": 0.08,
+    "notes": "Extracted from Classic Royal Falooda (1000g @ ₹80)",
+    "usedInRecipes": [
+      "Classic Royal Falooda"
+    ]
+  },
+  {
+    "id": "mat-078",
+    "name": "Chilled Flavored Milk & Rose Sauce Blend",
+    "category": "Dairy & Cheese",
+    "standardUnit": "L",
+    "costPerUnit": 65,
+    "notes": "Extracted from Classic Royal Falooda (1000ml @ ₹65)",
+    "usedInRecipes": [
+      "Classic Royal Falooda"
+    ]
+  },
+  {
+    "id": "mat-079",
+    "name": "Bloomed Sabja / Chia Seeds",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 240,
+    "notes": "Extracted from Classic Royal Falooda (500g @ ₹120)",
+    "usedInRecipes": [
+      "Classic Royal Falooda"
+    ]
+  },
+  {
+    "id": "mat-080",
+    "name": "Premium Mixed Nuts (Cashew/Almond/Pista)",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 850,
+    "notes": "Extracted from Classic Royal Falooda (1000g @ ₹850)",
+    "usedInRecipes": [
+      "Classic Royal Falooda"
+    ]
+  },
+  {
+    "id": "mat-081",
+    "name": "Premium Vanilla Ice Cream Scoop",
+    "category": "Dairy & Cheese",
+    "standardUnit": "kg",
+    "costPerUnit": 160,
+    "notes": "Extracted from Classic Royal Falooda (1000g @ ₹160)",
+    "usedInRecipes": [
+      "Classic Royal Falooda"
+    ]
+  },
+  {
+    "id": "mat-082",
+    "name": "Butter (for hot plate sizzle)",
+    "category": "Dairy & Cheese",
+    "standardUnit": "kg",
+    "costPerUnit": 500,
+    "notes": "Extracted from Sizzling Brownie with Ice Cream (500g @ ₹250)",
+    "usedInRecipes": [
+      "Sizzling Brownie with Ice Cream"
+    ]
+  },
+  {
+    "id": "mat-083",
+    "name": "Warm Fudgy Brownie",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 28,
+    "notes": "Extracted from Sizzling Brownie with Ice Cream (10pcs @ ₹280)",
+    "usedInRecipes": [
+      "Sizzling Brownie with Ice Cream"
+    ]
+  },
+  {
+    "id": "mat-084",
+    "name": "Rich Chocolate Sauce",
+    "category": "Sauces & Condiments",
+    "standardUnit": "kg",
+    "costPerUnit": 180,
+    "notes": "Extracted from Sizzling Brownie with Ice Cream (1000g @ ₹180)",
+    "usedInRecipes": [
+      "Sizzling Brownie with Ice Cream"
+    ]
+  },
+  {
+    "id": "mat-085",
+    "name": "Choco Chips",
+    "category": "Dry Grocery & Spices",
+    "standardUnit": "kg",
+    "costPerUnit": 280,
+    "notes": "Extracted from Sizzling Brownie with Ice Cream (500g @ ₹140)",
+    "usedInRecipes": [
+      "Sizzling Brownie with Ice Cream"
+    ]
+  }
+]

@@ -5,11 +5,11 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "build": "echo 'No build step required for static assets'",
-    "deploy": "wrangler pages deploy .",
-    "dev": "wrangler pages dev .",
+    "build": "node build.js",
+    "deploy": "wrangler pages deploy dist",
+    "dev": "wrangler pages dev dist",
     "dev:worker": "wrangler dev",
-    "deploy:pages": "wrangler pages deploy .",
+    "deploy:pages": "wrangler pages deploy dist",
     "deploy:worker": "wrangler deploy -c wrangler.worker.toml",
     "test": "node --check server.js && node --check _worker.js"
   },

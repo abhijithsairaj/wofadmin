@@ -3,8 +3,8 @@ compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
 # Cloudflare Workers configuration (Workers with Static Assets)
-main = "_worker.js"
-assets = { directory = "." }
+main = "dist/_worker.js"
+assets = { directory = "dist" }
 
 # Cloudflare KV Namespace configuration (Optional - for persistent edge storage)
 # To bind KV in Cloudflare:

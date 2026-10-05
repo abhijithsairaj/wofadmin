@@ -1,0 +1,538 @@
+[
+  {
+    "id": "item-101",
+    "name": "WOF Classic Burger",
+    "category": "main",
+    "icon": "🍔",
+    "price": 149,
+    "cost": 44.5,
+    "foodCost": 39.5,
+    "packagingCost": 5,
+    "portion": "1 burger / 220g",
+    "popularity": 1450,
+    "targetFoodCostPct": 30,
+    "ingredients": [
+      {
+        "name": "Burger Bun (Sesame)",
+        "packCost": 60,
+        "packQty": 6,
+        "packUnit": "pcs",
+        "portionQty": 1,
+        "calculatedCost": 10
+      },
+      {
+        "name": "Seasoned Veg/Chicken Patty",
+        "packCost": 220,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 100,
+        "calculatedCost": 22
+      },
+      {
+        "name": "WOF Signature Mayo Sauce",
+        "packCost": 180,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 25,
+        "calculatedCost": 4.5
+      },
+      {
+        "name": "Crisp Iceberg & Tomato",
+        "packCost": 100,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 30,
+        "calculatedCost": 3
+      }
+    ],
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "item-102",
+    "name": "Double Smash Burger",
+    "category": "main",
+    "icon": "🍔",
+    "price": 249,
+    "cost": 76.5,
+    "foodCost": 70.5,
+    "packagingCost": 6,
+    "portion": "Double Patty / 320g",
+    "popularity": 980,
+    "targetFoodCostPct": 30,
+    "ingredients": [
+      {
+        "name": "Brioche Bun",
+        "packCost": 90,
+        "packQty": 6,
+        "packUnit": "pcs",
+        "portionQty": 1,
+        "calculatedCost": 15
+      },
+      {
+        "name": "Smash Patties (2x90g)",
+        "packCost": 220,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 180,
+        "calculatedCost": 39.6
+      },
+      {
+        "name": "Cheddar Cheese Slices (2x)",
+        "packCost": 200,
+        "packQty": 20,
+        "packUnit": "pcs",
+        "portionQty": 2,
+        "calculatedCost": 20
+      },
+      {
+        "name": "Caramelized Onion & Relish",
+        "packCost": 160,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 30,
+        "calculatedCost": 4.8
+      }
+    ],
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "item-103",
+    "name": "Crispy Chicken Burger",
+    "category": "main",
+    "icon": "🍔",
+    "price": 189,
+    "cost": 54,
+    "foodCost": 49,
+    "packagingCost": 5,
+    "portion": "1 burger / 240g",
+    "popularity": 1650,
+    "targetFoodCostPct": 28,
+    "ingredients": [
+      {
+        "name": "Sesame Bun",
+        "packCost": 66,
+        "packQty": 6,
+        "packUnit": "pcs",
+        "portionQty": 1,
+        "calculatedCost": 11
+      },
+      {
+        "name": "Crispy Marinated Chicken Fillet",
+        "packCost": 260,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 120,
+        "calculatedCost": 31.2
+      },
+      {
+        "name": "Spicy Slaw & Garlic Mayo",
+        "packCost": 180,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 25,
+        "calculatedCost": 4.5
+      },
+      {
+        "name": "Dill Pickles / Jalapenos",
+        "packCost": 140,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 15,
+        "calculatedCost": 2.1
+      }
+    ],
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "item-104",
+    "name": "Margherita Pizza (8\")",
+    "category": "main",
+    "icon": "🍕",
+    "price": 199,
+    "cost": 43.5,
+    "foodCost": 38.5,
+    "packagingCost": 5,
+    "portion": "8 inch (4 slices)",
+    "popularity": 720,
+    "targetFoodCostPct": 22,
+    "ingredients": [
+      {
+        "name": "Hand-Tossed Dough Base 8\"",
+        "packCost": 120,
+        "packQty": 10,
+        "packUnit": "pcs",
+        "portionQty": 1,
+        "calculatedCost": 12
+      },
+      {
+        "name": "San Marzano Pizza Sauce",
+        "packCost": 140,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 50,
+        "calculatedCost": 7
+      },
+      {
+        "name": "Diced Mozzarella Blend",
+        "packCost": 450,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 80,
+        "calculatedCost": 36
+      },
+      {
+        "name": "Oregano & Olive Oil",
+        "packCost": 150,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 10,
+        "calculatedCost": 1.5
+      }
+    ],
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "item-105",
+    "name": "Chicken Pepperoni Pizza (8\")",
+    "category": "main",
+    "icon": "🍕",
+    "price": 299,
+    "cost": 74,
+    "foodCost": 68.5,
+    "packagingCost": 5.5,
+    "portion": "8 inch (4 slices)",
+    "popularity": 580,
+    "targetFoodCostPct": 25,
+    "ingredients": [
+      {
+        "name": "Dough Base 8\"",
+        "packCost": 120,
+        "packQty": 10,
+        "packUnit": "pcs",
+        "portionQty": 1,
+        "calculatedCost": 12
+      },
+      {
+        "name": "Pizza Sauce",
+        "packCost": 140,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 50,
+        "calculatedCost": 7
+      },
+      {
+        "name": "Mozzarella Cheese",
+        "packCost": 450,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 80,
+        "calculatedCost": 36
+      },
+      {
+        "name": "Chicken Pepperoni Slices",
+        "packCost": 400,
+        "packQty": 500,
+        "packUnit": "g",
+        "portionQty": 45,
+        "calculatedCost": 36
+      }
+    ],
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "item-106",
+    "name": "Kovai Paneer Tikka Wrap",
+    "category": "main",
+    "icon": "🌯",
+    "price": 159,
+    "cost": 47,
+    "foodCost": 43,
+    "packagingCost": 4,
+    "portion": "1 wrap / 210g",
+    "popularity": 890,
+    "targetFoodCostPct": 30,
+    "ingredients": [
+      {
+        "name": "Parotta / Wrap Base",
+        "packCost": 90,
+        "packQty": 10,
+        "packUnit": "pcs",
+        "portionQty": 1,
+        "calculatedCost": 9
+      },
+      {
+        "name": "Marinated Paneer Tikka",
+        "packCost": 360,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 85,
+        "calculatedCost": 30.6
+      },
+      {
+        "name": "Mint Chutney & Mayo",
+        "packCost": 150,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 25,
+        "calculatedCost": 3.75
+      },
+      {
+        "name": "Sauteed Onion & Capsicum",
+        "packCost": 50,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 30,
+        "calculatedCost": 1.5
+      }
+    ],
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "item-107",
+    "name": "Crispy French Fries (Regular)",
+    "category": "side",
+    "icon": "🍟",
+    "price": 89,
+    "cost": 18.5,
+    "foodCost": 15,
+    "packagingCost": 3.5,
+    "portion": "130g portion",
+    "popularity": 2100,
+    "targetFoodCostPct": 20,
+    "ingredients": [
+      {
+        "name": "Imported Cut Shoestring Fries",
+        "packCost": 120,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 130,
+        "calculatedCost": 15.6
+      },
+      {
+        "name": "Frying Oil Absorption",
+        "packCost": 140,
+        "packQty": 1000,
+        "packUnit": "ml",
+        "portionQty": 15,
+        "calculatedCost": 2.1
+      },
+      {
+        "name": "Fine Sea Salt & Paprika",
+        "packCost": 80,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 10,
+        "calculatedCost": 0.8
+      }
+    ],
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "item-108",
+    "name": "Peri-Peri Loaded Fries",
+    "category": "side",
+    "icon": "🍟",
+    "price": 139,
+    "cost": 36.5,
+    "foodCost": 31.5,
+    "packagingCost": 5,
+    "portion": "200g tray",
+    "popularity": 1320,
+    "targetFoodCostPct": 26,
+    "ingredients": [
+      {
+        "name": "Crispy French Fries",
+        "packCost": 120,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 160,
+        "calculatedCost": 19.2
+      },
+      {
+        "name": "Warm Cheese Sauce",
+        "packCost": 280,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 40,
+        "calculatedCost": 11.2
+      },
+      {
+        "name": "Peri-Peri Spice Dust",
+        "packCost": 180,
+        "packQty": 500,
+        "packUnit": "g",
+        "portionQty": 8,
+        "calculatedCost": 2.88
+      },
+      {
+        "name": "Pickled Jalapenos",
+        "packCost": 160,
+        "packQty": 500,
+        "packUnit": "g",
+        "portionQty": 15,
+        "calculatedCost": 4.8
+      }
+    ],
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "item-109",
+    "name": "Golden Belgium Waffle",
+    "category": "side",
+    "icon": "🧇",
+    "price": 129,
+    "cost": 28.5,
+    "foodCost": 24.5,
+    "packagingCost": 4,
+    "portion": "1 round waffle",
+    "popularity": 640,
+    "targetFoodCostPct": 22,
+    "ingredients": [
+      {
+        "name": "Waffle Batter Premix",
+        "packCost": 140,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 80,
+        "calculatedCost": 11.2
+      },
+      {
+        "name": "Butter & Milk Blend",
+        "packCost": 120,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 50,
+        "calculatedCost": 6
+      },
+      {
+        "name": "Belgian Chocolate Syrup Drizzle",
+        "packCost": 220,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 30,
+        "calculatedCost": 6.6
+      }
+    ],
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "item-110",
+    "name": "Kovai Falooda Shake",
+    "category": "drink",
+    "icon": "🧋",
+    "price": 119,
+    "cost": 28,
+    "foodCost": 23.5,
+    "packagingCost": 4.5,
+    "portion": "350ml cup",
+    "popularity": 1150,
+    "targetFoodCostPct": 24,
+    "ingredients": [
+      {
+        "name": "Fresh Chilled Milk",
+        "packCost": 55,
+        "packQty": 1000,
+        "packUnit": "ml",
+        "portionQty": 200,
+        "calculatedCost": 11
+      },
+      {
+        "name": "Rose Syrup & Soaked Sabja",
+        "packCost": 90,
+        "packQty": 1000,
+        "packUnit": "ml",
+        "portionQty": 50,
+        "calculatedCost": 4.5
+      },
+      {
+        "name": "Falooda Sev",
+        "packCost": 80,
+        "packQty": 1000,
+        "packUnit": "g",
+        "portionQty": 30,
+        "calculatedCost": 2.4
+      },
+      {
+        "name": "Vanilla Ice Cream Scoop",
+        "packCost": 200,
+        "packQty": 1000,
+        "packUnit": "ml",
+        "portionQty": 50,
+        "calculatedCost": 10
+      }
+    ],
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "item-111",
+    "name": "Fizzy Soda / Cola (400ml)",
+    "category": "drink",
+    "icon": "🥤",
+    "price": 49,
+    "cost": 11.5,
+    "foodCost": 7.5,
+    "packagingCost": 4,
+    "portion": "400ml cup",
+    "popularity": 1850,
+    "targetFoodCostPct": 23,
+    "ingredients": [
+      {
+        "name": "Postmix Cola Syrup & Soda",
+        "packCost": 175,
+        "packQty": 10000,
+        "packUnit": "ml",
+        "portionQty": 400,
+        "calculatedCost": 7
+      },
+      {
+        "name": "Purified Filtered Ice",
+        "packCost": 20,
+        "packQty": 5000,
+        "packUnit": "g",
+        "portionQty": 150,
+        "calculatedCost": 0.6
+      }
+    ],
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "id": "item-112",
+    "name": "WOF Trio Feast Combo",
+    "category": "combo",
+    "icon": "🎁",
+    "price": 299,
+    "cost": 78.5,
+    "foodCost": 71,
+    "packagingCost": 7.5,
+    "portion": "Burger + Fries + Soda",
+    "popularity": 1580,
+    "targetFoodCostPct": 26,
+    "ingredients": [
+      {
+        "name": "Classic Burger Components",
+        "packCost": 1,
+        "packQty": 1,
+        "packUnit": "pcs",
+        "portionQty": 1,
+        "calculatedCost": 44.5
+      },
+      {
+        "name": "Medium Fries Components",
+        "packCost": 1,
+        "packQty": 1,
+        "packUnit": "pcs",
+        "portionQty": 1,
+        "calculatedCost": 16
+      },
+      {
+        "name": "Fountain Drink Components",
+        "packCost": 1,
+        "packQty": 1,
+        "packUnit": "pcs",
+        "portionQty": 1,
+        "calculatedCost": 8
+      }
+    ],
+    "updatedAt": "2026-10-04T10:00:00.000Z"
+  }
+]
