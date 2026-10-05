@@ -19,12 +19,21 @@ class UIManager {
     this.currentRecipeItem = null;
     this.recipeIngredients = [];
 
+    // Master Raw Materials & Two-Section Calculator state
+    this.masterRawMaterials = [];
+    this.activeMasterCategory = 'all';
+    this.masterSearchTerm = '';
+    this.masterSortOrder = 'name-asc';
+    this.inflationSurgePct = 0;
+    this.calcActiveView = 'split';
+
     this.loadData();
     this.cacheDOM();
     this.bindEvents();
     this.initLeaderboard();
     this.initAdminData();
     this.initMenuItems();
+    this.initMasterRawMaterials();
     this.updateHomeScreen();
 
     // Check URL hash for direct admin link (#admin)
@@ -289,6 +298,43 @@ class UIManager {
     this.calcRawMaterialsCost = document.getElementById('calc-raw-materials-cost');
     this.calcSaveItemBtnBottom = document.getElementById('calc-save-item-btn-bottom');
 
+    // Section 1 & Section 2 Calculator Elements
+    this.calcSwitchBtns = document.querySelectorAll('.calc-switch-btn');
+    this.calcSection1 = document.getElementById('calc-section-1');
+    this.calcSection2 = document.getElementById('calc-section-2');
+    this.calcSyncAllItemsBtn = document.getElementById('calc-sync-all-items-btn');
+    this.calcExportMasterCsvBtn = document.getElementById('calc-export-master-csv-btn');
+    this.masterAddMatBtn = document.getElementById('master-add-mat-btn');
+    this.masterSearchInput = document.getElementById('master-search-input');
+    this.masterSortSelect = document.getElementById('master-sort-select');
+    this.masterCategoryPills = document.querySelectorAll('#master-category-pills .cat-pill');
+    this.masterRawMaterialsTbody = document.getElementById('master-raw-materials-tbody');
+    this.masterTotalMaterials = document.getElementById('master-total-materials');
+    this.masterMatCountBadge = document.getElementById('master-mat-count-badge');
+    this.masterInflationSlider = document.getElementById('master-inflation-slider');
+    this.masterInflationVal = document.getElementById('master-inflation-val');
+    this.masterInflationImpact = document.getElementById('master-inflation-impact');
+    this.quickAddMatSelect = document.getElementById('quick-add-mat-select');
+    this.quickAddQty = document.getElementById('quick-add-qty');
+    this.quickAddUom = document.getElementById('quick-add-uom');
+    this.quickAddSubmitBtn = document.getElementById('quick-add-submit-btn');
+    this.recipeQuickChips = document.getElementById('recipe-quick-chips');
+    this.calcApplySuggestedBtn = document.getElementById('calc-apply-suggested-btn');
+
+    // Master Raw Material Submodal Elements
+    this.adminMaterialSubmodal = document.getElementById('admin-material-submodal');
+    this.adminMatForm = document.getElementById('admin-mat-form');
+    this.matModalTitle = document.getElementById('mat-modal-title');
+    this.closeMatSubmodalBtn = document.getElementById('close-mat-submodal-btn');
+    this.cancelMatSubmodalBtn = document.getElementById('cancel-mat-submodal-btn');
+    this.matModalId = document.getElementById('mat-modal-id');
+    this.matModalName = document.getElementById('mat-modal-name');
+    this.matModalCategory = document.getElementById('mat-modal-category');
+    this.matModalUnit = document.getElementById('mat-modal-unit');
+    this.matModalRate = document.getElementById('mat-modal-rate');
+    this.matModalBasePreview = document.getElementById('mat-modal-base-preview');
+    this.matModalNotes = document.getElementById('mat-modal-notes');
+
     // Recipe Paste Modal Elements
     this.adminRecipePasteModal = document.getElementById('admin-recipe-paste-modal');
     this.recipePasteTextarea = document.getElementById('recipe-paste-textarea');
@@ -489,6 +535,89 @@ class UIManager {
     }
     if (this.cancelRecipePasteBtn) {
       this.cancelRecipePasteBtn.addEventListener('click', () => this.closeRecipePasteModal());
+    }
+
+    // Section 1: Master Raw Materials & Two-Section Calculator Events
+    if (this.calcSwitchBtns) {
+      this.calcSwitchBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          this.calcSwitchBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const view = btn.getAttribute('data-view') || 'split';
+          this.switchCalcSubView(view);
+        });
+      });
+    }
+
+    if (this.calcSyncAllItemsBtn) {
+      this.calcSyncAllItemsBtn.addEventListener('click', () => this.recalculateAllMenuItemsFromMaster());
+    }
+
+    if (this.calcExportMasterCsvBtn) {
+      this.calcExportMasterCsvBtn.addEventListener('click', () => this.exportMasterMaterialsCSV());
+    }
+
+    if (this.masterAddMatBtn) {
+      this.masterAddMatBtn.addEventListener('click', () => this.openAddMaterialModal());
+    }
+
+    if (this.masterSearchInput) {
+      this.masterSearchInput.addEventListener('input', (e) => {
+        this.masterSearchTerm = (e.target.value || '').toLowerCase().trim();
+        this.renderMasterRawMaterialsTable();
+      });
+    }
+
+    if (this.masterSortSelect) {
+      this.masterSortSelect.addEventListener('change', (e) => {
+        this.masterSortOrder = e.target.value || 'name-asc';
+        this.renderMasterRawMaterialsTable();
+      });
+    }
+
+    if (this.masterCategoryPills) {
+      this.masterCategoryPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          this.masterCategoryPills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          this.activeMasterCategory = pill.getAttribute('data-cat') || 'all';
+          this.renderMasterRawMaterialsTable();
+        });
+      });
+    }
+
+    if (this.masterInflationSlider) {
+      this.masterInflationSlider.addEventListener('input', (e) => {
+        const pct = parseInt(e.target.value, 10) || 0;
+        this.handleInflationSlider(pct);
+      });
+    }
+
+    if (this.quickAddSubmitBtn) {
+      this.quickAddSubmitBtn.addEventListener('click', () => this.handleQuickAddIngredient());
+    }
+
+    if (this.calcApplySuggestedBtn) {
+      this.calcApplySuggestedBtn.addEventListener('click', () => this.applySuggestedPrice());
+    }
+
+    // Master Material Submodal Events
+    if (this.closeMatSubmodalBtn) {
+      this.closeMatSubmodalBtn.addEventListener('click', () => this.closeAddMaterialModal());
+    }
+    if (this.cancelMatSubmodalBtn) {
+      this.cancelMatSubmodalBtn.addEventListener('click', () => this.closeAddMaterialModal());
+    }
+    if (this.adminMatForm) {
+      this.adminMatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.handleSaveMaterial();
+      });
+    }
+    if (this.matModalRate || this.matModalUnit) {
+      const updatePreview = () => this.updateMatModalBasePreview();
+      if (this.matModalRate) this.matModalRate.addEventListener('input', updatePreview);
+      if (this.matModalUnit) this.matModalUnit.addEventListener('change', updatePreview);
     }
 
     // Menu Item Filters & Controls
@@ -1774,7 +1903,46 @@ class UIManager {
     this.showFloatingToast(`Deleted "${itemName}"`, '#FF5252', 2000);
   }
 
-  // --- TAB 2: FOOD COST CALCULATOR & RECIPE MANUAL EXTRACTOR ---
+  // =========================================================
+  // TAB 2: TWO-SECTION FOOD COST CALCULATOR & RAW MATERIAL ENGINE
+  // =========================================================
+
+  initMasterRawMaterials() {
+    fetch('/api/raw-materials')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success && Array.isArray(data.materials) && data.materials.length > 0) {
+          this.masterRawMaterials = data.materials;
+        } else {
+          return fetch('/data/raw_materials.json').then(r => r.json());
+        }
+      })
+      .then(fallbackData => {
+        if (fallbackData && Array.isArray(fallbackData) && (!this.masterRawMaterials || this.masterRawMaterials.length === 0)) {
+          this.masterRawMaterials = fallbackData;
+        }
+        this.renderMasterRawMaterialsTable();
+        this.updateMasterMaterialKPIs();
+        this.populateQuickAddDropdown();
+        this.initRecipePuller();
+      })
+      .catch(() => {
+        fetch('/data/raw_materials.json')
+          .then(r => r.json())
+          .then(list => {
+            this.masterRawMaterials = Array.isArray(list) ? list : [];
+            this.renderMasterRawMaterialsTable();
+            this.updateMasterMaterialKPIs();
+            this.populateQuickAddDropdown();
+            this.initRecipePuller();
+          })
+          .catch(() => {
+            this.masterRawMaterials = [];
+            this.initRecipePuller();
+          });
+      });
+  }
+
   initRecipePuller() {
     this.rawMaterials = [];
     fetch('/api/recipes')
@@ -1786,33 +1954,500 @@ class UIManager {
           this.recipesCache = this.getDefaultRecipesList();
         }
         this.populateRecipeSelect();
+        this.renderRecipeQuickChips();
         this.pullRecipeIntoCalculator('rec-ff-01');
       })
       .catch(() => {
         this.recipesCache = this.getDefaultRecipesList();
         this.populateRecipeSelect();
+        this.renderRecipeQuickChips();
         this.pullRecipeIntoCalculator('rec-ff-01');
       });
   }
 
   initCostCalculator() {
-    if (!this.recipesCache || this.recipesCache.length === 0) {
-      this.initRecipePuller();
+    if (!this.masterRawMaterials || this.masterRawMaterials.length === 0) {
+      this.initMasterRawMaterials();
+    } else {
+      this.renderMasterRawMaterialsTable();
+      this.updateMasterMaterialKPIs();
+      this.populateQuickAddDropdown();
+      if (!this.recipesCache || this.recipesCache.length === 0) {
+        this.initRecipePuller();
+      }
     }
   }
 
+  // --- SUB-VIEW SWITCHER (Split / Section 1 / Section 2) ---
+  switchCalcSubView(view) {
+    this.calcActiveView = view;
+    if (!this.calcSection1 || !this.calcSection2) return;
+
+    if (view === 'section1') {
+      this.calcSection1.style.display = 'block';
+      this.calcSection2.style.display = 'none';
+    } else if (view === 'section2') {
+      this.calcSection1.style.display = 'none';
+      this.calcSection2.style.display = 'block';
+    } else {
+      // Split view (default)
+      this.calcSection1.style.display = 'block';
+      this.calcSection2.style.display = 'block';
+    }
+  }
+
+  // --- SECTION 1: MASTER RAW MATERIALS TABLE & RATE CONTROLS ---
+  renderMasterRawMaterialsTable() {
+    if (!this.masterRawMaterialsTbody) return;
+
+    let materials = [...(this.masterRawMaterials || [])];
+
+    // Filter by Category
+    if (this.activeMasterCategory && this.activeMasterCategory !== 'all') {
+      materials = materials.filter(m => (m.category || '').toLowerCase() === this.activeMasterCategory.toLowerCase());
+    }
+
+    // Filter by Search Term
+    if (this.masterSearchTerm) {
+      const term = this.masterSearchTerm.toLowerCase();
+      materials = materials.filter(m =>
+        (m.name || '').toLowerCase().includes(term) ||
+        (m.category || '').toLowerCase().includes(term) ||
+        (m.notes || '').toLowerCase().includes(term) ||
+        (m.usedInRecipes || []).some(r => r.toLowerCase().includes(term))
+      );
+    }
+
+    // Sort
+    const order = this.masterSortOrder || 'name-asc';
+    materials.sort((a, b) => {
+      if (order === 'name-asc') return (a.name || '').localeCompare(b.name || '');
+      if (order === 'rate-desc') return (b.costPerUnit || 0) - (a.costPerUnit || 0);
+      if (order === 'rate-asc') return (a.costPerUnit || 0) - (b.costPerUnit || 0);
+      if (order === 'recipes-desc') return (b.usedInRecipes ? b.usedInRecipes.length : 0) - (a.usedInRecipes ? a.usedInRecipes.length : 0);
+      return 0;
+    });
+
+    if (materials.length === 0) {
+      this.masterRawMaterialsTbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align:center; padding:24px; color:#94A3B8;">
+            No raw materials found matching filters. Click "+ ADD RAW MATERIAL" to add one!
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    let html = '';
+    const inflationMultiplier = 1 + (this.inflationSurgePct || 0) / 100;
+
+    materials.forEach((mat) => {
+      const rate = (mat.costPerUnit !== undefined ? mat.costPerUnit : 100);
+      const effectiveRate = rate * inflationMultiplier;
+      const baseInfo = this.getBaseUnitRateDisplay(effectiveRate, mat.standardUnit || 'kg');
+
+      // Category color class
+      const catClass = this.getCategoryBadgeClass(mat.category);
+      const recipesCount = (mat.usedInRecipes || []).length;
+
+      html += `
+        <tr data-mat-id="${mat.id}">
+          <td>
+            <div style="font-weight:800; color:#F8FAFC; font-size:13px;">${mat.name}</div>
+            ${mat.notes ? `<div style="font-size:10px; color:#64748B;">${mat.notes}</div>` : ''}
+          </td>
+          <td>
+            <span class="category-tag ${catClass}" style="font-size:10px;">${mat.category || 'General'}</span>
+          </td>
+          <td>
+            <select class="calc-select mat-uom-select" data-id="${mat.id}" style="padding:4px 8px; font-size:12px; width:75px;">
+              <option value="kg" ${mat.standardUnit === 'kg' ? 'selected' : ''}>kg</option>
+              <option value="L" ${mat.standardUnit === 'L' ? 'selected' : ''}>L</option>
+              <option value="pcs" ${mat.standardUnit === 'pcs' ? 'selected' : ''}>pcs</option>
+              <option value="g" ${mat.standardUnit === 'g' ? 'selected' : ''}>g</option>
+              <option value="ml" ${mat.standardUnit === 'ml' ? 'selected' : ''}>ml</option>
+            </select>
+          </td>
+          <td>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <span style="font-weight:800; color:#94A3B8; font-size:12px;">₹</span>
+              <input type="number" class="mat-inline-rate-input" data-id="${mat.id}" value="${rate}" step="1" min="0">
+              <span style="color:#64748B; font-size:11px;">/${mat.standardUnit || 'kg'}</span>
+            </div>
+            ${this.inflationSurgePct > 0 ? `<div style="font-size:10px; color:#F59E0B; font-weight:700;">+${this.inflationSurgePct}% = ₹${effectiveRate.toFixed(2)}</div>` : ''}
+          </td>
+          <td>
+            <span class="mat-base-rate-badge mat-base-preview-${mat.id}">
+              ${baseInfo}
+            </span>
+          </td>
+          <td>
+            ${recipesCount > 0 ? `
+              <span class="mat-recipes-tag" data-recipe="${mat.usedInRecipes[0]}" title="${mat.usedInRecipes.join(', ')}">
+                📖 ${recipesCount} ${recipesCount === 1 ? 'recipe' : 'recipes'}
+              </span>
+            ` : `<span style="color:#64748B; font-size:11px;">Not in recipe</span>`}
+          </td>
+          <td style="text-align:center;">
+            <button class="remove-ing-btn" onclick="window.uiManager.deleteMasterMaterial('${mat.id}')" title="Delete raw material">✕</button>
+          </td>
+        </tr>
+      `;
+    });
+
+    this.masterRawMaterialsTbody.innerHTML = html;
+
+    // Attach inline listeners
+    this.masterRawMaterialsTbody.querySelectorAll('.mat-inline-rate-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const matId = e.target.getAttribute('data-id');
+        const newRate = Math.max(0, parseFloat(e.target.value) || 0);
+        this.updateMasterMaterialRate(matId, newRate);
+      });
+    });
+
+    this.masterRawMaterialsTbody.querySelectorAll('.mat-uom-select').forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        const matId = e.target.getAttribute('data-id');
+        const newUom = e.target.value;
+        this.updateMasterMaterialUom(matId, newUom);
+      });
+    });
+
+    // Clicking a recipe tag loads that recipe in Section 2
+    this.masterRawMaterialsTbody.querySelectorAll('.mat-recipes-tag').forEach(tag => {
+      tag.addEventListener('click', (e) => {
+        const recName = tag.getAttribute('data-recipe');
+        const found = (this.recipesCache || []).find(r => r.name.toLowerCase() === recName.toLowerCase());
+        if (found) {
+          if (this.calcRecipeSelect) this.calcRecipeSelect.value = found.id;
+          this.pullRecipeIntoCalculator(found.id);
+          this.showFloatingToast(`Loaded recipe: ${found.name} ✓`, '#6366F1', 1800);
+          if (this.calcSection2) {
+            this.calcSection2.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      });
+    });
+  }
+
+  getBaseUnitRateDisplay(rate, stdUnit) {
+    if (stdUnit === 'kg') {
+      const perGram = rate / 1000;
+      return `₹${perGram.toFixed(3)} / g`;
+    }
+    if (stdUnit === 'L') {
+      const perMl = rate / 1000;
+      return `₹${perMl.toFixed(3)} / ml`;
+    }
+    if (stdUnit === 'pcs') {
+      return `₹${rate.toFixed(2)} / pc`;
+    }
+    if (stdUnit === 'g') {
+      return `₹${rate.toFixed(2)} / g`;
+    }
+    if (stdUnit === 'ml') {
+      return `₹${rate.toFixed(2)} / ml`;
+    }
+    return `₹${rate.toFixed(2)} / ${stdUnit}`;
+  }
+
+  getCategoryBadgeClass(category) {
+    const c = (category || '').toLowerCase();
+    if (c.includes('meat') || c.includes('poultry')) return 'main';
+    if (c.includes('dairy') || c.includes('cheese')) return 'side';
+    if (c.includes('bakery') || c.includes('bread')) return 'combo';
+    if (c.includes('sauce') || c.includes('condiment')) return 'drink';
+    return 'main';
+  }
+
+  updateMasterMaterialKPIs() {
+    const materials = this.masterRawMaterials || [];
+    if (this.masterTotalMaterials) this.masterTotalMaterials.textContent = materials.length;
+    if (this.masterMatCountBadge) this.masterMatCountBadge.textContent = materials.length;
+
+    // Update Category counts
+    const countAll = materials.length;
+    const countMeats = materials.filter(m => (m.category || '').toLowerCase().includes('meat') || (m.category || '').toLowerCase().includes('poultry')).length;
+    const countDairy = materials.filter(m => (m.category || '').toLowerCase().includes('dairy') || (m.category || '').toLowerCase().includes('cheese')).length;
+    const countBakery = materials.filter(m => (m.category || '').toLowerCase().includes('bakery') || (m.category || '').toLowerCase().includes('bread')).length;
+    const countSauces = materials.filter(m => (m.category || '').toLowerCase().includes('sauce') || (m.category || '').toLowerCase().includes('condiment')).length;
+    const countProduce = materials.filter(m => (m.category || '').toLowerCase().includes('produce') || (m.category || '').toLowerCase().includes('veggie')).length;
+    const countOils = materials.filter(m => (m.category || '').toLowerCase().includes('oil') || (m.category || '').toLowerCase().includes('beverage')).length;
+    const countPkg = materials.filter(m => (m.category || '').toLowerCase().includes('pkg') || (m.category || '').toLowerCase().includes('pack')).length;
+
+    const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setTxt('mat-cat-count-all', countAll);
+    setTxt('mat-cat-count-meats', countMeats);
+    setTxt('mat-cat-count-dairy', countDairy);
+    setTxt('mat-cat-count-bakery', countBakery);
+    setTxt('mat-cat-count-sauces', countSauces);
+    setTxt('mat-cat-count-produce', countProduce);
+    setTxt('mat-cat-count-oils', countOils);
+    setTxt('mat-cat-count-pkg', countPkg);
+  }
+
+  updateMasterMaterialRate(matId, newRate) {
+    const mat = (this.masterRawMaterials || []).find(m => m.id === matId);
+    if (!mat) return;
+    mat.costPerUnit = newRate;
+
+    // Update base rate badge in row
+    const badge = document.querySelector(`.mat-base-preview-${matId}`);
+    if (badge) {
+      const effectiveRate = newRate * (1 + (this.inflationSurgePct || 0) / 100);
+      badge.textContent = this.getBaseUnitRateDisplay(effectiveRate, mat.standardUnit || 'kg');
+    }
+
+    // Reactively update Section 2's ingredient rows and food cost calculation!
+    this.renderRawMaterialRows();
+    this.recalculateRawMaterialsFoodCost();
+
+    // Debounced persist to API
+    if (this._saveMasterTimeout) clearTimeout(this._saveMasterTimeout);
+    this._saveMasterTimeout = setTimeout(() => {
+      fetch('/api/raw-materials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ material: mat })
+      }).catch(() => {});
+    }, 400);
+  }
+
+  updateMasterMaterialUom(matId, newUom) {
+    const mat = (this.masterRawMaterials || []).find(m => m.id === matId);
+    if (!mat) return;
+    mat.standardUnit = newUom;
+
+    const badge = document.querySelector(`.mat-base-preview-${matId}`);
+    if (badge) {
+      const effectiveRate = (mat.costPerUnit || 0) * (1 + (this.inflationSurgePct || 0) / 100);
+      badge.textContent = this.getBaseUnitRateDisplay(effectiveRate, newUom);
+    }
+
+    this.renderRawMaterialRows();
+    this.recalculateRawMaterialsFoodCost();
+
+    fetch('/api/raw-materials', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ material: mat })
+    }).catch(() => {});
+  }
+
+  handleInflationSlider(pct) {
+    this.inflationSurgePct = pct;
+    if (this.masterInflationVal) {
+      this.masterInflationVal.textContent = pct > 0 ? `+${pct}% (Inflation)` : `+0% (Baseline)`;
+      this.masterInflationVal.style.color = pct > 0 ? '#EF4444' : '#F59E0B';
+    }
+
+    if (this.masterInflationImpact) {
+      if (pct > 0) {
+        this.masterInflationImpact.textContent = `All master rates surged by +${pct}%. Recipe margins re-evaluated.`;
+      } else {
+        this.masterInflationImpact.textContent = `Baseline supplier purchasing costs without inflation.`;
+      }
+    }
+
+    // Re-render Section 1 previews and Section 2 calculations
+    this.renderMasterRawMaterialsTable();
+    this.renderRawMaterialRows();
+    this.recalculateRawMaterialsFoodCost();
+  }
+
+  populateQuickAddDropdown() {
+    if (!this.quickAddMatSelect) return;
+    const materials = this.masterRawMaterials || [];
+    let html = '<option value="">-- Choose Raw Material from Master List --</option>';
+
+    // Group by category
+    const cats = {};
+    materials.forEach(m => {
+      const c = m.category || 'General';
+      if (!cats[c]) cats[c] = [];
+      cats[c].push(m);
+    });
+
+    Object.keys(cats).sort().forEach(catName => {
+      html += `<optgroup label="${catName}">`;
+      cats[catName].forEach(m => {
+        html += `<option value="${m.name}">${m.name} (₹${m.costPerUnit}/${m.standardUnit})</option>`;
+      });
+      html += `</optgroup>`;
+    });
+
+    this.quickAddMatSelect.innerHTML = html;
+  }
+
+  handleQuickAddIngredient() {
+    if (!this.quickAddMatSelect || !this.quickAddMatSelect.value) {
+      alert('Please select a raw material from the master list dropdown.');
+      return;
+    }
+
+    const matName = this.quickAddMatSelect.value;
+    const qty = parseFloat(this.quickAddQty ? this.quickAddQty.value : 50) || 50;
+    const uom = (this.quickAddUom ? this.quickAddUom.value : 'g') || 'g';
+
+    const masterRateInfo = this.getMasterRateForIngredient(matName);
+
+    const newIng = {
+      name: matName,
+      recipeQty: qty,
+      recipeUom: uom,
+      packQty: masterRateInfo.mat ? masterRateInfo.mat.packQty || 1000 : 1000,
+      packUom: masterRateInfo.mat ? masterRateInfo.mat.standardUnit || 'g' : 'g',
+      packPrice: masterRateInfo.mat ? masterRateInfo.mat.costPerUnit || 100 : 100,
+      calculatedCost: this.calculatePortionCostFromMaster(matName, qty, uom)
+    };
+
+    if (!this.rawMaterials) this.rawMaterials = [];
+    this.rawMaterials.push(newIng);
+
+    this.renderRawMaterialRows();
+    this.recalculateRawMaterialsFoodCost();
+    this.showFloatingToast(`Added ${matName} to recipe! ✓`, '#10B981', 1800);
+  }
+
+  openAddMaterialModal(mat = null) {
+    if (!this.adminMaterialSubmodal) return;
+    if (this.matModalTitle) this.matModalTitle.textContent = mat ? '✏️ EDIT MASTER RAW MATERIAL' : '+ ADD MASTER RAW MATERIAL';
+    if (this.matModalId) this.matModalId.value = mat ? mat.id : '';
+    if (this.matModalName) this.matModalName.value = mat ? mat.name : '';
+    if (this.matModalCategory) this.matModalCategory.value = mat ? mat.category : 'Poultry & Meats';
+    if (this.matModalUnit) this.matModalUnit.value = mat ? mat.standardUnit : 'kg';
+    if (this.matModalRate) this.matModalRate.value = mat ? mat.costPerUnit : 180;
+    if (this.matModalNotes) this.matModalNotes.value = mat ? mat.notes || '' : '';
+    this.updateMatModalBasePreview();
+    this.adminMaterialSubmodal.classList.remove('hidden');
+    if (this.matModalName) this.matModalName.focus();
+  }
+
+  closeAddMaterialModal() {
+    if (this.adminMaterialSubmodal) this.adminMaterialSubmodal.classList.add('hidden');
+  }
+
+  updateMatModalBasePreview() {
+    if (!this.matModalBasePreview) return;
+    const rate = parseFloat(this.matModalRate ? this.matModalRate.value : 0) || 0;
+    const uom = this.matModalUnit ? this.matModalUnit.value : 'kg';
+    this.matModalBasePreview.textContent = this.getBaseUnitRateDisplay(rate, uom);
+  }
+
+  handleSaveMaterial() {
+    const name = this.matModalName ? this.matModalName.value.trim() : '';
+    if (!name) {
+      alert('Please enter a raw material name.');
+      return;
+    }
+
+    const rate = parseFloat(this.matModalRate ? this.matModalRate.value : 0) || 0;
+    const unit = this.matModalUnit ? this.matModalUnit.value : 'kg';
+    const category = this.matModalCategory ? this.matModalCategory.value : 'General';
+    const notes = this.matModalNotes ? this.matModalNotes.value.trim() : '';
+    const id = (this.matModalId && this.matModalId.value) ? this.matModalId.value : ('mat-' + Date.now().toString().slice(-6));
+
+    const matData = {
+      id: id,
+      name: name,
+      category: category,
+      standardUnit: unit,
+      costPerUnit: rate,
+      notes: notes,
+      usedInRecipes: []
+    };
+
+    const existingIdx = (this.masterRawMaterials || []).findIndex(m => m.id === id || m.name.toLowerCase() === name.toLowerCase());
+    if (existingIdx >= 0) {
+      matData.usedInRecipes = this.masterRawMaterials[existingIdx].usedInRecipes || [];
+      this.masterRawMaterials[existingIdx] = matData;
+    } else {
+      if (!this.masterRawMaterials) this.masterRawMaterials = [];
+      this.masterRawMaterials.unshift(matData);
+    }
+
+    fetch('/api/raw-materials', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ material: matData })
+    }).catch(() => {});
+
+    this.closeAddMaterialModal();
+    this.renderMasterRawMaterialsTable();
+    this.updateMasterMaterialKPIs();
+    this.populateQuickAddDropdown();
+    this.renderRawMaterialRows();
+    this.recalculateRawMaterialsFoodCost();
+    this.showFloatingToast(`Raw material "${name}" saved! ✓`, '#10B981', 2200);
+  }
+
+  deleteMasterMaterial(matId) {
+    const mat = (this.masterRawMaterials || []).find(m => m.id === matId);
+    const name = mat ? mat.name : 'material';
+    if (!confirm(`Are you sure you want to delete "${name}" from master raw materials?`)) return;
+
+    this.masterRawMaterials = (this.masterRawMaterials || []).filter(m => m.id !== matId);
+    fetch('/api/raw-materials', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: matId })
+    }).catch(() => {});
+
+    this.renderMasterRawMaterialsTable();
+    this.updateMasterMaterialKPIs();
+    this.populateQuickAddDropdown();
+    this.renderRawMaterialRows();
+    this.recalculateRawMaterialsFoodCost();
+    this.showFloatingToast(`Deleted "${name}"`, '#EF4444', 1800);
+  }
+
+  exportMasterMaterialsCSV() {
+    const materials = this.masterRawMaterials || [];
+    if (materials.length === 0) {
+      alert('No master raw materials to export.');
+      return;
+    }
+
+    let csv = 'ID,Name,Category,Standard_UoM,Purchase_Rate_INR,Effective_Base_Rate,Notes,Recipes_Count\n';
+    materials.forEach(m => {
+      const baseInfo = this.getBaseUnitRateDisplay(m.costPerUnit || 0, m.standardUnit || 'kg');
+      const row = [
+        `"${m.id || ''}"`,
+        `"${(m.name || '').replace(/"/g, '""')}"`,
+        `"${(m.category || '').replace(/"/g, '""')}"`,
+        `"${m.standardUnit || 'kg'}"`,
+        (m.costPerUnit || 0).toFixed(2),
+        `"${baseInfo}"`,
+        `"${(m.notes || '').replace(/"/g, '""')}"`,
+        (m.usedInRecipes ? m.usedInRecipes.length : 0)
+      ];
+      csv += row.join(',') + '\n';
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `wof_master_raw_materials_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    this.showFloatingToast('Master Raw Materials CSV downloaded! 📥', '#10B981', 2000);
+  }
+
+  // --- SECTION 2: RECIPE FORMULATION & FOOD COST PULLER ---
   populateRecipeSelect() {
     if (!this.calcRecipeSelect) return;
     const recipes = this.recipesCache || [];
     if (recipes.length === 0) return;
 
-    // Group by station / category
     const hotKitchen = recipes.filter(r => (r.station || '').toLowerCase().includes('hot') || (r.category || '').match(/fries|wrap|burger|sandwich|pasta|soup/i));
     const coldStation = recipes.filter(r => (r.station || '').toLowerCase().includes('cold') || (r.category || '').match(/shake|mojito|falooda|dessert|brownie/i));
 
     let html = '';
     if (hotKitchen.length > 0) {
-      html += `<optgroup label="🔥 HOT KITCHEN (FRIES, WRAPS, BURGERS, PASTAS)">`;
+      html += `<optgroup label="🔥 HOT KITCHEN (FRIES, WRAPS, BURGERS)">`;
       hotKitchen.forEach(r => {
         html += `<option value="${r.id}">${r.name} — ${r.portion || r.category}</option>`;
       });
@@ -1820,7 +2455,7 @@ class UIManager {
     }
 
     if (coldStation.length > 0) {
-      html += `<optgroup label="❄️ COLD STATION (SHAKES, MOJITOS, FALOODA, BROWNIES)">`;
+      html += `<optgroup label="❄️ COLD STATION (SHAKES, MOJITOS, FALOODA)">`;
       coldStation.forEach(r => {
         html += `<option value="${r.id}">${r.name} — ${r.portion || r.category}</option>`;
       });
@@ -1830,6 +2465,106 @@ class UIManager {
     this.calcRecipeSelect.innerHTML = html;
   }
 
+  renderRecipeQuickChips() {
+    if (!this.recipeQuickChips) return;
+    const recipes = this.recipesCache || [];
+    if (recipes.length === 0) return;
+
+    const top8 = recipes.slice(0, 8);
+    let html = '';
+    top8.forEach((r, idx) => {
+      const activeClass = idx === 0 ? 'active' : '';
+      const icon = (r.category || '').toLowerCase().includes('drink') || (r.category || '').toLowerCase().includes('shake') ? '🥤' :
+        ((r.category || '').toLowerCase().includes('fries') ? '🍟' : '🍔');
+      html += `
+        <div class="recipe-chip ${activeClass}" data-recipe-id="${r.id}">
+          <span>${icon}</span> ${r.name}
+        </div>
+      `;
+    });
+
+    this.recipeQuickChips.innerHTML = html;
+    this.recipeQuickChips.querySelectorAll('.recipe-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        this.recipeQuickChips.querySelectorAll('.recipe-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const id = chip.getAttribute('data-recipe-id');
+        if (this.calcRecipeSelect) this.calcRecipeSelect.value = id;
+        this.pullRecipeIntoCalculator(id);
+      });
+    });
+  }
+
+  getMasterRateForIngredient(matName) {
+    const term = (matName || '').toLowerCase().trim();
+    const materials = this.masterRawMaterials || [];
+
+    // Exact or best match
+    let found = materials.find(m => m.name.toLowerCase() === term);
+    if (!found) {
+      // Partial matching (e.g. "French Fries" in "French Fries (Frozen)")
+      found = materials.find(m => term.includes(m.name.toLowerCase()) || m.name.toLowerCase().includes(term));
+    }
+
+    const inflationMultiplier = 1 + (this.inflationSurgePct || 0) / 100;
+
+    if (found) {
+      const stdRate = (found.costPerUnit || 0) * inflationMultiplier;
+      const unit = found.standardUnit || 'kg';
+      let baseRate = 0;
+      let baseUnit = 'g';
+
+      if (unit === 'kg') {
+        baseRate = stdRate / 1000;
+        baseUnit = 'g';
+      } else if (unit === 'L') {
+        baseRate = stdRate / 1000;
+        baseUnit = 'ml';
+      } else if (unit === 'pcs') {
+        baseRate = stdRate;
+        baseUnit = 'pcs';
+      } else if (unit === 'g') {
+        baseRate = stdRate;
+        baseUnit = 'g';
+      } else if (unit === 'ml') {
+        baseRate = stdRate;
+        baseUnit = 'ml';
+      }
+
+      return {
+        found: true,
+        mat: found,
+        ratePerStdUnit: stdRate,
+        standardUnit: unit,
+        baseRate: baseRate,
+        baseUnit: baseUnit,
+        rateLabel: `₹${stdRate.toFixed(2)}/${unit} (${this.getBaseUnitRateDisplay(stdRate, unit)})`
+      };
+    }
+
+    // Default rate if not in master list
+    return {
+      found: false,
+      mat: null,
+      ratePerStdUnit: 120,
+      standardUnit: 'kg',
+      baseRate: 0.12,
+      baseUnit: 'g',
+      rateLabel: '₹120/kg (Default Rate)'
+    };
+  }
+
+  calculatePortionCostFromMaster(matName, qty, uom) {
+    const rateInfo = this.getMasterRateForIngredient(matName);
+    const norm = this.convertToBaseUnit(parseFloat(qty) || 0, uom);
+
+    if (rateInfo.baseUnit === 'pcs' || norm.base === 'pcs') {
+      return (parseFloat(qty) || 0) * rateInfo.baseRate;
+    }
+
+    return norm.val * rateInfo.baseRate;
+  }
+
   pullRecipeIntoCalculator(recipeId) {
     const recipes = this.recipesCache || [];
     const recipe = recipes.find(r => r.id === recipeId) || recipes[0];
@@ -1837,7 +2572,6 @@ class UIManager {
 
     if (this.calcItemName) this.calcItemName.value = recipe.name || '';
 
-    // Map category
     let cat = 'main';
     const catLower = (recipe.category || '').toLowerCase();
     if (catLower.includes('fries') || catLower.includes('appetizer')) cat = 'side';
@@ -1855,20 +2589,22 @@ class UIManager {
       this.calcSellingPriceInput.value = recipe.suggestedPrice || 89;
     }
 
-    // Clone raw materials
-    this.rawMaterials = (recipe.rawMaterials || []).map(mat => ({
-      name: mat.name,
-      recipeQty: mat.recipeQty !== undefined ? mat.recipeQty : 100,
-      recipeUom: mat.recipeUom || 'g',
-      packQty: mat.packQty !== undefined ? mat.packQty : 1000,
-      packUom: mat.packUom || 'g',
-      packPrice: mat.packPrice !== undefined ? mat.packPrice : 120,
-      calculatedCost: 0
-    }));
+    // Clone raw materials and link to Section 1's Master Rates!
+    this.rawMaterials = (recipe.rawMaterials || []).map(mat => {
+      const portionCost = this.calculatePortionCostFromMaster(mat.name, mat.recipeQty, mat.recipeUom);
+      return {
+        name: mat.name,
+        recipeQty: mat.recipeQty !== undefined ? mat.recipeQty : 100,
+        recipeUom: mat.recipeUom || 'g',
+        packQty: mat.packQty !== undefined ? mat.packQty : 1000,
+        packUom: mat.packUom || 'g',
+        packPrice: mat.packPrice !== undefined ? mat.packPrice : 120,
+        calculatedCost: portionCost
+      };
+    });
 
     this.renderRawMaterialRows();
     this.recalculateRawMaterialsFoodCost();
-    this.showFloatingToast(`Pulled recipe: ${recipe.name}! 📖`, '#6366F1', 1800);
   }
 
   renderRawMaterialRows() {
@@ -1877,8 +2613,8 @@ class UIManager {
     if (!this.rawMaterials || this.rawMaterials.length === 0) {
       this.calcRawMaterialsTbody.innerHTML = `
         <tr>
-          <td colspan="8" style="text-align:center; padding:18px; color:#94A3B8;">
-            No raw materials added yet. Click "+ ADD RAW MATERIAL" or pull a standard recipe above!
+          <td colspan="6" style="text-align:center; padding:18px; color:#94A3B8;">
+            No raw materials added yet. Click "+ ADD INGREDIENT" or select a recipe above!
           </td>
         </tr>
       `;
@@ -1887,13 +2623,17 @@ class UIManager {
 
     let html = '';
     this.rawMaterials.forEach((mat, i) => {
-      const cost = this.calculateRawMaterialCost(mat.recipeQty, mat.recipeUom, mat.packQty, mat.packUom, mat.packPrice);
+      const cost = this.calculatePortionCostFromMaster(mat.name, mat.recipeQty, mat.recipeUom);
       mat.calculatedCost = cost;
+      const masterInfo = this.getMasterRateForIngredient(mat.name);
 
       html += `
         <tr data-index="${i}">
           <td>
-            <input type="text" class="calc-mat-name" value="${(mat.name || '').replace(/"/g, '&quot;')}" placeholder="e.g. French Fries (Frozen)" style="width:100%;">
+            <div style="font-weight:800; color:#F8FAFC; display:flex; align-items:center; gap:6px;">
+              <span>${mat.name}</span>
+              ${masterInfo.found ? `<span style="font-size:9px; color:#10B981; background:rgba(16,185,129,0.15); border-radius:4px; padding:1px 4px;">PULLED ✓</span>` : `<span style="font-size:9px; color:#F59E0B; background:rgba(245,158,11,0.15); border-radius:4px; padding:1px 4px;">ESTIMATE</span>`}
+            </div>
           </td>
           <td>
             <input type="number" class="calc-mat-recipe-qty" value="${mat.recipeQty}" step="0.5" min="0" style="width:100%;">
@@ -1908,25 +2648,15 @@ class UIManager {
             </select>
           </td>
           <td>
-            <input type="number" class="calc-mat-pack-qty" value="${mat.packQty}" step="1" min="1" style="width:100%;">
+            <span style="font-size:11px; color:#38BDF8; font-weight:700;">
+              ${masterInfo.rateLabel}
+            </span>
           </td>
-          <td>
-            <select class="calc-mat-pack-uom calc-select" style="padding:4px 6px; font-size:11px; width:100%;">
-              <option value="g" ${mat.packUom === 'g' ? 'selected' : ''}>g</option>
-              <option value="kg" ${mat.packUom === 'kg' ? 'selected' : ''}>kg</option>
-              <option value="ml" ${mat.packUom === 'ml' ? 'selected' : ''}>ml</option>
-              <option value="L" ${mat.packUom === 'L' ? 'selected' : ''}>L</option>
-              <option value="pcs" ${mat.packUom === 'pcs' ? 'selected' : ''}>pcs</option>
-            </select>
-          </td>
-          <td>
-            <input type="number" class="calc-mat-pack-price" value="${mat.packPrice}" step="1" min="0" style="width:100%;">
-          </td>
-          <td style="font-weight:800; color:#FDE047; text-align:right;">
+          <td style="font-weight:900; color:#FDE047; text-align:right; font-size:13px; font-variant-numeric:tabular-nums;">
             ₹${cost.toFixed(2)}
           </td>
           <td style="text-align:center;">
-            <button class="remove-ing-btn" onclick="window.uiManager.removeRawMaterialRow(${i})" title="Remove raw material">✕</button>
+            <button class="remove-ing-btn" onclick="window.uiManager.removeRawMaterialRow(${i})" title="Remove ingredient">✕</button>
           </td>
         </tr>
       `;
@@ -1934,56 +2664,42 @@ class UIManager {
 
     this.calcRawMaterialsTbody.innerHTML = html;
 
-    // Attach row input listeners
+    // Attach row listeners
     this.calcRawMaterialsTbody.querySelectorAll('tr').forEach(tr => {
       const idx = parseInt(tr.getAttribute('data-index'), 10);
-      const inputName = tr.querySelector('.calc-mat-name');
       const inputRecipeQty = tr.querySelector('.calc-mat-recipe-qty');
       const selectRecipeUom = tr.querySelector('.calc-mat-recipe-uom');
-      const inputPackQty = tr.querySelector('.calc-mat-pack-qty');
-      const selectPackUom = tr.querySelector('.calc-mat-pack-uom');
-      const inputPackPrice = tr.querySelector('.calc-mat-pack-price');
 
       const onRowChange = () => {
         if (!this.rawMaterials[idx]) return;
-        this.rawMaterials[idx].name = inputName.value;
         this.rawMaterials[idx].recipeQty = parseFloat(inputRecipeQty.value) || 0;
         this.rawMaterials[idx].recipeUom = selectRecipeUom.value;
-        this.rawMaterials[idx].packQty = parseFloat(inputPackQty.value) || 1;
-        this.rawMaterials[idx].packUom = selectPackUom.value;
-        this.rawMaterials[idx].packPrice = parseFloat(inputPackPrice.value) || 0;
 
-        const updatedCost = this.calculateRawMaterialCost(
+        const updatedCost = this.calculatePortionCostFromMaster(
+          this.rawMaterials[idx].name,
           this.rawMaterials[idx].recipeQty,
-          this.rawMaterials[idx].recipeUom,
-          this.rawMaterials[idx].packQty,
-          this.rawMaterials[idx].packUom,
-          this.rawMaterials[idx].packPrice
+          this.rawMaterials[idx].recipeUom
         );
         this.rawMaterials[idx].calculatedCost = updatedCost;
 
-        tr.cells[6].textContent = `₹${updatedCost.toFixed(2)}`;
+        tr.cells[4].textContent = `₹${updatedCost.toFixed(2)}`;
         this.recalculateRawMaterialsFoodCost();
       };
 
-      inputName.addEventListener('input', onRowChange);
       inputRecipeQty.addEventListener('input', onRowChange);
       selectRecipeUom.addEventListener('change', onRowChange);
-      inputPackQty.addEventListener('input', onRowChange);
-      selectPackUom.addEventListener('change', onRowChange);
-      inputPackPrice.addEventListener('input', onRowChange);
     });
   }
 
   addRawMaterialRow(data = null) {
     const newMat = data || {
-      name: 'New Raw Material',
-      recipeQty: 50,
-      recipeUom: 'g',
-      packQty: 1000,
-      packUom: 'g',
-      packPrice: 150,
-      calculatedCost: 7.50
+      name: 'Burger Bun (Sesame)',
+      recipeQty: 1,
+      recipeUom: 'pcs',
+      packQty: 1,
+      packUom: 'pcs',
+      packPrice: 10,
+      calculatedCost: 10.00
     };
     if (!this.rawMaterials) this.rawMaterials = [];
     this.rawMaterials.push(newMat);
@@ -2025,11 +2741,11 @@ class UIManager {
 
   recalculateRawMaterialsFoodCost() {
     const rawCost = (this.rawMaterials || []).reduce((sum, mat) => {
-      const c = this.calculateRawMaterialCost(mat.recipeQty, mat.recipeUom, mat.packQty, mat.packUom, mat.packPrice);
+      const c = this.calculatePortionCostFromMaster(mat.name, mat.recipeQty, mat.recipeUom);
       return sum + c;
     }, 0);
 
-    const packagingCost = parseFloat(this.calcPackagingCost ? this.calcPackagingCost.value : 4) || 0;
+    const packagingCost = parseFloat(this.calcPackagingCost ? this.calcPackagingCost.value : 5) || 0;
     const wastagePct = parseFloat(this.calcWastagePct ? this.calcWastagePct.value : 4) || 0;
     const wastageCost = (rawCost * wastagePct) / 100;
     const totalFoodCost = rawCost + packagingCost + wastageCost;
@@ -2051,7 +2767,7 @@ class UIManager {
       let statusText = 'Optimal ✓';
       let statusColor = '#10B981';
       if (foodCostPct > 35) {
-        statusText = 'High Cost ⚠️';
+        statusText = 'High Alert ⚠️';
         statusColor = '#EF4444';
       } else if (foodCostPct >= 30) {
         statusText = 'Moderate';
@@ -2090,6 +2806,16 @@ class UIManager {
     if (this.calcSuggestedPriceDisplay) this.calcSuggestedPriceDisplay.textContent = `₹${suggested}`;
   }
 
+  applySuggestedPrice() {
+    if (!this.calcSuggestedPriceDisplay || !this.calcSellingPriceInput) return;
+    const num = parseFloat(this.calcSuggestedPriceDisplay.textContent.replace(/[^\d.]/g, '')) || 0;
+    if (num > 0) {
+      this.calcSellingPriceInput.value = num;
+      this.recalculateRawMaterialsFoodCost();
+      this.showFloatingToast(`Applied suggested price: ₹${num}! ✓`, '#38BDF8', 1800);
+    }
+  }
+
   saveRecipeAsMenuItem() {
     const name = this.calcItemName ? this.calcItemName.value.trim() : 'Recipe Item';
     const category = this.calcItemCategory ? this.calcItemCategory.value : 'main';
@@ -2097,7 +2823,7 @@ class UIManager {
     const packagingCost = parseFloat(this.calcPackagingCost.value) || 0;
     const wastagePct = parseFloat(this.calcWastagePct.value) || 0;
     const rawCost = (this.rawMaterials || []).reduce((sum, mat) => {
-      return sum + this.calculateRawMaterialCost(mat.recipeQty, mat.recipeUom, mat.packQty, mat.packUom, mat.packPrice);
+      return sum + this.calculatePortionCostFromMaster(mat.name, mat.recipeQty, mat.recipeUom);
     }, 0);
     const wastageCost = (rawCost * wastagePct) / 100;
     const totalCost = rawCost + packagingCost + wastageCost;
@@ -2118,19 +2844,30 @@ class UIManager {
       portion: portion,
       popularity: 850,
       targetFoodCostPct: targetFoodCostPct,
-      ingredients: (this.rawMaterials || []).map(mat => ({
-        name: mat.name,
-        packCost: mat.packPrice,
-        packQty: mat.packQty,
-        packUnit: mat.packUom,
-        portionQty: mat.recipeQty,
-        recipeUom: mat.recipeUom,
-        calculatedCost: mat.calculatedCost
-      }))
+      ingredients: (this.rawMaterials || []).map(mat => {
+        const masterInfo = this.getMasterRateForIngredient(mat.name);
+        return {
+          name: mat.name,
+          packCost: masterInfo.ratePerStdUnit,
+          packQty: 1,
+          packUnit: masterInfo.standardUnit,
+          portionQty: mat.recipeQty,
+          recipeUom: mat.recipeUom,
+          calculatedCost: mat.calculatedCost
+        };
+      })
     };
 
     if (!this.menuItemsCache) this.menuItemsCache = this.getLocalItems();
-    this.menuItemsCache.push(itemObj);
+    // If item with same name exists, update it; otherwise append
+    const existingIdx = this.menuItemsCache.findIndex(it => it.name.toLowerCase() === name.toLowerCase());
+    if (existingIdx >= 0) {
+      itemObj.id = this.menuItemsCache[existingIdx].id;
+      this.menuItemsCache[existingIdx] = itemObj;
+    } else {
+      this.menuItemsCache.push(itemObj);
+    }
+
     this.saveItemsLocally(this.menuItemsCache);
 
     fetch('/api/items', {
@@ -2143,7 +2880,45 @@ class UIManager {
     this.renderItemsView();
     this.renderMenuEngineeringMatrix();
     if (this.navCountItems) this.navCountItems.textContent = this.menuItemsCache.length;
-    this.showFloatingToast(`Recipe for "${name}" saved to Menu Tracker! ✓`, '#10B981', 2500);
+    this.showFloatingToast(`Recipe for "${name}" synced to Menu Tracker! ✓`, '#10B981', 2500);
+  }
+
+  recalculateAllMenuItemsFromMaster() {
+    const items = this.menuItemsCache || [];
+    if (items.length === 0) {
+      alert('No menu items in catalog to recalculate.');
+      return;
+    }
+
+    let updatedCount = 0;
+    items.forEach(it => {
+      if (Array.isArray(it.ingredients) && it.ingredients.length > 0) {
+        let newFoodCost = 0;
+        it.ingredients.forEach(ing => {
+          const cost = this.calculatePortionCostFromMaster(ing.name, ing.portionQty || 50, ing.recipeUom || 'g');
+          ing.calculatedCost = cost;
+          newFoodCost += cost;
+        });
+        it.foodCost = Number(newFoodCost.toFixed(2));
+        it.cost = Number((it.foodCost + (it.packagingCost || 5)).toFixed(2));
+        updatedCount++;
+      }
+    });
+
+    this.saveItemsLocally(items);
+
+    // Sync to API
+    items.forEach(it => {
+      fetch('/api/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(it)
+      }).catch(() => {});
+    });
+
+    this.renderItemsView();
+    this.renderMenuEngineeringMatrix();
+    this.showFloatingToast(`⚡ Recalculated ${updatedCount} menu items from Master Raw Material rates!`, '#10B981', 2500);
   }
 
   copyRecipeBreakdown() {
@@ -2158,9 +2933,10 @@ class UIManager {
     text += `Recipe Item Food Cost (CoGS): ${totalCost}\n`;
     text += `Food Cost %: ${fcPct}\n`;
     text += `Gross Profit: ${profit}\n\n`;
-    text += `Raw Materials Formulation:\n`;
+    text += `Raw Materials Formulation (Pulled from Master):\n`;
     (this.rawMaterials || []).forEach((mat, i) => {
-      text += `${i + 1}. ${mat.name} — ${mat.recipeQty}${mat.recipeUom} (Pack: ${mat.packQty}${mat.packUom} @ ₹${mat.packPrice}) = ₹${(mat.calculatedCost || 0).toFixed(2)}\n`;
+      const masterInfo = this.getMasterRateForIngredient(mat.name);
+      text += `${i + 1}. ${mat.name} — ${mat.recipeQty}${mat.recipeUom} (Rate: ${masterInfo.rateLabel}) = ₹${(mat.calculatedCost || 0).toFixed(2)}\n`;
     });
     text += `Packaging Cost: ₹${this.calcPackagingCost ? this.calcPackagingCost.value : '0'}\n`;
     text += `Kitchen Wastage: ${this.calcWastagePct ? this.calcWastagePct.value : '0'}%\n`;
@@ -2168,7 +2944,7 @@ class UIManager {
     navigator.clipboard.writeText(text).then(() => {
       if (this.calcCopySummaryBtn) {
         this.calcCopySummaryBtn.textContent = 'COPIED! ✓';
-        setTimeout(() => { this.calcCopySummaryBtn.textContent = '📋 COPY COST SHEET'; }, 2000);
+        setTimeout(() => { this.calcCopySummaryBtn.textContent = '📋 COPY RECIPE SHEET'; }, 2000);
       }
     });
   }
@@ -2196,17 +2972,6 @@ class UIManager {
       let name = line;
       let qty = 50;
       let uom = 'g';
-      let packQty = 1000;
-      let packUom = 'g';
-      let packPrice = 120;
-
-      const priceMatch = line.match(/(?:@|rs\.?|₹)\s*(\d+(?:\.\d+)?)\s*(?:\/\s*(\d+)?\s*(kg|g|l|ml|pcs))?/i);
-      if (priceMatch) {
-        packPrice = parseFloat(priceMatch[1]) || 120;
-        if (priceMatch[2]) packQty = parseFloat(priceMatch[2]) || 1;
-        if (priceMatch[3]) packUom = priceMatch[3].toLowerCase();
-        line = line.replace(priceMatch[0], '').trim();
-      }
 
       const parenMatch = line.match(/^(.+?)\s*\(\s*(\d+(?:\.\d+)?)\s*(g|kg|ml|l|pcs|tbsp|tsp)?\s*\)/i);
       if (parenMatch) {
@@ -2232,23 +2997,12 @@ class UIManager {
       name = name.replace(/^[-*•\d.]+\s*/, '').trim();
       if (!name) name = 'Ingredient';
 
-      if (uom === 'ml' || uom === 'l') {
-        packUom = 'ml';
-        packQty = 1000;
-        if (packPrice === 120) packPrice = 140;
-      } else if (uom === 'pcs') {
-        packUom = 'pcs';
-        packQty = 10;
-        if (packPrice === 120) packPrice = 90;
-      }
-
+      const cost = this.calculatePortionCostFromMaster(name, qty, uom);
       extracted.push({
         name,
         recipeQty: qty,
         recipeUom: uom,
-        packQty,
-        packUom,
-        packPrice
+        calculatedCost: cost
       });
     });
 
@@ -2257,7 +3011,7 @@ class UIManager {
       this.renderRawMaterialRows();
       this.recalculateRawMaterialsFoodCost();
       this.closeRecipePasteModal();
-      this.showFloatingToast(`Extracted ${extracted.length} raw materials from recipe! ⚡`, '#10B981', 2500);
+      this.showFloatingToast(`Extracted ${extracted.length} raw materials & pulled master rates! ⚡`, '#10B981', 2500);
     } else {
       alert('Could not parse ingredients from the pasted text. Please check format.');
     }

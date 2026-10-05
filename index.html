@@ -468,210 +468,340 @@
           </div>
 
           <!-- ==========================================
-               TAB 2: FOOD COST CALCULATOR (RECIPE & RAW MATERIALS)
+               TAB 2: FOOD COST CALCULATOR & RAW MATERIAL MASTER
                ========================================== -->
           <div id="admin-tab-calculator" class="admin-tab-content hidden">
             <!-- Header Banner -->
             <div class="section-hero-header">
               <div>
-                <h2>Food Cost Calculator &amp; Raw Material Formulation</h2>
-                <p>Pull any recipe from the WOF Standard Manual, customize raw material quantities, Units of Measurement (UoM) and purchase prices to calculate exact production food cost.</p>
+                <h2>Food Cost Calculator &amp; Raw Material Engine</h2>
+                <p>Manage purchasing rates in the Master Raw Materials catalog. All recipe portion costs and menu item margins auto-calculate and update in real-time.</p>
               </div>
               <div class="hero-actions">
-                <button id="calc-open-paste-modal-btn" class="stripe-secondary-btn">📋 PASTE / UPLOAD RECIPE</button>
-                <button id="calc-save-item-btn" class="stripe-primary-btn">💾 SAVE TO MENU TRACKER</button>
+                <button id="calc-sync-all-items-btn" class="stripe-primary-btn" title="Recalculate food cost of all menu items from latest master rates">⚡ RECALCULATE ALL MENU COSTS</button>
+                <button id="calc-export-master-csv-btn" class="stripe-secondary-btn">📥 EXPORT MATERIALS CSV</button>
               </div>
             </div>
 
-            <!-- WOF Standard Recipe Puller Bar -->
-            <div class="recipe-puller-banner">
-              <div class="puller-left">
-                <span class="puller-icon">📖</span>
-                <div>
-                  <div class="puller-title">WOF RECIPE STANDARD MANUAL EXTRACTOR</div>
-                  <div class="puller-sub">Select any recipe below to pull all raw materials, portion specs, and measurement units automatically:</div>
+            <!-- Segmented Sub-View Switcher -->
+            <div class="calc-view-switcher">
+              <button class="calc-switch-btn active" data-view="split">◫ SPLIT WORKSPACE (MASTER &amp; RECIPES)</button>
+              <button class="calc-switch-btn" data-view="section1">📦 SECTION 1: MASTER RAW MATERIALS &amp; UOM RATES (<span id="master-mat-count-badge">80</span>)</button>
+              <button class="calc-switch-btn" data-view="section2">🍳 SECTION 2: MENU RECIPE FORMULATION &amp; FOOD COST</button>
+            </div>
+
+            <!-- SECTION 1: MASTER RAW MATERIALS LIST & UOM PRICING -->
+            <div id="calc-section-1" class="calc-master-section">
+              <div class="calc-section-header">
+                <div class="sec-title-wrap">
+                  <span class="sec-badge">SECTION 1</span>
+                  <h3>📦 Master Raw Materials Inventory &amp; Unit Rates</h3>
+                  <span class="sec-desc">Input purchase rates per kg, liter, piece, or gram. Recipes and menu items pull rates directly from here.</span>
+                </div>
+                <div class="sec-actions">
+                  <button id="master-add-mat-btn" class="stripe-primary-btn">+ ADD RAW MATERIAL</button>
                 </div>
               </div>
-              <div class="puller-controls">
-                <select id="calc-recipe-select" class="stripe-select" style="min-width: 320px; font-weight:700;">
-                  <!-- Populated dynamically from data/recipes.json via JS -->
-                </select>
-                <button id="calc-pull-recipe-btn" class="stripe-primary-btn" style="white-space:nowrap;">PULL RECIPE ⚡</button>
+
+              <!-- Master KPIs & Inflation Simulation -->
+              <div class="master-mat-kpis">
+                <div class="master-kpi-card">
+                  <span class="master-kpi-lbl">TOTAL MASTER MATERIALS</span>
+                  <div class="master-kpi-val" id="master-total-materials">80</div>
+                  <span class="master-kpi-sub">Across 7 restaurant pantry categories</span>
+                </div>
+                <div class="master-kpi-card">
+                  <span class="master-kpi-lbl">KEY PROTEIN BENCHMARKS</span>
+                  <div class="master-kpi-val" style="color:#F97316; font-size:16px;">Boneless: ₹260/kg | Bone-in: ₹180/kg</div>
+                  <span class="master-kpi-sub">Butter: ₹500/kg | Sesame Buns: ₹10/pc</span>
+                </div>
+                <div class="master-kpi-card master-inflation-card">
+                  <div class="inflation-header">
+                    <span class="master-kpi-lbl">BULK RAW MATERIAL INFLATION SIMULATOR</span>
+                    <span id="master-inflation-val" class="inflation-val-badge">+0% (Baseline)</span>
+                  </div>
+                  <input type="range" id="master-inflation-slider" min="0" max="30" step="5" value="0" class="stripe-slider" style="width:100%; accent-color:#F59E0B; margin:8px 0;">
+                  <div class="inflation-footer">
+                    <span>Baseline (0%)</span>
+                    <span id="master-inflation-impact">Simulate wholesale price surge across all recipes</span>
+                    <span>+30%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Master Materials Filter & Search Toolbar -->
+              <div class="stripe-toolbar" style="margin-top:14px;">
+                <div class="category-pills-row" id="master-category-pills">
+                  <button class="cat-pill active" data-cat="all">All (<span id="mat-cat-count-all">80</span>)</button>
+                  <button class="cat-pill" data-cat="Poultry &amp; Meats">🥩 Meats (<span id="mat-cat-count-meats">12</span>)</button>
+                  <button class="cat-pill" data-cat="Dairy &amp; Cheese">🧀 Dairy (<span id="mat-cat-count-dairy">15</span>)</button>
+                  <button class="cat-pill" data-cat="Bakery &amp; Breads">🍞 Bakery (<span id="mat-cat-count-bakery">8</span>)</button>
+                  <button class="cat-pill" data-cat="Sauces &amp; Condiments">🥫 Sauces (<span id="mat-cat-count-sauces">16</span>)</button>
+                  <button class="cat-pill" data-cat="Fresh Produce">🥬 Produce (<span id="mat-cat-count-produce">11</span>)</button>
+                  <button class="cat-pill" data-cat="Oils &amp; Beverages">🍶 Oils &amp; Drinks (<span id="mat-cat-count-oils">10</span>)</button>
+                  <button class="cat-pill" data-cat="Packaging">📦 Packaging (<span id="mat-cat-count-pkg">8</span>)</button>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                  <input type="text" id="master-search-input" placeholder="🔍 Search raw material name, category, or recipe..." class="stripe-search-box" style="min-width:280px;">
+                  <select id="master-sort-select" class="stripe-select">
+                    <option value="name-asc">Material Name (A-Z)</option>
+                    <option value="rate-desc">Highest Rate / Unit First</option>
+                    <option value="rate-asc">Lowest Rate First</option>
+                    <option value="recipes-desc">Most Used in Recipes First</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Master Materials Table -->
+              <div class="stripe-table-card master-table-wrap">
+                <table class="stripe-table master-mat-table">
+                  <thead>
+                    <tr>
+                      <th style="width:25%;">RAW MATERIAL</th>
+                      <th style="width:16%;">CATEGORY</th>
+                      <th style="width:12%;">PURCHASE UoM</th>
+                      <th style="width:15%;">RATE / UNIT (₹)</th>
+                      <th style="width:14%;">EFFECTIVE BASE RATE</th>
+                      <th style="width:12%;">RECIPES USING</th>
+                      <th style="width:6%; text-align:center;">ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody id="master-raw-materials-tbody">
+                    <!-- Populated dynamically via JS -->
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <!-- Two-Column Calculator Layout -->
-            <div class="cost-calc-container">
-              <!-- Left Column: Raw Materials Breakdown Table -->
-              <div class="calc-panel">
-                <div class="calc-panel-header">
-                  <h4>📝 RECIPE RAW MATERIALS &amp; UOM PRICING</h4>
-                  <span id="calc-active-item-tag" class="category-tag main">HOT KITCHEN</span>
+            <!-- SECTION 2: MENU ITEMS & RECIPE FOOD COST PULLER -->
+            <div id="calc-section-2" class="calc-recipe-section" style="margin-top:24px;">
+              <div class="calc-section-header">
+                <div class="sec-title-wrap">
+                  <span class="sec-badge sec-badge-orange">SECTION 2</span>
+                  <h3>🍳 Menu Recipe Formulation &amp; Food Cost Screen</h3>
+                  <span class="sec-desc">Raw material costs auto-pulled from Section 1. Adjust portion quantities and selling price to inspect food cost % and margins.</span>
                 </div>
-
-                <!-- Recipe Basic Info -->
-                <div class="admin-form-grid">
-                  <div class="calc-field-group">
-                    <label>Recipe Item Name *</label>
-                    <input type="text" id="calc-item-name" class="calc-input" value="Classic French Fries">
-                  </div>
-                  <div class="calc-field-group">
-                    <label>Station / Category</label>
-                    <select id="calc-item-category" class="calc-select">
-                      <option value="main">🍔 Main (Burger, Pizza, Wrap)</option>
-                      <option value="side">🍟 Side (Fries, Waffle, Appetizer)</option>
-                      <option value="drink">🥤 Drink (Shake, Mojito, Soda)</option>
-                      <option value="combo">🎁 Combo Meal</option>
-                    </select>
-                  </div>
-                  <div class="calc-field-group admin-form-full">
-                    <label>Portion / Serve Specification</label>
-                    <input type="text" id="calc-item-portion" class="calc-input" value="150g portion (Standard)">
-                  </div>
-                </div>
-
-                <!-- Raw Materials Table -->
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
-                  <span style="font-size:12px; font-weight:800; color:#E2E8F0;">PULLED RAW MATERIALS LIST:</span>
-                  <button id="calc-add-raw-mat-btn" class="add-ing-row-btn">+ ADD RAW MATERIAL</button>
-                </div>
-
-                <div class="calc-table-wrap">
-                  <table class="calc-ingredients-table">
-                    <thead>
-                      <tr>
-                        <th style="width:28%;">Raw Material</th>
-                        <th style="width:12%;">Recipe Qty</th>
-                        <th style="width:12%;">Recipe UoM</th>
-                        <th style="width:14%;">Purchase Pack Size</th>
-                        <th style="width:10%;">Pack UoM</th>
-                        <th style="width:12%;">Pack Price (₹)</th>
-                        <th style="width:12%;">Food Cost (₹)</th>
-                        <th style="width:4%;"></th>
-                      </tr>
-                    </thead>
-                    <tbody id="calc-raw-materials-tbody">
-                      <!-- Populated dynamically via JS -->
-                    </tbody>
-                  </table>
-                </div>
-
-                <!-- Secondary Costs -->
-                <div class="secondary-cost-grid">
-                  <div class="calc-field-group">
-                    <label>📦 Packaging &amp; Disposables (₹)</label>
-                    <input type="number" id="calc-packaging-cost" class="calc-input" value="4.00" step="0.50" min="0">
-                    <small style="color:#94A3B8; font-size:10px;">Fries cone, pouch, bag, dip cup, tissues</small>
-                  </div>
-                  <div class="calc-field-group">
-                    <label>⚠️ Kitchen Wastage &amp; Shrinkage (%)</label>
-                    <input type="number" id="calc-wastage-pct" class="calc-input" value="4" step="0.5" min="0" max="25">
-                    <small style="color:#94A3B8; font-size:10px;">Standard kitchen prep shrinkage buffer (3-5%)</small>
-                  </div>
+                <div class="sec-actions">
+                  <button id="calc-save-item-btn" class="stripe-primary-btn">💾 SYNC ITEM TO MENU TRACKER</button>
+                  <button id="calc-open-paste-modal-btn" class="stripe-secondary-btn">📋 PASTE RECIPE</button>
                 </div>
               </div>
 
-              <!-- Right Column: Food Cost Hero Display & Smart Pricing -->
-              <div class="calc-panel">
-                <div class="calc-panel-header">
-                  <h4>💰 RECIPE ITEM FOOD COST SCREEN</h4>
-                </div>
-
-                <!-- Hero Food Cost Metric Box -->
-                <div class="calc-summary-hero">
-                  <div class="calc-hero-row">
-                    <span style="font-size:12px; font-weight:800; letter-spacing:1px; color:#FDE047;">RECIPE ITEM FOOD COST</span>
-                    <span id="calc-total-food-cost-hero" class="calc-hero-val">₹24.50</span>
-                  </div>
-                  <div class="calc-cost-breakdown-list">
-                    <div class="breakdown-row">
-                      <span>Total Raw Materials:</span>
-                      <b id="calc-raw-materials-cost">₹19.50</b>
-                    </div>
-                    <div class="breakdown-row">
-                      <span>Packaging &amp; Disposables:</span>
-                      <b id="calc-packaging-cost-display">₹4.00</b>
-                    </div>
-                    <div class="breakdown-row">
-                      <span>Wastage Allowance (4%):</span>
-                      <b id="calc-wastage-cost-display">₹0.78</b>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Selling Price & Margin Evaluation -->
-                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:10px;">
-                  <div class="calc-field-group">
-                    <label style="color:#FDE047; font-weight:800; font-size:12px;">Selling Price for Item (₹)</label>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                      <span style="font-weight:900; color:#FFF; font-size:18px;">₹</span>
-                      <input type="number" id="calc-selling-price-input" class="calc-input" value="89" step="1" min="1" style="font-size:20px; font-weight:900; color:#FDE047;">
-                    </div>
-                  </div>
-
+              <!-- Recipe Selector Bar -->
+              <div class="recipe-puller-banner">
+                <div class="puller-left">
+                  <span class="puller-icon">📖</span>
                   <div>
-                    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800;">
-                      <span>FOOD COST PERCENTAGE:</span>
-                      <span id="calc-food-cost-pct-display" style="color:#10B981;">27.5% (Optimal ✓)</span>
+                    <div class="puller-title">SELECT WOF MENU RECIPE TO FORMULATE</div>
+                    <div class="puller-sub">Select any recipe to pull constituent raw materials with live rates from Section 1:</div>
+                  </div>
+                </div>
+                <div class="puller-controls">
+                  <select id="calc-recipe-select" class="stripe-select" style="min-width: 320px; font-weight:700;">
+                    <!-- Populated dynamically from data/recipes.json via JS -->
+                  </select>
+                  <button id="calc-pull-recipe-btn" class="stripe-primary-btn" style="white-space:nowrap;">PULL RECIPE ⚡</button>
+                </div>
+              </div>
+
+              <!-- Quick Recipe Chips -->
+              <div class="recipe-quick-chips" id="recipe-quick-chips">
+                <!-- Populated via JS: chips for quick switching -->
+              </div>
+
+              <!-- Two-Column Calculator Layout -->
+              <div class="cost-calc-container">
+                <!-- Left Column: Ingredients Table -->
+                <div class="calc-panel">
+                  <div class="calc-panel-header">
+                    <h4>📝 CONSTITUENT INGREDIENTS (PULLED FROM MASTER)</h4>
+                    <span id="calc-active-item-tag" class="category-tag main">HOT KITCHEN</span>
+                  </div>
+
+                  <!-- Recipe Basic Info -->
+                  <div class="admin-form-grid">
+                    <div class="calc-field-group">
+                      <label>Recipe Item Name *</label>
+                      <input type="text" id="calc-item-name" class="calc-input" value="Double Smash Burger">
                     </div>
-                    <div class="food-cost-gauge">
-                      <div id="calc-gauge-fill" class="food-cost-gauge-fill" style="width: 27.5%; background: #10B981;"></div>
+                    <div class="calc-field-group">
+                      <label>Station / Category</label>
+                      <select id="calc-item-category" class="calc-select">
+                        <option value="main">🍔 Main (Burger, Pizza, Wrap)</option>
+                        <option value="side">🍟 Side (Fries, Waffle, Appetizer)</option>
+                        <option value="drink">🥤 Drink (Shake, Mojito, Soda)</option>
+                        <option value="combo">🎁 Combo Meal</option>
+                      </select>
                     </div>
-                    <div style="display:flex; justify-content:space-between; font-size:10px; color:#94A3B8;">
-                      <span>0% (Free)</span>
-                      <span style="color:#10B981;">&lt; 30% Optimal</span>
-                      <span style="color:#F59E0B;">30-35% Moderate</span>
-                      <span style="color:#EF4444;">&gt; 35% High</span>
+                    <div class="calc-field-group admin-form-full">
+                      <label>Portion / Serve Specification</label>
+                      <input type="text" id="calc-item-portion" class="calc-input" value="Double Patty / 320g">
                     </div>
                   </div>
 
-                  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; border-top:1px solid rgba(255,255,255,0.08); padding-top:10px;">
-                    <div>
-                      <div style="font-size:10px; color:#94A3B8; font-weight:700;">GROSS PROFIT</div>
-                      <div id="calc-gross-profit-display" style="font-size:16px; font-weight:900; color:#FFF;">₹64.50</div>
+                  <!-- Ingredients Table Pulled from Master List -->
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                    <span style="font-size:12px; font-weight:800; color:#E2E8F0;">RECIPE RAW MATERIALS:</span>
+                    <button id="calc-add-raw-mat-btn" class="add-ing-row-btn">+ ADD INGREDIENT</button>
+                  </div>
+
+                  <div class="calc-table-wrap">
+                    <table class="calc-ingredients-table">
+                      <thead>
+                        <tr>
+                          <th style="width:32%;">Raw Material</th>
+                          <th style="width:16%;">Recipe Qty</th>
+                          <th style="width:14%;">Recipe UoM</th>
+                          <th style="width:20%;">Master Rate (Sec 1)</th>
+                          <th style="width:14%;">Portion Cost (₹)</th>
+                          <th style="width:4%;"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="calc-raw-materials-tbody">
+                        <!-- Populated dynamically via JS -->
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Quick Add from Master Bar -->
+                  <div class="quick-add-ingredient-bar">
+                    <span style="font-size:11px; font-weight:800; color:#94A3B8;">QUICK ADD FROM MASTER:</span>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:4px;">
+                      <select id="quick-add-mat-select" class="calc-select" style="flex:2; min-width:180px;">
+                        <!-- Options dynamically populated from Master Materials -->
+                      </select>
+                      <input type="number" id="quick-add-qty" placeholder="Qty" value="50" step="1" min="0.1" class="calc-input" style="width:70px;">
+                      <select id="quick-add-uom" class="calc-select" style="width:75px;">
+                        <option value="g">g</option>
+                        <option value="ml">ml</option>
+                        <option value="pcs">pcs</option>
+                        <option value="tbsp">tbsp</option>
+                        <option value="tsp">tsp</option>
+                      </select>
+                      <button id="quick-add-submit-btn" class="stripe-primary-btn" style="padding:6px 12px; font-size:11px;">+ ADD</button>
                     </div>
-                    <div>
-                      <div style="font-size:10px; color:#94A3B8; font-weight:700;">GROSS MARGIN</div>
-                      <div id="calc-gross-margin-display" style="font-size:16px; font-weight:900; color:#10B981;">72.5%</div>
+                  </div>
+
+                  <!-- Secondary Costs -->
+                  <div class="secondary-cost-grid">
+                    <div class="calc-field-group">
+                      <label>📦 Packaging &amp; Disposables (₹)</label>
+                      <input type="number" id="calc-packaging-cost" class="calc-input" value="6.00" step="0.50" min="0">
+                      <small style="color:#94A3B8; font-size:10px;">Box, wrapper, dip cup, tissues</small>
                     </div>
-                    <div>
-                      <div style="font-size:10px; color:#94A3B8; font-weight:700;">MARKUP FACTOR</div>
-                      <div id="calc-markup-display" style="font-size:16px; font-weight:900; color:#38BDF8;">3.63x</div>
+                    <div class="calc-field-group">
+                      <label>⚠️ Kitchen Wastage &amp; Shrinkage (%)</label>
+                      <input type="number" id="calc-wastage-pct" class="calc-input" value="4" step="0.5" min="0" max="25">
+                      <small style="color:#94A3B8; font-size:10px;">Prep shrinkage allowance (default 4%)</small>
                     </div>
                   </div>
                 </div>
 
-                <!-- Smart Target Price Suggester -->
-                <div class="smart-pricing-card">
-                  <h5>🎯 TARGET FOOD COST % PRICE SUGGESTER</h5>
-                  <p style="font-size:11px; color:#94A3B8; margin:0;">
-                    Calculate recommended menu price to achieve your target food cost:
-                  </p>
-                  <div style="display:flex; gap:10px; align-items:center;">
-                    <div class="calc-field-group" style="flex:1;">
-                      <label>Target Food Cost %</label>
-                      <input type="number" id="calc-target-fc-input" class="calc-input" value="28" step="1" min="10" max="60">
-                    </div>
-                    <label style="display:flex; align-items:center; gap:6px; font-size:11px; color:#E2E8F0; cursor:pointer; margin-top:16px;">
-                      <input type="checkbox" id="calc-charm-pricing-cb" checked>
-                      Round to ₹9 (e.g. ₹89, ₹99)
-                    </label>
+                <!-- Right Column: Hero Food Cost Screen & Selling Price Analyzer -->
+                <div class="calc-panel">
+                  <div class="calc-panel-header">
+                    <h4>💰 RECIPE ITEM FOOD COST SCREEN</h4>
                   </div>
-                  <div class="suggested-price-display">
-                    <div>
-                      <div style="font-size:10px; font-weight:800; color:#38BDF8; letter-spacing:1px;">SUGGESTED MENU PRICE</div>
-                      <div style="font-size:11px; color:#94A3B8;">For <span id="calc-target-fc-lbl">28</span>% Target Food Cost</div>
-                    </div>
-                    <div id="calc-suggested-price-display" class="suggested-price-num">₹89</div>
-                  </div>
-                </div>
 
-                <!-- Action Buttons -->
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                  <button id="calc-save-item-btn-bottom" class="claim-submit-btn">💾 SAVE TO MENU ITEMS TRACKER</button>
-                  <div style="display:flex; gap:8px;">
-                    <button id="calc-copy-summary-btn" class="stripe-secondary-btn" style="flex:1;">📋 COPY COST SHEET</button>
-                    <button id="calc-reset-btn" class="stripe-secondary-btn">🔄 RESET</button>
+                  <!-- Hero Food Cost Metric Box -->
+                  <div class="calc-summary-hero">
+                    <div class="calc-hero-row">
+                      <span style="font-size:12px; font-weight:800; letter-spacing:1px; color:#FDE047;">TOTAL ITEM FOOD COST</span>
+                      <span id="calc-total-food-cost-hero" class="calc-hero-val">₹76.50</span>
+                    </div>
+                    <div class="calc-cost-breakdown-list">
+                      <div class="breakdown-row">
+                        <span>Raw Materials (Auto-pulled):</span>
+                        <b id="calc-raw-materials-cost">₹67.50</b>
+                      </div>
+                      <div class="breakdown-row">
+                        <span>Packaging &amp; Disposables:</span>
+                        <b id="calc-packaging-cost-display">₹6.00</b>
+                      </div>
+                      <div class="breakdown-row">
+                        <span>Wastage Buffer (4%):</span>
+                        <b id="calc-wastage-cost-display">₹3.00</b>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Selling Price & Margin Evaluation -->
+                  <div class="selling-price-box">
+                    <div class="calc-field-group">
+                      <label style="color:#FDE047; font-weight:800; font-size:12px;">Selling Price for Item (₹)</label>
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-weight:900; color:#FFF; font-size:18px;">₹</span>
+                        <input type="number" id="calc-selling-price-input" class="calc-input" value="249" step="1" min="1" style="font-size:22px; font-weight:900; color:#FDE047;">
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800;">
+                        <span>FOOD COST PERCENTAGE:</span>
+                        <span id="calc-food-cost-pct-display" style="color:#10B981;">30.7% (Moderate)</span>
+                      </div>
+                      <div class="food-cost-gauge">
+                        <div id="calc-gauge-fill" class="food-cost-gauge-fill" style="width: 30.7%; background: #F59E0B;"></div>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; font-size:10px; color:#94A3B8;">
+                        <span>0% (Free)</span>
+                        <span style="color:#10B981;">&lt; 30% Optimal</span>
+                        <span style="color:#F59E0B;">30-35% Moderate</span>
+                        <span style="color:#EF4444;">&gt; 35% High Alert</span>
+                      </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; border-top:1px solid rgba(255,255,255,0.08); padding-top:10px;">
+                      <div>
+                        <div style="font-size:10px; color:#94A3B8; font-weight:700;">GROSS PROFIT</div>
+                        <div id="calc-gross-profit-display" style="font-size:16px; font-weight:900; color:#FFF;">₹172.50</div>
+                      </div>
+                      <div>
+                        <div style="font-size:10px; color:#94A3B8; font-weight:700;">GROSS MARGIN</div>
+                        <div id="calc-gross-margin-display" style="font-size:16px; font-weight:900; color:#10B981;">69.3%</div>
+                      </div>
+                      <div>
+                        <div style="font-size:10px; color:#94A3B8; font-weight:700;">MARKUP FACTOR</div>
+                        <div id="calc-markup-display" style="font-size:16px; font-weight:900; color:#38BDF8;">3.25x</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Smart Target Price Suggester -->
+                  <div class="smart-pricing-card">
+                    <h5>🎯 TARGET FOOD COST % PRICE SUGGESTER</h5>
+                    <p style="font-size:11px; color:#94A3B8; margin:0;">
+                      Calculate recommended menu price to achieve target food cost:
+                    </p>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                      <div class="calc-field-group" style="flex:1;">
+                        <label>Target Food Cost %</label>
+                        <input type="number" id="calc-target-fc-input" class="calc-input" value="28" step="1" min="10" max="60">
+                      </div>
+                      <label style="display:flex; align-items:center; gap:6px; font-size:11px; color:#E2E8F0; cursor:pointer; margin-top:16px;">
+                        <input type="checkbox" id="calc-charm-pricing-cb" checked>
+                        Round to ₹9 (e.g. ₹249, ₹269)
+                      </label>
+                    </div>
+                    <div class="suggested-price-display">
+                      <div>
+                        <div style="font-size:10px; font-weight:800; color:#38BDF8; letter-spacing:1px;">SUGGESTED MENU PRICE</div>
+                        <div style="font-size:11px; color:#94A3B8;">For <span id="calc-target-fc-lbl">28</span>% Target Food Cost</div>
+                      </div>
+                      <div style="display:flex; align-items:center; gap:10px;">
+                        <div id="calc-suggested-price-display" class="suggested-price-num">₹269</div>
+                        <button id="calc-apply-suggested-btn" class="stripe-secondary-btn" style="padding:4px 8px; font-size:10px;">APPLY</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button id="calc-save-item-btn-bottom" class="claim-submit-btn">💾 SAVE &amp; SYNC TO MENU ITEMS TRACKER</button>
+                    <div style="display:flex; gap:8px;">
+                      <button id="calc-copy-summary-btn" class="stripe-secondary-btn" style="flex:1;">📋 COPY RECIPE SHEET</button>
+                      <button id="calc-reset-btn" class="stripe-secondary-btn">🔄 RESET</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1134,6 +1264,62 @@ Fries (120g) + Salt (1g) + White Sauce (80g) + Melted Cheese (40g) + Ketchup (30
         <button type="button" id="cancel-recipe-paste-btn" class="stripe-secondary-btn">CANCEL</button>
         <button type="button" id="apply-recipe-paste-btn" class="stripe-primary-btn">EXTRACT RAW MATERIALS ⚡</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT MASTER RAW MATERIAL SUBMODAL -->
+  <div id="admin-material-submodal" class="admin-submodal hidden">
+    <div class="admin-submodal-content">
+      <div class="modal-header">
+        <h4 id="mat-modal-title" style="color:var(--wof-yellow); margin:0;">+ ADD MASTER RAW MATERIAL</h4>
+        <button id="close-mat-submodal-btn" class="close-btn">✕</button>
+      </div>
+      <form id="admin-mat-form" onsubmit="return false;" class="admin-form-grid">
+        <input type="hidden" id="mat-modal-id">
+        <div class="calc-field-group admin-form-full">
+          <label>Raw Material Name *</label>
+          <input type="text" id="mat-modal-name" class="calc-input" placeholder="e.g. Chicken (Boneless)" required>
+        </div>
+        <div class="calc-field-group">
+          <label>Pantry Category *</label>
+          <select id="mat-modal-category" class="calc-select">
+            <option value="Poultry &amp; Meats">🥩 Poultry &amp; Meats</option>
+            <option value="Dairy &amp; Cheese">🧀 Dairy &amp; Cheese</option>
+            <option value="Bakery &amp; Breads">🍞 Bakery &amp; Breads</option>
+            <option value="Sauces &amp; Condiments">🥫 Sauces &amp; Condiments</option>
+            <option value="Fresh Produce">🥬 Fresh Produce</option>
+            <option value="Oils &amp; Beverages">🍶 Oils &amp; Beverages</option>
+            <option value="Dry Grocery &amp; Spices">🧂 Dry Grocery &amp; Spices</option>
+            <option value="Packaging">📦 Packaging</option>
+          </select>
+        </div>
+        <div class="calc-field-group">
+          <label>Standard Purchase UoM *</label>
+          <select id="mat-modal-unit" class="calc-select">
+            <option value="kg">kg (Kilogram)</option>
+            <option value="L">L (Liter)</option>
+            <option value="pcs">pcs (Pieces / Units)</option>
+            <option value="g">g (Gram)</option>
+            <option value="ml">ml (Milliliter)</option>
+          </select>
+        </div>
+        <div class="calc-field-group">
+          <label>Purchase Rate / Cost (₹) *</label>
+          <input type="number" id="mat-modal-rate" class="calc-input" placeholder="e.g. 260.00" step="0.5" min="0" required>
+        </div>
+        <div class="calc-field-group">
+          <label>Effective Base Rate Preview</label>
+          <div id="mat-modal-base-preview" style="font-size:14px; font-weight:800; color:#10B981; padding-top:8px;">₹0.26 / g</div>
+        </div>
+        <div class="calc-field-group admin-form-full">
+          <label>Notes / Specification</label>
+          <input type="text" id="mat-modal-notes" class="calc-input" placeholder="e.g. Fresh chilled breast cubes / 1kg pack">
+        </div>
+        <div class="admin-form-full" style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+          <button type="button" id="cancel-mat-submodal-btn" class="stripe-secondary-btn">CANCEL</button>
+          <button type="submit" id="save-mat-submodal-btn" class="stripe-primary-btn">SAVE RAW MATERIAL ✓</button>
+        </div>
+      </form>
     </div>
   </div>
 

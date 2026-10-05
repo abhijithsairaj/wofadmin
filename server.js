@@ -7,6 +7,7 @@ const DATA_FILE = path.join(__dirname, 'data', 'leads.json');
 const ITEMS_FILE = path.join(__dirname, 'data', 'items.json');
 const OFFERS_FILE = path.join(__dirname, 'data', 'offers.json');
 const RECIPES_FILE = path.join(__dirname, 'data', 'recipes.json');
+const RAW_MATERIALS_FILE = path.join(__dirname, 'data', 'raw_materials.json');
 
 // Ensure data file exists with default demo entries if empty
 if (!fs.existsSync(DATA_FILE)) {
@@ -148,6 +149,34 @@ function readRecipes() {
     return JSON.parse(raw);
   } catch (e) {
     return [];
+  }
+}
+
+function writeRecipes(recipes) {
+  try {
+    fs.writeFileSync(RECIPES_FILE, JSON.stringify(recipes, null, 2), 'utf8');
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function readRawMaterials() {
+  try {
+    if (!fs.existsSync(RAW_MATERIALS_FILE)) return [];
+    const raw = fs.readFileSync(RAW_MATERIALS_FILE, 'utf8');
+    return JSON.parse(raw);
+  } catch (e) {
+    return [];
+  }
+}
+
+function writeRawMaterials(materials) {
+  try {
+    fs.writeFileSync(RAW_MATERIALS_FILE, JSON.stringify(materials, null, 2), 'utf8');
+    return true;
+  } catch (e) {
+    return false;
   }
 }
 
@@ -443,6 +472,129 @@ const server = http.createServer((req, res) => {
     const recipes = readRecipes();
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true, recipes }));
+    return;
+  }
+
+  // --- API ROUTE: POST /api/recipes ---
+  if (req.method === 'POST' && pathname === '/api/recipes') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const payload = JSON.parse(body);
+        let recipes = readRecipes();
+        if (Array.isArray(payload.recipes)) {
+          recipes = payload.recipes;
+        } else if (payload.recipe && payload.recipe.id) {
+          const idx = recipes.findIndex(r => r.id === payload.recipe.id);
+          if (idx >= 0) recipes[idx] = payload.recipe;
+          else recipes.push(payload.recipe);
+        }
+        writeRecipes(recipes);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, recipes }));
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Invalid recipe payload' }));
+      }
+    });
+    return;
+  }
+
+  // --- API ROUTE: GET /api/raw-materials ---
+  if (req.method === 'GET' && pathname === '/api/raw-materials') {
+    const materials = readRawMaterials();
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, materials }));
+    return;
+  }
+
+  // --- API ROUTE: POST /api/raw-materials ---
+  if (req.method === 'POST' && pathname === '/api/raw-materials') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const payload = JSON.parse(body);
+        let materials = readRawMaterials();
+
+        // Support bulk update { materials: [...] }
+        if (Array.isArray(payload.materials)) {
+          materials = payload.materials;
+          writeRawMaterials(materials);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, materials }));
+          return;
+        }
+
+        // Single material update/create
+        const mat = payload.material || payload;
+        if (!mat.name || mat.costPerUnit === undefined) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: 'Material name and costPerUnit are required' }));
+          return;
+        }
+
+        const targetId = mat.id || ('mat-' + Date.now().toString().slice(-6));
+        const existingIdx = materials.findIndex(m => m.id === targetId || m.name.toLowerCase() === mat.name.trim().toLowerCase());
+
+        const sanitized = {
+          id: targetId,
+          name: String(mat.name).trim().slice(0, 60),
+          category: mat.category || 'Dry Grocery & Spices',
+          standardUnit: ['kg', 'L', 'pcs', 'g', 'ml'].includes(mat.standardUnit) ? mat.standardUnit : 'kg',
+          costPerUnit: Math.max(0, Number(mat.costPerUnit) || 0),
+          notes: mat.notes ? String(mat.notes).slice(0, 150) : '',
+          usedInRecipes: Array.isArray(mat.usedInRecipes) ? mat.usedInRecipes : []
+        };
+
+        if (existingIdx >= 0) {
+          sanitized.id = materials[existingIdx].id;
+          if (!sanitized.usedInRecipes.length) sanitized.usedInRecipes = materials[existingIdx].usedInRecipes || [];
+          materials[existingIdx] = sanitized;
+        } else {
+          materials.push(sanitized);
+        }
+
+        writeRawMaterials(materials);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, material: sanitized, materials }));
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Invalid JSON payload' }));
+      }
+    });
+    return;
+  }
+
+  // --- API ROUTE: DELETE /api/raw-materials ---
+  if (req.method === 'DELETE' && pathname === '/api/raw-materials') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        let matId = parsedUrl.searchParams.get('id');
+        if (!matId && body) {
+          try { matId = JSON.parse(body).id; } catch(e) {}
+        }
+        if (!matId) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: 'Material ID is required' }));
+          return;
+        }
+
+        let materials = readRawMaterials();
+        const initialCount = materials.length;
+        materials = materials.filter(m => m.id !== matId);
+        writeRawMaterials(materials);
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, deleted: initialCount > materials.length, materials }));
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Invalid request' }));
+      }
+    });
     return;
   }
 

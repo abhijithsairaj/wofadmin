@@ -2889,5 +2889,297 @@ canvas {
   }
 }
 
+/* =========================================================
+   NEW 2-SECTION FOOD COST CALCULATOR & MASTER RAW MATERIALS
+   ========================================================= */
 
+/* Segmented Sub-View Switcher */
+.calc-view-switcher {
+  display: flex;
+  gap: 6px;
+  background: #0F172A;
+  border: 1px solid #1E293B;
+  border-radius: 12px;
+  padding: 6px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
 
+.calc-switch-btn {
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #94A3B8;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.calc-switch-btn:hover {
+  color: #F8FAFC;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.calc-switch-btn.active {
+  background: #6366F1;
+  color: #FFFFFF;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
+}
+
+/* Section Containers */
+.calc-master-section,
+.calc-recipe-section {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 22px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.calc-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sec-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sec-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #818CF8;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  padding: 2px 8px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.sec-badge-orange {
+  color: #FB923C;
+  background: rgba(249, 115, 22, 0.15);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.sec-title-wrap h3 {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  color: #F8FAFC;
+}
+
+.sec-desc {
+  font-size: 12px;
+  color: #94A3B8;
+  max-width: 700px;
+  line-height: 1.4;
+}
+
+/* Master KPIs & Inflation Card */
+.master-mat-kpis {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 1.7fr;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 900px) {
+  .master-mat-kpis {
+    grid-template-columns: 1fr;
+  }
+}
+
+.master-kpi-card {
+  background: #111827;
+  border: 1px solid #1E293B;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.master-kpi-lbl {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #64748B;
+  text-transform: uppercase;
+}
+
+.master-kpi-val {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: #F8FAFC;
+  margin: 4px 0;
+}
+
+.master-kpi-sub {
+  font-size: 11px;
+  color: #94A3B8;
+}
+
+.master-inflation-card {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: linear-gradient(135deg, #111827 0%, rgba(245, 158, 11, 0.05) 100%);
+}
+
+.inflation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.inflation-val-badge {
+  font-size: 11px;
+  font-weight: 800;
+  color: #F59E0B;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.inflation-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #94A3B8;
+}
+
+/* Master Materials Table */
+.master-table-wrap {
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.master-mat-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.master-mat-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.mat-inline-rate-input {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #FDE047;
+  font-weight: 800;
+  font-size: 13px;
+  width: 90px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  transition: all 0.2s ease;
+}
+
+.mat-inline-rate-input:focus {
+  outline: none;
+  border-color: #FDE047;
+  box-shadow: 0 0 8px rgba(253, 224, 71, 0.3);
+  background: #000;
+}
+
+.mat-base-rate-badge {
+  font-size: 12px;
+  font-weight: 800;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+
+.mat-recipes-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #818CF8;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mat-recipes-tag:hover {
+  background: rgba(99, 102, 241, 0.25);
+}
+
+/* Quick Recipe Chips */
+.recipe-quick-chips {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 16px 0;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.recipe-chip {
+  background: #111827;
+  border: 1px solid #1E293B;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #CBD5E1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.recipe-chip:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #FFF;
+}
+
+.recipe-chip.active {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: #6366F1;
+  color: #818CF8;
+}
+
+/* Quick Add from Master Bar */
+.quick-add-ingredient-bar {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 10px;
+}
+
+/* Selling Price Box */
+.selling-price-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

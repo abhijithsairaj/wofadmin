@@ -14,7 +14,8 @@ const memoryStore = {
   leads: null,
   items: null,
   offers: null,
-  recipes: null
+  recipes: null,
+  raw_materials: null
 };
 
 // Initial fallback leads if not found in KV or assets
@@ -387,9 +388,112 @@ export default {
     }
 
     // --- API ROUTE: /api/recipes ---
-    if (pathname === '/api/recipes' && method === 'GET') {
-      const recipes = await loadData(env, request, 'recipes', '/data/recipes.json', []);
-      return jsonResponse({ success: true, recipes });
+    if (pathname === '/api/recipes') {
+      if (method === 'GET') {
+        const recipes = await loadData(env, request, 'recipes', '/data/recipes.json', []);
+        return jsonResponse({ success: true, recipes });
+      }
+
+      if (method === 'POST') {
+        try {
+          const payload = await request.json();
+          let recipes = await loadData(env, request, 'recipes', '/data/recipes.json', []);
+          if (Array.isArray(payload.recipes)) {
+            recipes = payload.recipes;
+          } else if (payload.recipe && payload.recipe.id) {
+            const idx = recipes.findIndex(r => r.id === payload.recipe.id);
+            if (idx >= 0) recipes[idx] = payload.recipe;
+            else recipes.push(payload.recipe);
+          }
+          await saveData(env, 'recipes', recipes);
+          return jsonResponse({ success: true, recipes });
+        } catch (err) {
+          return jsonResponse({ success: false, error: 'Invalid recipe payload' }, 400);
+        }
+      }
+    }
+
+    // --- API ROUTE: /api/raw-materials ---
+    if (pathname === '/api/raw-materials') {
+      if (method === 'GET') {
+        const materials = await loadData(env, request, 'raw_materials', '/data/raw_materials.json', []);
+        return jsonResponse({ success: true, materials });
+      }
+
+      if (method === 'POST') {
+        try {
+          const payload = await request.json();
+          let materials = await loadData(env, request, 'raw_materials', '/data/raw_materials.json', []);
+
+          // Bulk update
+          if (Array.isArray(payload.materials)) {
+            materials = payload.materials;
+            await saveData(env, 'raw_materials', materials);
+            return jsonResponse({ success: true, materials });
+          }
+
+          // Single material update/create
+          const mat = payload.material || payload;
+          if (!mat.name || mat.costPerUnit === undefined) {
+            return jsonResponse({ success: false, error: 'Material name and costPerUnit are required' }, 400);
+          }
+
+          const targetId = mat.id || ('mat-' + Date.now().toString().slice(-6));
+          const existingIdx = materials.findIndex(m => m.id === targetId || m.name.toLowerCase() === mat.name.trim().toLowerCase());
+
+          const sanitized = {
+            id: targetId,
+            name: String(mat.name).trim().slice(0, 60),
+            category: mat.category || 'Dry Grocery & Spices',
+            standardUnit: ['kg', 'L', 'pcs', 'g', 'ml'].includes(mat.standardUnit) ? mat.standardUnit : 'kg',
+            costPerUnit: Math.max(0, Number(mat.costPerUnit) || 0),
+            notes: mat.notes ? String(mat.notes).slice(0, 150) : '',
+            usedInRecipes: Array.isArray(mat.usedInRecipes) ? mat.usedInRecipes : []
+          };
+
+          if (existingIdx >= 0) {
+            sanitized.id = materials[existingIdx].id;
+            if (!sanitized.usedInRecipes.length) sanitized.usedInRecipes = materials[existingIdx].usedInRecipes || [];
+            materials[existingIdx] = sanitized;
+          } else {
+            materials.push(sanitized);
+          }
+
+          await saveData(env, 'raw_materials', materials);
+          return jsonResponse({ success: true, material: sanitized, materials });
+        } catch (err) {
+          return jsonResponse({ success: false, error: 'Invalid JSON payload' }, 400);
+        }
+      }
+
+      if (method === 'DELETE') {
+        try {
+          let matId = url.searchParams.get('id');
+          if (!matId) {
+            try {
+              const body = await request.json();
+              matId = body.id;
+            } catch (_) {}
+          }
+
+          if (!matId) {
+            return jsonResponse({ success: false, error: 'Material ID is required' }, 400);
+          }
+
+          const materials = await loadData(env, request, 'raw_materials', '/data/raw_materials.json', []);
+          const initialCount = materials.length;
+          const filtered = materials.filter(m => m.id !== matId);
+          await saveData(env, 'raw_materials', filtered);
+
+          return jsonResponse({
+            success: true,
+            deleted: initialCount > filtered.length,
+            materials: filtered
+          });
+        } catch (err) {
+          return jsonResponse({ success: false, error: 'Invalid request' }, 400);
+        }
+      }
     }
 
     // --- STATIC ASSET SERVING VIA env.ASSETS (Cloudflare Pages & Workers Static Assets) ---
