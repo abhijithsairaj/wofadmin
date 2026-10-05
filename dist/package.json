@@ -4,10 +4,10 @@
   "description": "WOF RUSH - 3D Endless Delivery Runner & Restaurant Operating Admin Console for Cloudflare Workers & Pages",
   "main": "server.js",
   "scripts": {
+    "dev": "node server.js",
     "start": "node server.js",
     "build": "node build.js",
-    "deploy": "wrangler pages deploy dist",
-    "dev": "wrangler pages dev dist",
+    "dev:pages": "wrangler pages dev dist",
     "dev:worker": "wrangler dev",
     "deploy:pages": "wrangler pages deploy dist",
     "deploy:worker": "wrangler deploy -c wrangler.worker.toml",

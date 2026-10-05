@@ -28,6 +28,7 @@ class WOFGame {
     this.speed = this.baseSpeed;
     this.maxSpeed = 48;
     this.distance = 0;
+    this.coins = 0;
     this.score = 0;
     this.scoreMultiplier = 1;
     this.comboCounter = 0;
@@ -36,6 +37,7 @@ class WOFGame {
     // Active Meal Tracker [Main, Side, Drink]
     this.activeMeal = { main: null, side: null, drink: null };
     this.mealsCompleted = 0;
+    this.nextFoodDistance = 250; // Rare food items appear every 200-300m
 
     // Delivery Run System
     this.deliveryActive = false;
@@ -45,13 +47,18 @@ class WOFGame {
     this.deliveriesCompleted = 0;
     this.nextDeliveryDistance = 350;
 
-    // Power-ups
+    // Power-ups (Coin Magnet, Invincible Star, Delivery Scooter + aliases)
     this.activePowerups = {
+      coin_magnet: { active: false, timer: 0 },
+      invincible: { active: false, timer: 0 },
+      delivery_scooter: { active: false, timer: 0 },
       shield: { active: false, timer: 0 },
       magnet: { active: false, timer: 0 },
       turbo: { active: false, timer: 0 },
       burger_mode: { active: false, timer: 0 }
     };
+
+    this.roadsideCustomers = [];
 
     // Near-Miss System
     this.lastNearMissTime = 0;
@@ -106,10 +113,30 @@ class WOFGame {
   // --- THREE.JS SCENE SETUP ---
   initThree() {
     this.scene = new THREE.Scene();
-    // Vibrant Arcade Sky Blue - NEVER black!
-    this.scene.background = new THREE.Color(0x4FC3F7);
-    // Linear fog: crystal clear up to 90m, soft seamless blend up to 240m
-    this.scene.fog = new THREE.Fog(0x4FC3F7, 90, 240);
+
+    // Sunset / Dusk Gradient Sky Dome (Matching Reference Screenshot - Purple to Magenta to Peach)
+    const skyCanvas = document.createElement('canvas');
+    skyCanvas.width = 256;
+    skyCanvas.height = 512;
+    const sctx = skyCanvas.getContext('2d');
+    const sGrad = sctx.createLinearGradient(0, 0, 0, 512);
+    sGrad.addColorStop(0.0, '#1A0B2E'); // Deep purple zenith
+    sGrad.addColorStop(0.35, '#4A148C'); // Rich royal violet
+    sGrad.addColorStop(0.65, '#AD1457'); // Fiery magenta
+    sGrad.addColorStop(0.85, '#F4511E'); // Vibrant crimson orange
+    sGrad.addColorStop(1.0, '#FFA726'); // Warm glowing peach horizon
+    sctx.fillStyle = sGrad;
+    sctx.fillRect(0, 0, 256, 512);
+
+    const skyTex = new THREE.CanvasTexture(skyCanvas);
+    const skyGeo = new THREE.SphereGeometry(320, 24, 16);
+    const skyMat = new THREE.MeshBasicMaterial({ map: skyTex, side: THREE.BackSide, depthWrite: false });
+    this.skyDome = new THREE.Mesh(skyGeo, skyMat);
+    this.scene.add(this.skyDome);
+
+    // Warm sunset horizon background and seamless linear fog
+    this.scene.background = new THREE.Color(0xF4511E);
+    this.scene.fog = new THREE.Fog(0xF4511E, 110, 280);
 
     const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 768;
     this.isMobile = isMobile;
@@ -126,7 +153,7 @@ class WOFGame {
     // Mobile performance: 1.25 DPR prevents GPU thermal throttling & maintains rock-solid 60 FPS
     const dpr = isMobile ? Math.min(window.devicePixelRatio, 1.25) : Math.min(window.devicePixelRatio, 1.5);
     this.renderer.setPixelRatio(dpr);
-    this.renderer.setClearColor(0x4FC3F7, 1);
+    this.renderer.setClearColor(0xF4511E, 1);
 
     // Disable heavy shadow map passes on mobile for 60fps; use BasicShadowMap on desktop
     if (isMobile) {
@@ -137,16 +164,16 @@ class WOFGame {
     }
     this.container.appendChild(this.renderer.domElement);
 
-    // Vibrant Arcade Lighting
-    this.ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.75);
+    // Warm Sunset Arcade Lighting (Golden Sunlight + Violet Atmospheric Ambient)
+    this.ambientLight = new THREE.AmbientLight(0xFFE0B2, 0.85);
     this.scene.add(this.ambientLight);
 
-    // Warm sun & ground bounce lighting
-    this.hemiLight = new THREE.HemisphereLight(0x4FC3F7, 0x8D6E63, 0.70);
+    // Warm ground bounce & sky ambient
+    this.hemiLight = new THREE.HemisphereLight(0xAB47BC, 0xE65100, 0.75);
     this.scene.add(this.hemiLight);
 
-    this.dirLight = new THREE.DirectionalLight(0xFFF9C4, 0.95);
-    this.dirLight.position.set(15, 30, 20);
+    this.dirLight = new THREE.DirectionalLight(0xFFD54F, 1.10);
+    this.dirLight.position.set(18, 32, 20);
     if (!isMobile) {
       this.dirLight.castShadow = true;
       this.dirLight.shadow.mapSize.width = 512;
@@ -278,167 +305,116 @@ class WOFGame {
     chunk.position.z = zPos;
 
     const overlapLen = this.chunkLength + 0.6;
-    const roadWidth = 7.6;
+    const trackBedWidth = 8.2;
 
-    // Road (Tarmac)
-    const roadGeo = new THREE.PlaneGeometry(roadWidth, overlapLen);
-    const roadMat = new THREE.MeshLambertMaterial({ color: WOF_COLORS.tarmac });
-    const road = new THREE.Mesh(roadGeo, roadMat);
-    road.rotation.x = -Math.PI / 2;
-    road.position.set(0, 0, -this.chunkLength / 2);
-    chunk.add(road);
+    // 1. Dark Ballast Stone Track Bed
+    const ballastGeo = new THREE.PlaneGeometry(trackBedWidth, overlapLen);
+    const ballastMat = new THREE.MeshLambertMaterial({ color: 0x263238 });
+    const ballast = new THREE.Mesh(ballastGeo, ballastMat);
+    ballast.rotation.x = -Math.PI / 2;
+    ballast.position.set(0, 0, -this.chunkLength / 2);
+    ballast.receiveShadow = true;
+    chunk.add(ballast);
 
-    // White Edge Shoulder Lines
-    const edgeGeo = new THREE.PlaneGeometry(0.18, overlapLen);
-    const edgeMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
-    [-roadWidth / 2 + 0.15, roadWidth / 2 - 0.15].forEach(eX => {
-      const edge = new THREE.Mesh(edgeGeo, edgeMat);
-      edge.rotation.x = -Math.PI / 2;
-      edge.position.set(eX, 0.012, -this.chunkLength / 2);
-      chunk.add(edge);
+    // 2. 3 Sets of Railway Tracks (Left: -2.2, Center: 0.0, Right: 2.2)
+    const sleeperGeo = new THREE.BoxGeometry(1.65, 0.08, 0.22);
+    const sleeperMat = new THREE.MeshLambertMaterial({ color: 0x3E2723 }); // Rustic wooden timber
+    const railGeo = new THREE.BoxGeometry(0.08, 0.12, overlapLen);
+    const railMat = new THREE.MeshStandardMaterial({ color: 0xCFD8DC, metalness: 0.88, roughness: 0.2 }); // Polished steel rails
+
+    this.lanes.forEach(laneX => {
+      // Wooden Railway Sleepers (Cross-ties) spaced every 1.6m
+      for (let z = 0.6; z < this.chunkLength; z += 1.6) {
+        const sleeper = new THREE.Mesh(sleeperGeo, sleeperMat);
+        sleeper.position.set(laneX, 0.04, -z);
+        sleeper.receiveShadow = true;
+        chunk.add(sleeper);
+      }
+
+      // Pair of Steel Rails
+      [-0.42, 0.42].forEach(rX => {
+        const rail = new THREE.Mesh(railGeo, railMat);
+        rail.position.set(laneX + rX, 0.10, -this.chunkLength / 2);
+        rail.castShadow = true;
+        chunk.add(rail);
+      });
     });
 
-    // Yellow Dashed Lane Dividers (Between lanes)
-    const markerGeo = new THREE.PlaneGeometry(0.16, 2.5);
-    const markerMat = new THREE.MeshBasicMaterial({ color: 0xFFEB3B });
-    [-1.1, 1.1].forEach(laneX => {
-      for (let z = 0; z < this.chunkLength; z += 6) {
-        const marker = new THREE.Mesh(markerGeo, markerMat);
-        marker.rotation.x = -Math.PI / 2;
-        marker.position.set(laneX, 0.014, -z);
-        chunk.add(marker);
-      }
-    });
+    // 3. Side Stone Embankments & Balustrades (separating tracks from canal)
+    const balustradeWidth = 0.45;
+    const balustradeHeight = 0.85;
+    const stoneGeo = new THREE.BoxGeometry(balustradeWidth, balustradeHeight, overlapLen);
+    const stoneMat = new THREE.MeshLambertMaterial({ color: 0x78909C }); // Carved stone pier
 
-    // Pedestrian Zebra Crosswalk at start of chunk
-    if (!isFirstChunk) {
-      const zebraGeo = new THREE.PlaneGeometry(0.55, 3.2);
-      const zebraMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
-      for (let x = -roadWidth / 2 + 0.6; x <= roadWidth / 2 - 0.6; x += 0.95) {
-        const stripe = new THREE.Mesh(zebraGeo, zebraMat);
-        stripe.rotation.x = -Math.PI / 2;
-        stripe.position.set(x, 0.015, -2.0);
-        chunk.add(stripe);
-      }
-    }
+    const leftPier = new THREE.Mesh(stoneGeo, stoneMat);
+    leftPier.position.set(-trackBedWidth / 2 - balustradeWidth / 2, balustradeHeight / 2, -this.chunkLength / 2);
+    const rightPier = new THREE.Mesh(stoneGeo, stoneMat);
+    rightPier.position.set(trackBedWidth / 2 + balustradeWidth / 2, balustradeHeight / 2, -this.chunkLength / 2);
+    chunk.add(leftPier, rightPier);
 
-    // Sidewalks (Left & Right) - Clean, bright urban pedestrian paving
-    const sidewalkWidth = 4.8;
-    const sidewalkGeo = new THREE.BoxGeometry(sidewalkWidth, 0.28, overlapLen);
-    const sidewalkMat = new THREE.MeshLambertMaterial({ color: 0xCFD8DC });
+    // Carved Coping Stone Top Rail
+    const capStoneGeo = new THREE.BoxGeometry(0.55, 0.10, overlapLen);
+    const capStoneMat = new THREE.MeshLambertMaterial({ color: 0x90A4AE });
+    const leftCap = new THREE.Mesh(capStoneGeo, capStoneMat);
+    leftCap.position.set(-trackBedWidth / 2 - balustradeWidth / 2, balustradeHeight + 0.05, -this.chunkLength / 2);
+    const rightCap = new THREE.Mesh(capStoneGeo, capStoneMat);
+    rightCap.position.set(trackBedWidth / 2 + balustradeWidth / 2, balustradeHeight + 0.05, -this.chunkLength / 2);
+    chunk.add(leftCap, rightCap);
 
-    const leftWalk = new THREE.Mesh(sidewalkGeo, sidewalkMat);
-    leftWalk.position.set(-roadWidth / 2 - sidewalkWidth / 2, 0.14, -this.chunkLength / 2);
-    const rightWalk = new THREE.Mesh(sidewalkGeo, sidewalkMat);
-    rightWalk.position.set(roadWidth / 2 + sidewalkWidth / 2, 0.14, -this.chunkLength / 2);
-    chunk.add(leftWalk, rightWalk);
+    // 4. Side Water Canals (Chinese Canal City Style matching reference image)
+    const canalWidth = 14;
+    const canalGeo = new THREE.PlaneGeometry(canalWidth, overlapLen);
+    const canalMat = new THREE.MeshLambertMaterial({ color: 0x004D40 }); // Emerald canal water
+    const leftCanal = new THREE.Mesh(canalGeo, canalMat);
+    leftCanal.rotation.x = -Math.PI / 2;
+    leftCanal.position.set(-trackBedWidth / 2 - balustradeWidth - canalWidth / 2, 0.02, -this.chunkLength / 2);
+    const rightCanal = new THREE.Mesh(canalGeo, canalMat);
+    rightCanal.rotation.x = -Math.PI / 2;
+    rightCanal.position.set(trackBedWidth / 2 + balustradeWidth + canalWidth / 2, 0.02, -this.chunkLength / 2);
+    chunk.add(leftCanal, rightCanal);
 
-    // Hazard Painted Curb Edge (Alternating Red & White blocks)
-    const curbGeo = new THREE.BoxGeometry(0.24, 0.32, overlapLen);
-    const curbMat = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
-    const leftCurb = new THREE.Mesh(curbGeo, curbMat);
-    leftCurb.position.set(-roadWidth / 2 - 0.12, 0.16, -this.chunkLength / 2);
-    const rightCurb = new THREE.Mesh(curbGeo, curbMat);
-    rightCurb.position.set(roadWidth / 2 + 0.12, 0.16, -this.chunkLength / 2);
-    chunk.add(leftCurb, rightCurb);
+    // Outer Canal Embankment Promenade
+    const promGeo = new THREE.PlaneGeometry(24, overlapLen);
+    const promMat = new THREE.MeshLambertMaterial({ color: 0x546E7A });
+    const leftProm = new THREE.Mesh(promGeo, promMat);
+    leftProm.rotation.x = -Math.PI / 2;
+    leftProm.position.set(-trackBedWidth / 2 - balustradeWidth - canalWidth - 12, 0.04, -this.chunkLength / 2);
+    const rightProm = new THREE.Mesh(promGeo, promMat);
+    rightProm.rotation.x = -Math.PI / 2;
+    rightProm.position.set(trackBedWidth / 2 + balustradeWidth + canalWidth + 12, 0.04, -this.chunkLength / 2);
+    chunk.add(leftProm, rightProm);
 
-    // Side Ground Pavement (Clean paver concrete under buildings extending to x = +/- 45)
-    const sidePlazaGeo = new THREE.PlaneGeometry(36, overlapLen);
-    const sidePlazaMat = new THREE.MeshLambertMaterial({ color: 0xCFD8DC });
-    const leftPlaza = new THREE.Mesh(sidePlazaGeo, sidePlazaMat);
-    leftPlaza.rotation.x = -Math.PI / 2;
-    leftPlaza.position.set(-roadWidth / 2 - sidewalkWidth - 18, 0.01, -this.chunkLength / 2);
+    // 5. Overhead Catenary Gantry with Glowing Festival Lanterns
+    const gantry = window.modelFactory.createCatenaryGantry();
+    gantry.position.set(0, 0, -this.chunkLength * 0.5);
+    chunk.add(gantry);
 
-    const rightPlaza = new THREE.Mesh(sidePlazaGeo, sidePlazaMat);
-    rightPlaza.rotation.x = -Math.PI / 2;
-    rightPlaza.position.set(roadWidth / 2 + sidewalkWidth + 18, 0.01, -this.chunkLength / 2);
-    chunk.add(leftPlaza, rightPlaza);
-
-    // LOW Street Edge Planters / Decorative Railings (0.55m height with terracotta rim)
-    // Low enough so the entire multi-story building facade and storefront are 100% visible!
-    const lowWallGeo = new THREE.BoxGeometry(0.32, 0.55, overlapLen);
-    const lowWallMat = new THREE.MeshLambertMaterial({ color: 0xE0E0E0 });
-    const leftLowWall = new THREE.Mesh(lowWallGeo, lowWallMat);
-    leftLowWall.position.set(-roadWidth / 2 - sidewalkWidth - 0.16, 0.28, -this.chunkLength / 2);
-    const rightLowWall = new THREE.Mesh(lowWallGeo, lowWallMat);
-    rightLowWall.position.set(roadWidth / 2 + sidewalkWidth + 0.16, 0.28, -this.chunkLength / 2);
-    chunk.add(leftLowWall, rightLowWall);
-
-    // Terracotta Wall Coping Rim on low wall
-    const copingGeo = new THREE.BoxGeometry(0.40, 0.08, overlapLen);
-    const copingMat = new THREE.MeshLambertMaterial({ color: 0xE65100 });
-    const leftCoping = new THREE.Mesh(copingGeo, copingMat);
-    leftCoping.position.set(-roadWidth / 2 - sidewalkWidth - 0.16, 0.60, -this.chunkLength / 2);
-    const rightCoping = new THREE.Mesh(copingGeo, copingMat);
-    rightCoping.position.set(roadWidth / 2 + sidewalkWidth + 0.16, 0.60, -this.chunkLength / 2);
-    chunk.add(leftCoping, rightCoping);
-
-    // Continuous Storefronts & Buildings: 3 on left and 3 on right per chunk!
-    // Placed right along the sidewalk so the vibrant shopfronts line the road!
+    // 6. Waterfront Buildings along the canal edge
     const buildingZOffsets = [
-      -this.chunkLength * 0.18,
-      -this.chunkLength * 0.50,
-      -this.chunkLength * 0.82
+      -this.chunkLength * 0.20,
+      -this.chunkLength * 0.55,
+      -this.chunkLength * 0.85
     ];
-
     buildingZOffsets.forEach((zOff, bIdx) => {
-      // Left Building
-      const varL = (Math.floor(Math.random() * 6) + bIdx) % 6;
+      const varL = (bIdx * 2) % 6;
       const bLeft = window.modelFactory.createBuilding(varL, 'left');
-      bLeft.position.set(-roadWidth / 2 - sidewalkWidth - 2.8, 0, zOff);
+      bLeft.position.set(-trackBedWidth / 2 - balustradeWidth - canalWidth - 2.8, 0, zOff);
       chunk.add(bLeft);
 
-      // Right Building
-      const varR = (Math.floor(Math.random() * 6) + bIdx + 3) % 6;
+      const varR = (bIdx * 2 + 1) % 6;
       const bRight = window.modelFactory.createBuilding(varR, 'right');
-      bRight.position.set(roadWidth / 2 + sidewalkWidth + 2.8, 0, zOff);
+      bRight.position.set(trackBedWidth / 2 + balustradeWidth + canalWidth + 2.8, 0, zOff);
       chunk.add(bRight);
     });
 
-    // Street Lamps with warm glowing globes
-    const lamp1 = window.modelFactory.createStreetLamp('right');
-    lamp1.position.set(roadWidth / 2 + 1.2, 0.28, -this.chunkLength * 0.25);
-    const lamp2 = window.modelFactory.createStreetLamp('right');
-    lamp2.position.set(roadWidth / 2 + 1.2, 0.28, -this.chunkLength * 0.75);
-    chunk.add(lamp1, lamp2);
-
-    // Palm trees on left sidewalk
-    const palm1 = window.modelFactory.createPalmTree();
-    palm1.position.set(-roadWidth / 2 - 1.4, 0.28, -this.chunkLength * 0.35);
-    const palm2 = window.modelFactory.createPalmTree();
-    palm2.position.set(-roadWidth / 2 - 1.4, 0.28, -this.chunkLength * 0.85);
-    chunk.add(palm1, palm2);
-
-    // Overhead Festive Bunting Wire with Triangular Party Flags across street
-    const buntingWireGeo = new THREE.CylinderGeometry(0.015, 0.015, roadWidth + 3, 6);
-    const buntingWireMat = new THREE.MeshBasicMaterial({ color: 0x37474F });
-    const buntingWire = new THREE.Mesh(buntingWireGeo, buntingWireMat);
-    buntingWire.rotation.z = Math.PI / 2;
-    buntingWire.position.set(0, 5.2, -this.chunkLength * 0.5);
-    chunk.add(buntingWire);
-
-    // Triangular Bunting Flags hanging from wire
-    const flagColors = [0xFF6B00, 0xFFD000, 0x00E5FF, 0x00E676, 0xD32F2F];
-    const flagGeo = new THREE.ConeGeometry(0.22, 0.45, 3);
-    for (let fX = -roadWidth / 2 + 0.3; fX <= roadWidth / 2 - 0.3; fX += 0.75) {
-      const fMat = new THREE.MeshBasicMaterial({ color: flagColors[Math.floor(Math.random() * flagColors.length)], side: THREE.DoubleSide });
-      const flag = new THREE.Mesh(flagGeo, fMat);
-      flag.rotation.x = Math.PI;
-      flag.position.set(fX, 4.95, -this.chunkLength * 0.5);
-      chunk.add(flag);
-    }
-
-    // Occasional Road Banner across street
-    if (Math.random() < 0.35 && !isFirstChunk) {
-      const banners = [
-        'WOF RUSH - FRESH STREET FOOD',
-        'SELVAPURAM SPECIAL - WOF MEALS',
-        'TRY OUR FAMOUS CRISPY FRIES!',
-        'BEAT THE RUSH - HOT FOOD FAST'
-      ];
-      const banner = window.modelFactory.createRoadBanner(banners[Math.floor(Math.random() * banners.length)]);
-      banner.position.set(0, 0, -this.chunkLength * 0.5);
-      chunk.add(banner);
+    // 7. Roadside Delivery Customers (Waiting on the side platform for orders)
+    if (!isFirstChunk && Math.random() < 0.65) {
+      const custSide = Math.random() < 0.5 ? 'left' : 'right';
+      const customer = window.modelFactory.createDeliveryCustomer(custSide);
+      const custX = custSide === 'left' ? -trackBedWidth / 2 - 0.9 : trackBedWidth / 2 + 0.9;
+      customer.position.set(custX, 0.1, -this.chunkLength * 0.35);
+      chunk.add(customer);
+      this.roadsideCustomers.push(customer);
     }
 
     this.scene.add(chunk);
@@ -457,13 +433,11 @@ class WOFGame {
     const dist = this.distance;
 
     // Dynamic difficulty tiers
-    // Easy: 0-500m | Medium: 500-1500m | Hard: 1500-2500m | RUSH: 2500m+
     const isEasy   = dist < 500;
     const isMedium = dist >= 500 && dist < 1500;
     const isHard   = dist >= 1500 && dist < 2500;
     const isRush   = dist >= 2500;
 
-    // More obstacle slots at higher difficulty
     const segmentOffsets = isRush ? [8, 20, 32] : (isHard ? [10, 28] : [14, 30]);
 
     segmentOffsets.forEach(offset => {
@@ -473,51 +447,14 @@ class WOFGame {
       let blockedLanes = [];
 
       if (isEasy) {
-        // Single lane blocked
         blockedLanes = [Math.floor(Math.random() * 3)];
-
       } else if (isMedium) {
-        // 40% chance double block
         const numBlocks = Math.random() < 0.40 ? 2 : 1;
-        const shuffledLanes = [...laneIndices].sort(() => Math.random() - 0.5);
-        blockedLanes = shuffledLanes.slice(0, numBlocks);
-
+        blockedLanes = [...laneIndices].sort(() => Math.random() - 0.5).slice(0, numBlocks);
       } else if (isHard) {
-        // 65% double, 15% triple-with-escape (only 1 gap so player must react)
-        const r = Math.random();
-        if (r < 0.15) {
-          // Triple-lane threat: 2 lanes blocked, 1 open — jump over the barrier in the open lane
-          const shuffledLanes = [...laneIndices].sort(() => Math.random() - 0.5);
-          blockedLanes = shuffledLanes.slice(0, 2);
-          // Force barriers (jumpable) so player can still jump-escape
-          const openLane = shuffledLanes[2];
-          // Spawn jumpable barrier in open lane too — player must time jump
-          if (Math.random() < 0.4) {
-            const barrierObs = window.modelFactory.createRoadBarrier();
-            barrierObs.position.set(this.lanes[openLane], 0, spawnZ);
-            barrierObs.userData.lane = openLane;
-            barrierObs.userData.spawnZ = spawnZ;
-            barrierObs.userData.passed = false;
-            this.scene.add(barrierObs);
-            this.obstacles.push(barrierObs);
-          }
-        } else if (r < 0.65) {
-          const shuffledLanes = [...laneIndices].sort(() => Math.random() - 0.5);
-          blockedLanes = shuffledLanes.slice(0, 2);
-        } else {
-          blockedLanes = [Math.floor(Math.random() * 3)];
-        }
-
-      } else if (isRush) {
-        // RUSH MODE: Most segments are 2-lane blocks, ~20% chance of ALL-3 jumpable wall
-        const r = Math.random();
-        if (r < 0.20) {
-          // All 3 lanes — must jump! Place only jumpable barriers
-          blockedLanes = [0, 1, 2];
-        } else {
-          const shuffledLanes = [...laneIndices].sort(() => Math.random() - 0.5);
-          blockedLanes = shuffledLanes.slice(0, 2);
-        }
+        blockedLanes = [...laneIndices].sort(() => Math.random() - 0.5).slice(0, 2);
+      } else {
+        blockedLanes = [...laneIndices].sort(() => Math.random() - 0.5).slice(0, 2);
       }
 
       blockedLanes.forEach(laneIdx => {
@@ -525,31 +462,21 @@ class WOFGame {
         const r = Math.random();
         let obs;
 
-        // In Rush mode, prefer jumpable obstacles for all-3-lane blocks
-        const forceJumpable = isRush && blockedLanes.length === 3;
-
-        if (forceJumpable) {
-          obs = window.modelFactory.createRoadBarrier();
+        if (r < 0.42) {
+          // Streamlined Subway Train! (Subway Surfers signature passenger train car)
+          obs = window.modelFactory.createTrainObstacle(Math.random() < 0.5 ? 0 : 1);
           obs.position.set(laneX, 0, spawnZ);
-        } else if (r < 0.35) {
-          // Coimbatore Auto-Rickshaw!
-          obs = window.modelFactory.createRickshaw();
-          obs.position.set(laneX, 0, spawnZ);
-        } else if (r < 0.55) {
-          // Parked / Slow Scooter
-          obs = window.modelFactory.createScooter();
-          obs.position.set(laneX, 0, spawnZ);
-        } else if (r < 0.72) {
+        } else if (r < 0.68) {
           // Jumpable Road Barrier
           obs = window.modelFactory.createRoadBarrier();
           obs.position.set(laneX, 0, spawnZ);
-        } else if (r < 0.88) {
+        } else if (r < 0.86) {
           // Slide Barrier (Must Slide!)
           obs = window.modelFactory.createSlideBarrier();
           obs.position.set(laneX, 0, spawnZ);
         } else {
-          // Street Vendor Cart
-          obs = window.modelFactory.createVendorCart();
+          // Coimbatore Auto-Rickshaw
+          obs = window.modelFactory.createRickshaw();
           obs.position.set(laneX, 0, spawnZ);
         }
 
@@ -557,110 +484,76 @@ class WOFGame {
         obs.userData.spawnZ = spawnZ;
         obs.userData.passed = false;
 
-        // Moving obstacle: at Hard+ difficulty, 20% chance obstacle slowly shifts lane
-        if ((isHard || isRush) && Math.random() < 0.20 && blockedLanes.length < 3) {
-          obs.userData.isMoving = true;
-          obs.userData.moveDir = Math.random() < 0.5 ? 1 : -1;
-          obs.userData.moveSpeed = 1.2 + Math.random() * 0.8;
-          obs.userData.moveRange = 1.0 + Math.random() * 0.8;
-          obs.userData.moveOriginX = laneX;
-        }
-
         this.scene.add(obs);
         this.obstacles.push(obs);
       });
 
-      // Place food collectibles in the OPEN lane(s)
+      // Spawn Golden Coins in open lanes
       const freeLanes = laneIndices.filter(l => !blockedLanes.includes(l));
       if (freeLanes.length > 0) {
-        const foodLane = freeLanes[Math.floor(Math.random() * freeLanes.length)];
-        // More food items at higher speed to compensate for difficulty
-        const foodCount = isRush ? 4 : isMedium ? 3 : 3;
-        this.spawnFoodRow(this.lanes[foodLane], spawnZ - 4, foodCount);
+        const coinLane = freeLanes[Math.floor(Math.random() * freeLanes.length)];
+        this.spawnCoinRow(this.lanes[coinLane], spawnZ - 3, 5);
       }
     });
 
-    // Rare Power-Up Spawn (10% chance per chunk)
-    if (Math.random() < 0.18) {
+    // Check if it's time for a rare Food Collectible (every 200–300m interval)
+    if (this.distance >= this.nextFoodDistance) {
+      const openLane = this.lanes[Math.floor(Math.random() * 3)];
+      this.spawnRareFood(openLane, chunkZ - 20);
+      this.nextFoodDistance = this.distance + 220 + Math.random() * 80;
+    }
+
+    // Power-Up Spawn (16% chance per chunk: Coin Magnet, Invincible Star, Delivery Scooter)
+    if (Math.random() < 0.16) {
       const pLane = this.lanes[Math.floor(Math.random() * 3)];
-      const pZ = chunkZ - 20;
+      const pZ = chunkZ - 24;
       this.spawnPowerup(pLane, pZ);
     }
-
-    // Ultra Rare Golden Fry Easter Egg (4% chance per chunk)
-    if (Math.random() < 0.04) {
-      const gLane = this.lanes[Math.floor(Math.random() * 3)];
-      const gZ = chunkZ - 22;
-      const goldenFry = window.modelFactory.createGoldenFryItem();
-      goldenFry.position.set(gLane, 1.8, gZ);
-      this.scene.add(goldenFry);
-      this.collectibles.push(goldenFry);
-    }
-
-    // Rare Mascot Easter Egg waving on sidewalk (8% chance)
-    if (Math.random() < 0.08) {
-      const mascot = window.modelFactory.createEasterEggMascot();
-      const sideX = Math.random() < 0.5 ? -4.6 : 4.6;
-      mascot.position.set(sideX, 0.3, chunkZ - 18);
-      this.scene.add(mascot);
-      this.collectibles.push(mascot);
-    }
-
-    // Giant Rolling Burger Hazard Easter Egg (when distance > 350m, 10% chance)
-    if (this.distance > 350 && Math.random() < 0.10) {
-      const burgerHaz = window.modelFactory.createGiantRollingBurger();
-      burgerHaz.position.set(0, 1.8, chunkZ - 32);
-      this.scene.add(burgerHaz);
-      this.obstacles.push(burgerHaz);
-    }
   }
 
-  spawnFoodRow(laneX, startZ, count = 3) {
-    // Choose what food to spawn
-    // Check if delivery run is active and prioritize delivery targets!
-    let foodType = null;
-    if (this.deliveryActive && this.deliveryOrder) {
-      const needed = [];
-      if (this.deliveryOrder.burger > 0) needed.push('burger');
-      if (this.deliveryOrder.fries > 0) needed.push('fries');
-      if (this.deliveryOrder.drink > 0) needed.push('drink');
-      if (needed.length > 0 && Math.random() < 0.6) {
-        foodType = needed[Math.floor(Math.random() * needed.length)];
-      }
-    }
-
-    if (!foodType) {
-      const types = ['burger', 'fries', 'drink', 'pizza', 'waffle', 'falooda'];
-      foodType = types[Math.floor(Math.random() * types.length)];
-    }
-
+  // Spawn row of golden coins (Subway Surfers signature collectibles)
+  spawnCoinRow(laneX, startZ, count = 5) {
     for (let i = 0; i < count; i++) {
-      let item;
-      switch (foodType) {
-        case 'burger': item = window.modelFactory.createBurgerItem(); break;
-        case 'fries': item = window.modelFactory.createFriesItem(); break;
-        case 'drink': item = window.modelFactory.createDrinkItem(); break;
-        case 'pizza': item = window.modelFactory.createPizzaItem(); break;
-        case 'waffle': item = window.modelFactory.createWaffleItem(); break;
-        case 'falooda': item = window.modelFactory.createFaloodaItem(); break;
-        default: item = window.modelFactory.createBurgerItem(); break;
-      }
-
-      item.position.set(laneX, 1.2, startZ - i * 2.2);
-      this.scene.add(item);
-      this.collectibles.push(item);
+      const coin = window.modelFactory.createCoinItem();
+      coin.position.set(laneX, 1.1, startZ - i * 2.2);
+      this.scene.add(coin);
+      this.collectibles.push(coin);
     }
   }
 
+  // Spawn rare food collectible (every 200-300m interval)
+  spawnRareFood(laneX, z) {
+    const types = ['burger', 'fries', 'drink', 'pizza', 'waffle', 'falooda'];
+    const foodType = types[Math.floor(Math.random() * types.length)];
+    let item;
+    switch (foodType) {
+      case 'burger': item = window.modelFactory.createBurgerItem(1.25); break;
+      case 'fries': item = window.modelFactory.createFriesItem(1.25); break;
+      case 'drink': item = window.modelFactory.createDrinkItem(1.25); break;
+      case 'pizza': item = window.modelFactory.createPizzaItem(1.25); break;
+      case 'waffle': item = window.modelFactory.createWaffleItem(1.25); break;
+      case 'falooda': item = window.modelFactory.createFaloodaItem(1.25); break;
+      default: item = window.modelFactory.createBurgerItem(1.25); break;
+    }
+    item.position.set(laneX, 1.3, z);
+    item.userData.points = 500; // Special high-value feast reward!
+    this.scene.add(item);
+    this.collectibles.push(item);
+  }
+
+  // Spawn powerup (Coin Magnet, Invincible Star, Delivery Scooter)
   spawnPowerup(laneX, z) {
-    const powerups = ['shield', 'magnet', 'turbo', 'burger_mode'];
-    const pType = powerups[Math.floor(Math.random() * powerups.length)];
+    const roll = Math.random();
     let pMesh;
-    switch (pType) {
-      case 'shield': pMesh = window.modelFactory.createShieldPowerup(); break;
-      case 'magnet': pMesh = window.modelFactory.createMagnetPowerup(); break;
-      case 'turbo': pMesh = window.modelFactory.createTurboPowerup(); break;
-      case 'burger_mode': pMesh = window.modelFactory.createBurgerModePowerup(); break;
+    if (roll < 0.45) {
+      // Coin Magnet (Rare)
+      pMesh = window.modelFactory.createCoinMagnetPowerupItem();
+    } else if (roll < 0.72) {
+      // Delivery Scooter (Power-up scooter to ride for delivery)
+      pMesh = window.modelFactory.createDeliveryScooterPowerupItem();
+    } else {
+      // Invincible (Very Rare)
+      pMesh = window.modelFactory.createInvinciblePowerupItem();
     }
     pMesh.position.set(laneX, 1.3, z);
     this.scene.add(pMesh);
@@ -835,12 +728,14 @@ class WOFGame {
 
     this.speed = this.baseSpeed;
     this.distance = 0;
+    this.coins = 0;
     this.score = 0;
     this.scoreMultiplier = 1;
     this.comboCounter = 0;
     this.sameFoodStreak = { type: null, count: 0 };
     this.activeMeal = { main: null, side: null, drink: null };
     this.mealsCompleted = 0;
+    this.nextFoodDistance = 250;
 
     this.deliveryActive = false;
     this.deliveryOrder = null;
@@ -864,6 +759,8 @@ class WOFGame {
     this.obstacles = [];
     this.collectibles.forEach(c => this.scene.remove(c));
     this.collectibles = [];
+    this.roadsideCustomers.forEach(rc => this.scene.remove(rc));
+    this.roadsideCustomers = [];
     this.chunks.forEach(ch => this.scene.remove(ch));
     this.chunks = [];
 
@@ -875,7 +772,11 @@ class WOFGame {
       this.player.userData.bodyRoot.visible = true;
       this.player.userData.shieldMesh.visible = false;
       this.player.userData.giantBurger.visible = false;
+      if (this.player.userData.scooterVehicle) this.player.userData.scooterVehicle.visible = false;
+      if (this.player.userData.invincibleAura) this.player.userData.invincibleAura.visible = false;
       this.player.userData.isBurgerMode = false;
+      this.player.userData.isRidingScooter = false;
+      this.player.userData.isInvincible = false;
       this.player.rotation.set(0, 0, 0);
     }
 
@@ -923,6 +824,7 @@ class WOFGame {
       window.uiManager.showGameOverScreen({
         score: Math.floor(this.score),
         distance: Math.floor(this.distance),
+        coins: this.coins,
         meals: this.mealsCompleted,
         deliveries: this.deliveriesCompleted,
         easterEggs: this.easterEggsFound
@@ -967,18 +869,20 @@ class WOFGame {
   updateSpeedAndDifficulty(dt) {
     // Speed increases gradually with distance
     const targetSpeed = Math.min(this.baseSpeed + (this.distance / 120), this.maxSpeed);
-    const speedBoost = this.activePowerups.turbo.active ? 1.6 : 1.0;
+    const hasScooter = (this.activePowerups.delivery_scooter && this.activePowerups.delivery_scooter.active) ||
+                       (this.activePowerups.turbo && this.activePowerups.turbo.active);
+    const speedBoost = hasScooter ? 1.45 : 1.0;
     this.speed = targetSpeed * speedBoost;
 
     // Distance & Score progression
     const distDelta = this.speed * dt;
     this.distance += distDelta;
 
-    const turboMult = this.activePowerups.turbo.active ? 3 : 1;
-    this.score += distDelta * this.scoreMultiplier * turboMult;
+    const scooterMult = hasScooter ? 2 : 1;
+    this.score += distDelta * this.scoreMultiplier * scooterMult;
 
     // Music turbo tempo
-    window.audioManager.setTurbo(this.activePowerups.turbo.active);
+    window.audioManager.setTurbo(hasScooter);
   }
 
   // Smooth player interpolation, jumping & sliding
@@ -1043,14 +947,32 @@ class WOFGame {
       this.player.scale.set(1, 1, 1);
     }
 
-    // Character Animations (Run cycle, jump tuck, slide crouch, burger roll)
+    // Character Animations (Run cycle, jump tuck, slide crouch, scooter ride, burger roll)
     const uData = this.player.userData;
     if (uData.isBurgerMode) {
       uData.giantBurger.rotation.x += this.speed * dt * 0.8;
     } else {
       const speedT = Math.min(this.speed / this.maxSpeed, 1.0); // 0..1
 
-      if (!this.isJumping && !this.isSliding) {
+      if (uData.isRidingScooter && !this.isJumping && !this.isSliding) {
+        // === RIDING SCOOTER STANCE ===
+        uData.bodyRoot.position.y = 0.22;
+        uData.bodyRoot.rotation.x = 0.08;
+        uData.bodyRoot.rotation.y = 0;
+        uData.leftLegPivot.rotation.x = 0;
+        uData.rightLegPivot.rotation.x = 0;
+        uData.leftArmPivot.rotation.x = -0.55;
+        uData.rightArmPivot.rotation.x = -0.55;
+        uData.leftArmPivot.rotation.z = 0.22;
+        uData.rightArmPivot.rotation.z = -0.22;
+        if (uData.leftForearmGroup) uData.leftForearmGroup.rotation.x = -0.8;
+        if (uData.rightForearmGroup) uData.rightForearmGroup.rotation.x = -0.8;
+        uData.headGroup.position.y = 2.04;
+
+        if (Math.random() < 0.3) {
+          this.spawnDust(this.playerX, 0.05, -0.6, 1);
+        }
+      } else if (!this.isJumping && !this.isSliding) {
         // === RUNNING ANIMATION ===
         uData.runCycle += dt * this.speed * 0.92;
         const swing = Math.sin(uData.runCycle);
@@ -1168,6 +1090,60 @@ class WOFGame {
       }
     }
 
+    // Move roadside delivery customers along the track platforms
+    for (let i = this.roadsideCustomers.length - 1; i >= 0; i--) {
+      const cust = this.roadsideCustomers[i];
+      cust.position.z += moveZ;
+
+      if (cust.userData.waveArm) {
+        cust.userData.waveArm.rotation.x = Math.sin(this.runTime * 8) * 0.4;
+      }
+
+      // Check delivery passing: when runner passes customer
+      if (!cust.userData.delivered && Math.abs(cust.position.z) < 2.8) {
+        cust.userData.delivered = true;
+        this.deliveriesCompleted++;
+        const delivBonus = 1000;
+        this.score += delivBonus;
+
+        if (cust.userData.orderBubble) {
+          const bCanvas = document.createElement('canvas');
+          bCanvas.width = 384;
+          bCanvas.height = 180;
+          const bctx = bCanvas.getContext('2d');
+          bctx.fillStyle = '#E8F5E9';
+          bctx.beginPath();
+          bctx.roundRect(8, 8, 368, 164, 24);
+          bctx.fill();
+          bctx.lineWidth = 6;
+          bctx.strokeStyle = '#00E676';
+          bctx.stroke();
+          bctx.fillStyle = '#2E7D32';
+          bctx.font = 'bold 36px sans-serif';
+          bctx.textAlign = 'center';
+          bctx.fillText('DELIVERED! 🎉', 192, 75);
+          bctx.fillStyle = '#1B5E20';
+          bctx.font = 'bold 28px sans-serif';
+          bctx.fillText('+1,000 PTS! 🛵', 192, 128);
+
+          cust.userData.orderBubble.material.map = new THREE.CanvasTexture(bCanvas);
+          cust.userData.orderBubble.material.map.needsUpdate = true;
+        }
+
+        this.spawnCollectParticles(cust.position.x, cust.position.y + 1.5, cust.position.z, 0x00E676, 18);
+        this.triggerScreenFlash('#00E676', 0.25, 0.3);
+        window.audioManager.playCustomerCheer();
+        if (window.uiManager) {
+          window.uiManager.showFloatingToast('🛵 ORDER DELIVERED! +1,000 PTS!', '#00E676', 2200);
+        }
+      }
+
+      if (cust.position.z > 6.0) {
+        this.scene.remove(cust);
+        this.roadsideCustomers.splice(i, 1);
+      }
+    }
+
     // Move obstacles towards player
     for (let i = this.obstacles.length - 1; i >= 0; i--) {
       const obs = this.obstacles[i];
@@ -1187,10 +1163,8 @@ class WOFGame {
         this.checkNearMiss(obs);
       }
 
-      // CRITICAL FIX: As soon as obstacle passes the runner (z > 2.2), remove it immediately!
-      // This completely prevents it from entering the space between the runner (z=0)
-      // and the camera (z=7.5), eliminating the hollow box/backface clipping glitch!
-      if (obs.position.z > 2.2) {
+      // Remove obstacle once safely behind camera
+      if (obs.position.z > 2.8) {
         this.scene.remove(obs);
         this.obstacles.splice(i, 1);
       }
@@ -1201,25 +1175,27 @@ class WOFGame {
       const col = this.collectibles[i];
       col.position.z += moveZ;
 
-      // Magnet attraction towards player
-      if (this.activePowerups.magnet.active && col.userData.foodType) {
+      // Magnet attraction towards player (pulls coins & food)
+      const isMagnet = (this.activePowerups.coin_magnet && this.activePowerups.coin_magnet.active) ||
+                       (this.activePowerups.magnet && this.activePowerups.magnet.active);
+      if (isMagnet && (col.userData.isCoin || col.userData.foodType)) {
         const dX = this.playerX - col.position.x;
-        const dY = (this.playerY + 1.2) - col.position.y;
+        const dY = (this.playerY + 1.1) - col.position.y;
         const dZ = 0 - col.position.z;
         const dist = Math.sqrt(dX * dX + dY * dY + dZ * dZ);
 
-        if (dist < 14) {
-          col.position.x += dX * dt * 10;
-          col.position.y += dY * dt * 10;
-          col.position.z += dZ * dt * 8;
+        if (dist < 16) {
+          col.position.x += dX * dt * 12;
+          col.position.y += dY * dt * 12;
+          col.position.z += dZ * dt * 10;
         }
       }
 
       // Rotate collectible for visual polish
-      col.rotation.y += dt * 3.0;
+      col.rotation.y += dt * 3.2;
 
-      // Remove collectibles once safely behind runner (z > 1.8)
-      if (col.position.z > 1.8) {
+      // Remove collectibles once safely behind runner (z > 2.0)
+      if (col.position.z > 2.0) {
         this.scene.remove(col);
         this.collectibles.splice(i, 1);
       }
@@ -1305,14 +1281,42 @@ class WOFGame {
   collectItem(col) {
     const uData = col.userData;
 
-    // 1. Power-up collected
+    // 0. Golden Coins (Primary Pickup across all 3 lanes)
+    if (uData.isCoin || uData.type === 'coin') {
+      this.coins++;
+      const pts = 10 * this.scoreMultiplier;
+      this.score += pts;
+      this.spawnCollectParticles(col.position.x, col.position.y, col.position.z, 0xFFD700, 5);
+      window.audioManager.playCoin(this.coins % 12);
+      return;
+    }
+
+    // 1. Power-up collected (Coin Magnet, Invincible Star, Delivery Scooter)
     if (uData.powerupType) {
-      this.activatePowerup(uData.powerupType, uData.duration);
-      this.spawnCollectParticles(col.position.x, col.position.y, col.position.z, 0x00E5FF, 12);
+      this.activatePowerup(uData.powerupType, uData.duration || 15);
+      this.spawnCollectParticles(col.position.x, col.position.y, col.position.z, 0x00E5FF, 15);
       this.triggerScreenFlash('#00E5FF', 0.30, 0.35);
-      window.audioManager.playPowerup();
-      if (window.uiManager) {
-        window.uiManager.showFloatingToast(`POWER-UP: ${uData.powerupType.toUpperCase().replace('_', ' ')}!`, '#00E5FF');
+
+      if (uData.powerupType === 'delivery_scooter') {
+        window.audioManager.playScooterRev();
+        if (window.uiManager) {
+          window.uiManager.showFloatingToast('🛵 WOF DELIVERY SCOOTER! ZOOM & DELIVER!', '#FF6B00');
+        }
+      } else if (uData.powerupType === 'coin_magnet') {
+        window.audioManager.playPowerup();
+        if (window.uiManager) {
+          window.uiManager.showFloatingToast('🧲 COIN MAGNET ACTIVATED!', '#FFD700');
+        }
+      } else if (uData.powerupType === 'invincible') {
+        window.audioManager.playPowerup();
+        if (window.uiManager) {
+          window.uiManager.showFloatingToast('⭐ INVINCIBLE STAR ACTIVATED!', '#FFEB3B');
+        }
+      } else {
+        window.audioManager.playPowerup();
+        if (window.uiManager) {
+          window.uiManager.showFloatingToast(`POWER-UP: ${uData.powerupType.toUpperCase().replace('_', ' ')}!`, '#00E5FF');
+        }
       }
       return;
     }
@@ -1330,31 +1334,19 @@ class WOFGame {
       return;
     }
 
-    // 3. WOF Food Items
+    // 3. Rare Food Collectible (+500 PTS Special Feast Reward)
     const fType = uData.foodType;
     const cat = uData.category;
-    const pts = (uData.points || 25) * this.scoreMultiplier;
+    const pts = (uData.points || 500) * this.scoreMultiplier;
     this.score += pts;
-    this.spawnCollectParticles(col.position.x, col.position.y, col.position.z, 0xFF9100, 6);
+    this.mealsCompleted++;
+    this.spawnCollectParticles(col.position.x, col.position.y, col.position.z, 0xFF9100, 14);
+    this.triggerScreenFlash('#FF9100', 0.25, 0.3);
+    window.audioManager.playMealComplete();
 
-    // Check same-food streak
-    if (this.sameFoodStreak.type === fType) {
-      this.sameFoodStreak.count++;
-      if (this.sameFoodStreak.count === 3) {
-        const bonus = 150 * this.scoreMultiplier;
-        this.score += bonus;
-        this.comboCounter++;
-        this.scoreMultiplier = Math.min(this.scoreMultiplier + 1, 12);
-        this.triggerScreenFlash('#FFD000', 0.20, 0.25);
-        if (window.uiManager) {
-          window.uiManager.showFloatingToast(`${fType.toUpperCase()} COMBO x3! +${bonus}`, '#FFD000');
-        }
-      }
-    } else {
-      this.sameFoodStreak = { type: fType, count: 1 };
+    if (window.uiManager) {
+      window.uiManager.showFloatingToast(`🍔 FRESH ${fType ? fType.toUpperCase() : 'FEAST'}! +${pts} PTS!`, '#FF9800', 2200);
     }
-
-    window.audioManager.playPickup(Math.min(this.sameFoodStreak.count, 6));
 
     // Update Signature WOF Meal Slots (Main + Side + Drink)
     if (cat === 'main') this.activeMeal.main = fType;
@@ -1469,38 +1461,55 @@ class WOFGame {
 
   // --- POWER-UPS ENGINE ---
   activatePowerup(type, duration) {
+    if (type === 'magnet') type = 'coin_magnet';
+    if (type === 'shield' || type === 'burger_mode') type = 'invincible';
+    if (type === 'turbo') type = 'delivery_scooter';
+
+    if (!this.activePowerups[type]) {
+      this.activePowerups[type] = { active: false, timer: 0 };
+    }
+
     this.activePowerups[type].active = true;
     this.activePowerups[type].timer = duration;
 
-    if (type === 'shield') {
-      this.player.userData.shieldMesh.visible = true;
-    } else if (type === 'burger_mode') {
-      this.player.userData.bodyRoot.visible = false;
-      this.player.userData.giantBurger.visible = true;
-      this.player.userData.isBurgerMode = true;
+    const uData = this.player.userData;
+
+    if (type === 'invincible') {
+      if (uData.invincibleAura) uData.invincibleAura.visible = true;
+      uData.isInvincible = true;
+    } else if (type === 'delivery_scooter') {
+      if (uData.scooterVehicle) uData.scooterVehicle.visible = true;
+      uData.isRidingScooter = true;
+      window.audioManager.playScooterRev();
     }
   }
 
   updatePowerups(dt) {
+    const uData = this.player.userData;
+
+    // Invincible Star rotation & pulse
+    if (this.activePowerups.invincible && this.activePowerups.invincible.active) {
+      if (uData.invincibleAura) {
+        uData.invincibleAura.rotation.y += dt * 3.5;
+        uData.invincibleAura.rotation.x += dt * 2.0;
+        const pulse = 1.0 + Math.sin(this.runTime * 10) * 0.08;
+        uData.invincibleAura.scale.set(pulse, pulse, pulse);
+      }
+    }
+
     Object.keys(this.activePowerups).forEach(key => {
       const p = this.activePowerups[key];
       if (p.active) {
         p.timer -= dt;
 
-        // Shield visual rotation
-        if (key === 'shield') {
-          this.player.userData.shieldMesh.rotation.y += dt * 2;
-        }
-
         if (p.timer <= 0) {
           p.active = false;
-          // Deactivate visuals
-          if (key === 'shield') {
-            this.player.userData.shieldMesh.visible = false;
-          } else if (key === 'burger_mode') {
-            this.player.userData.bodyRoot.visible = true;
-            this.player.userData.giantBurger.visible = false;
-            this.player.userData.isBurgerMode = false;
+          if (key === 'invincible') {
+            if (uData.invincibleAura) uData.invincibleAura.visible = false;
+            uData.isInvincible = false;
+          } else if (key === 'delivery_scooter') {
+            if (uData.scooterVehicle) uData.scooterVehicle.visible = false;
+            uData.isRidingScooter = false;
           }
         }
       }
@@ -1537,38 +1546,66 @@ class WOFGame {
       const collidesZ = Math.abs(pZ - oZ) < (pDepth / 2 + oDepth / 2) * 0.78;
 
       let collidesY = false;
-      if (uData.mustSlide) {
-        // Slide barrier: Top clearance. Collision happens if player is standing tall!
-        // The bar is between Y = 1.1 and Y = 3.2. If player is not sliding, they hit it!
+      if (uData.rideableRoof) {
+        // Subway Surfers Train: If runner jumped high enough to land on roof, run on roof!
+        if (pY >= uData.roofY - 0.45) {
+          this.playerY = uData.roofY;
+          this.velocityY = 0;
+          this.isJumping = false;
+          this.canDoubleJump = true;
+          continue; // Running safely on top of train!
+        } else {
+          collidesY = true;
+        }
+      } else if (uData.mustSlide) {
+        // Slide barrier: Collision happens if player is standing tall!
         collidesY = !this.isSliding;
       } else if (uData.jumpable) {
-        // Jumpable obstacle (barrier/cones): Player Y must clear obstacle height
+        // Jumpable obstacle: Player Y must clear obstacle height
         collidesY = pY < (oHeight - 0.2);
       } else {
-        // Full height vehicle/stall: Collides unless jumping impossibly high
+        // Full height vehicle/stall: Collides unless jumping over
         collidesY = pY < (oHeight - 0.2);
       }
 
       if (collidesX && collidesZ && collidesY) {
-        // Collision triggered!
-        if (this.activePowerups.burger_mode.active) {
-          // Smash obstacle into pieces!
+        // 1. Invincible Star Power-up Smash!
+        const isInvincible = (this.activePowerups.invincible && this.activePowerups.invincible.active) ||
+                             (this.activePowerups.burger_mode && this.activePowerups.burger_mode.active);
+        if (isInvincible) {
           this.smashObstacle(obs, i);
           window.audioManager.playBurgerSmash();
           this.score += 200;
           this.cameraShake.intensity = Math.max(this.cameraShake.intensity, 0.25);
-          this.triggerScreenFlash('#FF3D00', 0.25, 0.25);
+          this.triggerScreenFlash('#FFD700', 0.25, 0.25);
           if (window.uiManager) {
-            window.uiManager.showFloatingToast('SMASH! +200', '#FF3D00');
+            window.uiManager.showFloatingToast('⭐ STAR SMASH! +200', '#FFD700');
           }
           return;
         }
 
-        if (this.activePowerups.shield.active) {
-          // Shield absorbs collision
+        // 2. Delivery Scooter Crash Deflection (Absorbs hit, breaks scooter, runner continues)
+        const hasScooter = (this.activePowerups.delivery_scooter && this.activePowerups.delivery_scooter.active);
+        if (hasScooter) {
+          this.activePowerups.delivery_scooter.active = false;
+          if (this.player.userData.scooterVehicle) this.player.userData.scooterVehicle.visible = false;
+          this.player.userData.isRidingScooter = false;
+          this.invulnerableTimer = 1.8;
+          window.audioManager.playShieldBreak();
+          this.smashObstacle(obs, i);
+          this.cameraShake.intensity = 0.35;
+          this.triggerScreenFlash('#FF6B00', 0.38, 0.3);
+          if (window.uiManager) {
+            window.uiManager.showFloatingToast('SCOOTER CRASH! SAFE RECOVERY!', '#FF6B00');
+          }
+          return;
+        }
+
+        // 3. Shield absorb
+        if (this.activePowerups.shield && this.activePowerups.shield.active) {
           this.activePowerups.shield.active = false;
-          this.player.userData.shieldMesh.visible = false;
-          this.invulnerableTimer = 1.6; // grace period
+          if (this.player.userData.shieldMesh) this.player.userData.shieldMesh.visible = false;
+          this.invulnerableTimer = 1.6;
           window.audioManager.playShieldBreak();
           this.smashObstacle(obs, i);
           this.cameraShake.intensity = 0.35;
@@ -1644,46 +1681,41 @@ class WOFGame {
     }
   }
 
-  // --- DYNAMIC DAY / SUNSET / NEON NIGHT CYCLE ---
+  // --- DYNAMIC SUNSET / TWILIGHT / NEON NIGHT CYCLE ---
   updateEnvironmentLighting() {
     const dist = this.distance;
 
-    if (dist < 1000) {
-      // Crisp Morning / Midday Coimbatore Sky
-      this.scene.background.setHex(0x4FC3F7);
-      this.scene.fog.color.setHex(0x4FC3F7);
-      this.dirLight.color.setHex(0xFFF9C4);
-      this.ambientLight.color.setHex(0xFFFFFF);
-      this.ambientLight.intensity = 0.75;
-      if (this.hemiLight) this.hemiLight.color.setHex(0x4FC3F7);
-    } else if (dist < 2500) {
-      // Warm Golden Coimbatore Sunset
-      const t = (dist - 1000) / 1500;
-      const skyCol = new THREE.Color(0x4FC3F7).lerp(new THREE.Color(0xFFA726), t);
-      this.scene.background.copy(skyCol);
-      this.scene.fog.color.copy(skyCol);
-      this.dirLight.color.setHex(0xFFE082);
-      this.ambientLight.color.setHex(0xFFF3E0);
-      this.ambientLight.intensity = 0.80;
-      if (this.hemiLight) this.hemiLight.color.copy(skyCol);
+    if (dist < 1500) {
+      // Golden Sunset Canal City (Matching Reference Image)
+      this.scene.fog.color.setHex(0xF4511E);
+      this.dirLight.color.setHex(0xFFD54F);
+      this.ambientLight.color.setHex(0xFFE0B2);
+      this.ambientLight.intensity = 0.85;
+      if (this.hemiLight) this.hemiLight.color.setHex(0xAB47BC);
     } else {
-      // Radiant Neon Twilight Arcade Mode (Vibrant violet/magenta - NEVER murky black!)
-      const t = Math.min((dist - 2500) / 800, 1.0);
-      const skyCol = new THREE.Color(0xFFA726).lerp(new THREE.Color(0x9C27B0), t);
-      this.scene.background.copy(skyCol);
+      // Twilight Magenta & Indigo Neon Mode (Subway Surfers night festival)
+      const t = Math.min((dist - 1500) / 1000, 1.0);
+      const skyCol = new THREE.Color(0xF4511E).lerp(new THREE.Color(0xAD1457), t);
       this.scene.fog.color.copy(skyCol);
       this.dirLight.color.setHex(0xFF80AB); // Neon rose sun
       this.ambientLight.color.setHex(0xF3E5F5); // Bright lavender ambient
-      this.ambientLight.intensity = 0.85;
+      this.ambientLight.intensity = 0.90;
       if (this.hemiLight) this.hemiLight.color.copy(skyCol);
     }
   }
 
   // --- DYNAMIC CAMERA EFFECTS ---
   updateCamera(dt) {
-    // Dynamic FOV stretch during Turbo Boost or high speed
+    // Keep Sky Dome centered on camera so horizon never clips
+    if (this.skyDome) {
+      this.skyDome.position.copy(this.camera.position);
+    }
+
+    // Dynamic FOV stretch during Scooter Boost or high speed
+    const isTurbo = (this.activePowerups.delivery_scooter && this.activePowerups.delivery_scooter.active) ||
+                    (this.activePowerups.turbo && this.activePowerups.turbo.active);
     const baseFOV = 60 + Math.min(10, (this.speed - this.baseSpeed) * 0.4);
-    const targetFOV = this.activePowerups.turbo.active ? 74 : baseFOV;
+    const targetFOV = isTurbo ? 72 : baseFOV;
     this.camera.fov += (targetFOV - this.camera.fov) * dt * 4;
     this.camera.updateProjectionMatrix();
 

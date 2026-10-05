@@ -109,20 +109,21 @@ class ModelFactory {
     bodyRoot.name = 'bodyRoot';
     runner.add(bodyRoot);
 
-    // Subway Surfers / Arcade Materials
+    // Subway Surfers / Arcade Materials (Jake Style with WOF Branding)
     const matSkin = new THREE.MeshLambertMaterial({ color: 0xF7D0B2 });
     const matHairDark = new THREE.MeshLambertMaterial({ color: 0x24160E });
-    const matHoodieOrange = new THREE.MeshLambertMaterial({ color: 0xFF6B00 }); // WOF Signature Vibrant Orange
-    const matVestNavy = new THREE.MeshLambertMaterial({ color: 0x1A237E });   // Skater Denim / Navy Vest
-    const matVestTrim = new THREE.MeshLambertMaterial({ color: 0x283593 });
-    const matDrawstrings = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
-    const matCapRed = new THREE.MeshLambertMaterial({ color: 0xD32F2F });      // Skater Cap Red
-    const matCapVisor = new THREE.MeshLambertMaterial({ color: 0x1A237E });    // Visor Navy
+    const matHoodieWhite = new THREE.MeshLambertMaterial({ color: 0xF8F9FA }); // Skater White Hoodie (Reference style)
+    const matHoodieOrange = new THREE.MeshLambertMaterial({ color: 0xFF6B00 }); // WOF Signature Vibrant Orange Trims
+    const matVestNavy = new THREE.MeshLambertMaterial({ color: 0x1E3A8A });   // Denim Blue Skater Vest
+    const matVestTrim = new THREE.MeshLambertMaterial({ color: 0x2563EB });
+    const matDrawstrings = new THREE.MeshLambertMaterial({ color: 0xFF6B00 });
+    const matCapRed = new THREE.MeshLambertMaterial({ color: 0xE53935 });      // Jake Iconic Red Cap
+    const matCapVisor = new THREE.MeshLambertMaterial({ color: 0x1E3A8A });    // Visor Navy
     const matCapBadge = new THREE.MeshLambertMaterial({ color: 0xFFD000 });    // Cap Yellow Badge
-    const matCargoPants = new THREE.MeshLambertMaterial({ color: 0x2A343D });  // Baggy Dark Wash Joggers
+    const matCargoPants = new THREE.MeshLambertMaterial({ color: 0x1E40AF });  // Blue Denim Skater Jeans
     const matShoeWhite = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });   // Skater Vulcanized Sole
-    const matShoeOrange = new THREE.MeshLambertMaterial({ color: 0xFF6B00 });  // Sneaker Upper Orange
-    const matShoeNavy = new THREE.MeshLambertMaterial({ color: 0x0D47A1 });    // Sneaker Trim Navy
+    const matShoeOrange = new THREE.MeshLambertMaterial({ color: 0xE53935 });  // Red/White Skater Sneaker Upper
+    const matShoeNavy = new THREE.MeshLambertMaterial({ color: 0x1E3A8A });    // Sneaker Trim Navy
     const matShoeSole = new THREE.MeshLambertMaterial({ color: 0x1A1A1A });    // Waffle Sole Base
     const matGlowCyan = new THREE.MeshStandardMaterial({
       color: 0x00E5FF,
@@ -146,10 +147,10 @@ class ModelFactory {
     buckle.position.set(0, 1.07, 0.29);
     bodyRoot.add(belt, buckle);
 
-    // --- TORSO: VIBRANT ORANGE HOODIE + LAYERED SKATER VEST ---
-    // Base Orange Hoodie (slightly broader, athletic skater build)
+    // --- TORSO: WHITE SKATER HOODIE + BLUE DENIM VEST ---
+    // Base White Hoodie
     const hoodieGeo = new THREE.CylinderGeometry(0.32, 0.27, 0.70, 16);
-    const hoodieMesh = new THREE.Mesh(hoodieGeo, matHoodieOrange);
+    const hoodieMesh = new THREE.Mesh(hoodieGeo, matHoodieWhite);
     hoodieMesh.position.y = 1.40;
     hoodieMesh.castShadow = true;
     bodyRoot.add(hoodieMesh);
@@ -161,10 +162,10 @@ class ModelFactory {
     vestMesh.castShadow = true;
     bodyRoot.add(vestMesh);
 
-    // Vest Arm Cutouts (revealing orange hoodie shoulders)
+    // Vest Arm Cutouts (revealing white hoodie shoulders)
     [-1, 1].forEach(side => {
       const cutoutGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.20, 12);
-      const cutout = new THREE.Mesh(cutoutGeo, matHoodieOrange);
+      const cutout = new THREE.Mesh(cutoutGeo, matHoodieWhite);
       cutout.rotation.z = Math.PI / 2;
       cutout.position.set(side * 0.29, 1.62, 0);
       bodyRoot.add(cutout);
@@ -405,12 +406,12 @@ class ModelFactory {
     leftArmPivot.position.set(0.38, 1.62, 0);
 
     const shoulderGeo = new THREE.SphereGeometry(0.11, 12, 12);
-    const leftShoulder = new THREE.Mesh(shoulderGeo, matHoodieOrange);
+    const leftShoulder = new THREE.Mesh(shoulderGeo, matHoodieWhite);
     leftArmPivot.add(leftShoulder);
 
-    // Upper Arm (Hoodie sleeve)
+    // Upper Arm (White Hoodie sleeve)
     const upperArmGeo = new THREE.CylinderGeometry(0.095, 0.085, 0.32, 12);
-    const leftUpperArm = new THREE.Mesh(upperArmGeo, matHoodieOrange);
+    const leftUpperArm = new THREE.Mesh(upperArmGeo, matHoodieWhite);
     leftUpperArm.position.y = -0.16;
     leftUpperArm.castShadow = true;
     leftArmPivot.add(leftUpperArm);
@@ -446,10 +447,10 @@ class ModelFactory {
     const rightArmPivot = new THREE.Group();
     rightArmPivot.position.set(-0.38, 1.62, 0);
 
-    const rightShoulder = new THREE.Mesh(shoulderGeo, matHoodieOrange);
+    const rightShoulder = new THREE.Mesh(shoulderGeo, matHoodieWhite);
     rightArmPivot.add(rightShoulder);
 
-    const rightUpperArm = new THREE.Mesh(upperArmGeo, matHoodieOrange);
+    const rightUpperArm = new THREE.Mesh(upperArmGeo, matHoodieWhite);
     rightUpperArm.position.y = -0.16;
     rightUpperArm.castShadow = true;
     rightArmPivot.add(rightUpperArm);
@@ -625,6 +626,28 @@ class ModelFactory {
     giantBurger.name = 'giantBurger';
     runner.add(giantBurger);
 
+    // Scooter Vehicle Mount for Delivery Scooter Power-up (initially hidden)
+    const scooterVehicle = this.createDeliveryScooterVehicle();
+    scooterVehicle.position.set(0, 0, 0);
+    scooterVehicle.visible = false;
+    runner.add(scooterVehicle);
+
+    // Invincible Aura Sphere (initially hidden)
+    const invinGeo = new THREE.SphereGeometry(1.6, 20, 20);
+    const invinMat = new THREE.MeshStandardMaterial({
+      color: 0xFFEA00,
+      emissive: 0xFF9100,
+      emissiveIntensity: 0.8,
+      transparent: true,
+      opacity: 0.45,
+      roughness: 0.1,
+      metalness: 0.9
+    });
+    const invincibleAura = new THREE.Mesh(invinGeo, invinMat);
+    invincibleAura.position.y = 1.3;
+    invincibleAura.visible = false;
+    runner.add(invincibleAura);
+
     // Store animation handles on runner object
     runner.userData = {
       bodyRoot,
@@ -637,10 +660,14 @@ class ModelFactory {
       rightLegPivot,
       shieldMesh,
       giantBurger,
+      scooterVehicle,
+      invincibleAura,
       runCycle: 0,
       isSliding: false,
       isJumping: false,
-      isBurgerMode: false
+      isBurgerMode: false,
+      isRidingScooter: false,
+      isInvincible: false
     };
 
     return runner;
@@ -1221,89 +1248,595 @@ class ModelFactory {
     return group;
   }
 
-  // --- 10. POWER-UP ITEMS ---
+  // 🪙 3D GOLDEN COIN COLLECTIBLE (Subway Surfers Style with Embossed Star)
+  createCoinItem() {
+    const coinGroup = new THREE.Group();
 
-  // 🛡️ FULL MEAL SHIELD ICON
-  createShieldPowerup() {
-    const group = new THREE.Group();
-    const orbGeo = new THREE.SphereGeometry(0.45, 16, 16);
-    const orbMat = new THREE.MeshStandardMaterial({
-      color: 0x00E5FF,
-      emissive: 0x0091EA,
-      emissiveIntensity: 0.6,
-      transparent: true,
-      opacity: 0.85
+    // 1. Golden Coin Body (diameter 0.7m, thickness 0.10m)
+    const coinGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.10, 20);
+    coinGeo.rotateX(Math.PI / 2); // Stand upright facing runner
+
+    const coinMat = new THREE.MeshStandardMaterial({
+      color: 0xFFD700,
+      metalness: 0.88,
+      roughness: 0.18,
+      emissive: 0x996500,
+      emissiveIntensity: 0.45
     });
-    const orb = new THREE.Mesh(orbGeo, orbMat);
-    group.add(orb);
+    const coinMesh = new THREE.Mesh(coinGeo, coinMat);
+    coinMesh.castShadow = true;
+    coinGroup.add(coinMesh);
 
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.65, 0.05, 8, 24), new THREE.MeshBasicMaterial({ color: 0x80D8FF }));
-    ring.rotation.x = Math.PI / 2;
-    group.add(ring);
+    // 2. Raised Golden Beveled Edge Rims
+    const rimGeo = new THREE.TorusGeometry(0.28, 0.03, 8, 20);
+    const rimMat = new THREE.MeshStandardMaterial({
+      color: 0xFFEA00,
+      metalness: 0.92,
+      roughness: 0.12,
+      emissive: 0xB8860B,
+      emissiveIntensity: 0.5
+    });
+    const frontRim = new THREE.Mesh(rimGeo, rimMat);
+    frontRim.position.z = 0.052;
+    const backRim = new THREE.Mesh(rimGeo, rimMat);
+    backRim.position.z = -0.052;
+    coinGroup.add(frontRim, backRim);
 
-    group.userData = { powerupType: 'shield', duration: 15, radius: 0.7 };
-    return group;
+    // 3. Embossed 5-Pointed Star on both faces
+    const starShape = new THREE.Shape();
+    const outerR = 0.18;
+    const innerR = 0.075;
+    for (let i = 0; i < 10; i++) {
+      const angle = (i * Math.PI) / 5 - Math.PI / 2;
+      const r = i % 2 === 0 ? outerR : innerR;
+      const x = Math.cos(angle) * r;
+      const y = Math.sin(angle) * r;
+      if (i === 0) starShape.moveTo(x, y);
+      else starShape.lineTo(x, y);
+    }
+    starShape.closePath();
+
+    const starGeo = new THREE.ShapeGeometry(starShape);
+    const starMat = new THREE.MeshStandardMaterial({
+      color: 0xFFF59D,
+      metalness: 0.9,
+      roughness: 0.1,
+      emissive: 0xFFD700,
+      emissiveIntensity: 0.6
+    });
+
+    const frontStar = new THREE.Mesh(starGeo, starMat);
+    frontStar.position.z = 0.056;
+    const backStar = new THREE.Mesh(starGeo, starMat);
+    backStar.position.z = -0.056;
+    backStar.rotation.y = Math.PI;
+    coinGroup.add(frontStar, backStar);
+
+    // Outer subtle golden sparkle ring
+    const glowRingGeo = new THREE.RingGeometry(0.38, 0.44, 16);
+    const glowRingMat = new THREE.MeshBasicMaterial({
+      color: 0xFFD700,
+      transparent: true,
+      opacity: 0.35,
+      side: THREE.DoubleSide
+    });
+    const glowRing = new THREE.Mesh(glowRingGeo, glowRingMat);
+    coinGroup.add(glowRing);
+
+    coinGroup.userData = {
+      type: 'coin',
+      isCoin: true,
+      points: 10,
+      radius: 0.55
+    };
+
+    return coinGroup;
   }
 
-  // 🧲 FRY MAGNET ICON
-  createMagnetPowerup() {
+  // 🚆 STREAMLINED SUBWAY SURFERS PASSENGER TRAIN (Chinese Canal City Livery)
+  createTrainObstacle(variant = 0) {
+    const train = new THREE.Group();
+    const length = 10.5;
+    const width = 1.68;
+    const height = 2.45;
+
+    const isGreen = variant % 2 === 0;
+    const bodyColor = isGreen ? 0x1B5E20 : 0xB71C1C; // Emerald green or deep crimson
+    const stripeColor = 0xFFD54F; // Golden streamline racing stripe
+    const roofColor = 0x263238;   // Dark corrugated charcoal roof
+
+    const matBody = new THREE.MeshLambertMaterial({ color: bodyColor });
+    const matStripe = new THREE.MeshLambertMaterial({ color: stripeColor });
+    const matRoof = new THREE.MeshLambertMaterial({ color: roofColor });
+    const matWindshield = new THREE.MeshBasicMaterial({ color: 0x81D4FA });
+    const matWindow = new THREE.MeshBasicMaterial({ color: 0xFFE082 }); // Warm glowing windows
+    const matHeadlight = new THREE.MeshBasicMaterial({ color: 0xFFEB3B });
+
+    // Main train body box
+    const bodyGeo = new THREE.BoxGeometry(width, height - 0.35, length);
+    const bodyMesh = new THREE.Mesh(bodyGeo, matBody);
+    bodyMesh.position.y = (height - 0.35) / 2 + 0.35;
+    bodyMesh.castShadow = true;
+    bodyMesh.receiveShadow = true;
+    train.add(bodyMesh);
+
+    // Streamline Golden Accent Stripe along both sides
+    [-1, 1].forEach(side => {
+      const stripeGeo = new THREE.PlaneGeometry(length - 0.4, 0.16);
+      const stripeMesh = new THREE.Mesh(stripeGeo, matStripe);
+      stripeMesh.position.set(side * (width / 2 + 0.01), height / 2 + 0.25, 0);
+      stripeMesh.rotation.y = side * Math.PI / 2;
+      train.add(stripeMesh);
+    });
+
+    // Warm Illuminated Passenger Windows along sides
+    const winGeo = new THREE.PlaneGeometry(0.75, 0.55);
+    const numWindows = 6;
+    for (let i = 0; i < numWindows; i++) {
+      const zPos = -length / 2 + 1.4 + i * 1.5;
+      [-1, 1].forEach(side => {
+        const winMesh = new THREE.Mesh(winGeo, matWindow);
+        winMesh.position.set(side * (width / 2 + 0.012), height / 2 + 0.65, zPos);
+        winMesh.rotation.y = side * Math.PI / 2;
+        train.add(winMesh);
+      });
+    }
+
+    // Corrugated Rideable Flat Roof
+    const roofGeo = new THREE.BoxGeometry(width + 0.04, 0.35, length);
+    const roofMesh = new THREE.Mesh(roofGeo, matRoof);
+    roofMesh.position.y = height + 0.17;
+    roofMesh.receiveShadow = true;
+    train.add(roofMesh);
+
+    // Roof Walkway Ribs (non-slip runner platform)
+    const ribGeo = new THREE.BoxGeometry(width * 0.7, 0.04, length - 0.8);
+    const ribMesh = new THREE.Mesh(ribGeo, new THREE.MeshLambertMaterial({ color: 0x455A64 }));
+    ribMesh.position.y = height + 0.36;
+    train.add(ribMesh);
+
+    // Front Nose / Driver Cab (Facing incoming runner, at +Z)
+    const cabGeo = new THREE.BoxGeometry(width, height - 0.35, 1.2);
+    const cabMesh = new THREE.Mesh(cabGeo, matBody);
+    cabMesh.position.set(0, (height - 0.35) / 2 + 0.35, length / 2 + 0.6);
+    cabMesh.scale.set(0.96, 1.0, 1.0);
+    train.add(cabMesh);
+
+    // Front Windshield
+    const frontWindshieldGeo = new THREE.PlaneGeometry(width * 0.75, 0.65);
+    const frontWindshield = new THREE.Mesh(frontWindshieldGeo, matWindshield);
+    frontWindshield.position.set(0, height * 0.68, length / 2 + 1.21);
+    train.add(frontWindshield);
+
+    // Twin Glowing Headlights
+    [-0.45, 0.45].forEach(hx => {
+      const hlGeo = new THREE.CircleGeometry(0.14, 12);
+      const hlMesh = new THREE.Mesh(hlGeo, matHeadlight);
+      hlMesh.position.set(hx, 0.85, length / 2 + 1.22);
+      train.add(hlMesh);
+    });
+
+    // Front Steel Cowcatcher / Rail Bumper
+    const cowGeo = new THREE.BoxGeometry(width + 0.1, 0.28, 0.3);
+    const cowMesh = new THREE.Mesh(cowGeo, this.matBlack);
+    cowMesh.position.set(0, 0.22, length / 2 + 1.15);
+    train.add(cowMesh);
+
+    // Steel Wheel Bogies
+    const wheelGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.15, 12);
+    wheelGeo.rotateZ(Math.PI / 2);
+    const bogiePositions = [-length / 2 + 1.2, -length / 2 + 2.2, length / 2 - 2.2, length / 2 - 1.2];
+    bogiePositions.forEach(bz => {
+      [-width / 2 + 0.1, width / 2 - 0.1].forEach(bx => {
+        const wheel = new THREE.Mesh(wheelGeo, this.matChrome);
+        wheel.position.set(bx, 0.24, bz);
+        train.add(wheel);
+      });
+    });
+
+    train.userData = {
+      type: 'train',
+      width: width,
+      height: height + 0.35,
+      depth: length + 1.2,
+      rideableRoof: true,
+      roofY: height + 0.36
+    };
+
+    return train;
+  }
+
+  // 🏮 OVERHEAD CATENARY GANTRY WITH GLOWING FESTIVAL LANTERNS (Matching Reference)
+  createCatenaryGantry() {
+    const gantry = new THREE.Group();
+    const spanWidth = 9.2;
+    const gantryHeight = 4.4;
+
+    const matTruss = new THREE.MeshLambertMaterial({ color: 0x212529 }); // Dark industrial steel
+
+    // Left & Right Steel Lattice Pillars
+    const pillarGeo = new THREE.BoxGeometry(0.24, gantryHeight, 0.24);
+    const leftPillar = new THREE.Mesh(pillarGeo, matTruss);
+    leftPillar.position.set(-spanWidth / 2, gantryHeight / 2, 0);
+    const rightPillar = new THREE.Mesh(pillarGeo, matTruss);
+    rightPillar.position.set(spanWidth / 2, gantryHeight / 2, 0);
+    gantry.add(leftPillar, rightPillar);
+
+    // Horizontal Overhead Bridge Girder
+    const beamGeo = new THREE.BoxGeometry(spanWidth + 0.4, 0.22, 0.24);
+    const beam = new THREE.Mesh(beamGeo, matTruss);
+    beam.position.set(0, gantryHeight, 0);
+    gantry.add(beam);
+
+    // Overhead Catenary Contact Insulators
+    [-2.2, 0.0, 2.2].forEach(laneX => {
+      const insulatorGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.35, 8);
+      const insulator = new THREE.Mesh(insulatorGeo, new THREE.MeshLambertMaterial({ color: 0x90A4AE }));
+      insulator.position.set(laneX, gantryHeight - 0.2, 0);
+      gantry.add(insulator);
+    });
+
+    // 🏮 Hanging Glowing Festival Lanterns (Red, Amber, Gold, Pink, Orange)
+    const lanternColors = [0xE53935, 0xFFA000, 0xFFD54F, 0xE91E63, 0xFF5722, 0xE53935];
+    const numLanterns = 6;
+    for (let i = 0; i < numLanterns; i++) {
+      const lX = -spanWidth / 2 + 1.3 + i * (spanWidth - 2.6) / (numLanterns - 1);
+      const cordLen = 0.55 + (i % 3) * 0.15;
+      const lColor = lanternColors[i % lanternColors.length];
+
+      // Cord
+      const cordGeo = new THREE.CylinderGeometry(0.012, 0.012, cordLen, 6);
+      const cord = new THREE.Mesh(cordGeo, new THREE.MeshBasicMaterial({ color: 0x111111 }));
+      cord.position.set(lX, gantryHeight - cordLen / 2, 0);
+      gantry.add(cord);
+
+      // Glowing Lantern Body (traditional oval lantern)
+      const lanternGeo = new THREE.SphereGeometry(0.24, 12, 12);
+      lanternGeo.scale(0.9, 1.25, 0.9);
+      const lanternMat = new THREE.MeshStandardMaterial({
+        color: lColor,
+        emissive: lColor,
+        emissiveIntensity: 0.85,
+        roughness: 0.3
+      });
+      const lanternMesh = new THREE.Mesh(lanternGeo, lanternMat);
+      lanternMesh.position.set(lX, gantryHeight - cordLen - 0.28, 0);
+      gantry.add(lanternMesh);
+
+      // Gold Top & Bottom Caps
+      [-0.26, 0.26].forEach(capY => {
+        const capGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.05, 10);
+        const cap = new THREE.Mesh(capGeo, this.matGold);
+        cap.position.set(lX, gantryHeight - cordLen - 0.28 + capY, 0);
+        gantry.add(cap);
+      });
+
+      // Gold Tassel hanging from bottom
+      const tasselGeo = new THREE.CylinderGeometry(0.02, 0.04, 0.22, 6);
+      const tassel = new THREE.Mesh(tasselGeo, this.matGold);
+      tassel.position.set(lX, gantryHeight - cordLen - 0.28 - 0.38, 0);
+      gantry.add(tassel);
+    }
+
+    return gantry;
+  }
+
+  // --- 10. REVISED CORE POWER-UP ITEMS ---
+
+  // 🧲 COIN MAGNET ICON (Rare)
+  createCoinMagnetPowerupItem() {
     const group = new THREE.Group();
-    // Horseshoe shape
-    const magnetGeo = new THREE.TorusGeometry(0.42, 0.12, 12, 16, Math.PI);
-    const magnetMat = new THREE.MeshLambertMaterial({ color: 0xD32F2F });
+    // Vibrant horseshoe magnet
+    const magnetGeo = new THREE.TorusGeometry(0.44, 0.12, 12, 16, Math.PI);
+    const magnetMat = new THREE.MeshStandardMaterial({
+      color: 0xD32F2F,
+      emissive: 0xB71C1C,
+      emissiveIntensity: 0.6,
+      metalness: 0.5,
+      roughness: 0.2
+    });
     const magnet = new THREE.Mesh(magnetGeo, magnetMat);
     magnet.rotation.z = Math.PI;
     group.add(magnet);
 
-    // Silver tips
-    const tipGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.18, 12);
-    const tipMat = new THREE.MeshLambertMaterial({ color: 0xEEEEEE });
+    // Silver chrome tips
+    const tipGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.22, 12);
+    const tipMat = new THREE.MeshStandardMaterial({ color: 0xEEEEEE, metalness: 0.9, roughness: 0.1 });
     const leftTip = new THREE.Mesh(tipGeo, tipMat);
-    leftTip.position.set(-0.42, -0.1, 0);
+    leftTip.position.set(-0.44, -0.11, 0);
     const rightTip = new THREE.Mesh(tipGeo, tipMat);
-    rightTip.position.set(0.42, -0.1, 0);
+    rightTip.position.set(0.44, -0.11, 0);
     group.add(leftTip, rightTip);
 
-    group.userData = { powerupType: 'magnet', duration: 10, radius: 0.7 };
-    return group;
-  }
-
-  // ⚡ TURBO DRINK (WOF BOOST) ICON
-  createTurboPowerup() {
-    const group = new THREE.Group();
-    const canGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.7, 16);
-    const canMat = new THREE.MeshStandardMaterial({
-      color: 0x76FF03,
-      emissive: 0x64DD17,
-      emissiveIntensity: 0.7
+    // Orbiting mini golden coins around magnet
+    [-0.35, 0.35].forEach((mx) => {
+      const miniCoin = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.12, 0.12, 0.04, 12),
+        new THREE.MeshStandardMaterial({ color: 0xFFD700, emissive: 0xFF9800, emissiveIntensity: 0.7 })
+      );
+      miniCoin.rotation.x = Math.PI / 2;
+      miniCoin.position.set(mx, 0.35, 0);
+      group.add(miniCoin);
     });
-    const can = new THREE.Mesh(canGeo, canMat);
-    group.add(can);
 
-    // Lightning symbol
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.04, 8, 20), new THREE.MeshBasicMaterial({ color: 0xEEFF41 }));
-    ring.rotation.y = Math.PI / 4;
+    // Magnetic force field ring
+    const ringGeo = new THREE.TorusGeometry(0.7, 0.03, 8, 24);
+    const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xFFD54F, transparent: true, opacity: 0.6 }));
+    ring.rotation.x = Math.PI / 4;
     group.add(ring);
 
-    group.userData = { powerupType: 'turbo', duration: 6, radius: 0.7 };
+    group.userData = { powerupType: 'coin_magnet', duration: 15, radius: 0.8 };
     return group;
   }
 
-  // 🍔 BURGER MODE ICON
-  createBurgerModePowerup() {
+  // ⭐ INVINCIBLE STAR POWERUP ICON (Very Rare)
+  createInvinciblePowerupItem() {
     const group = new THREE.Group();
-    const b = this.createBurgerItem(1.0);
-    group.add(b);
+
+    // 5-Pointed 3D Star
+    const starShape = new THREE.Shape();
+    const outerR = 0.42;
+    const innerR = 0.18;
+    for (let i = 0; i < 10; i++) {
+      const angle = (i * Math.PI) / 5 - Math.PI / 2;
+      const r = i % 2 === 0 ? outerR : innerR;
+      const x = Math.cos(angle) * r;
+      const y = Math.sin(angle) * r;
+      if (i === 0) starShape.moveTo(x, y);
+      else starShape.lineTo(x, y);
+    }
+    starShape.closePath();
+
+    const extrudeSettings = { depth: 0.16, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.04, bevelThickness: 0.04 };
+    const starGeo = new THREE.ExtrudeGeometry(starShape, extrudeSettings);
+    starGeo.center();
+
+    const starMat = new THREE.MeshStandardMaterial({
+      color: 0xFFFFFF,
+      emissive: 0xFFEA00,
+      emissiveIntensity: 0.9,
+      metalness: 0.95,
+      roughness: 0.1
+    });
+    const star = new THREE.Mesh(starGeo, starMat);
+    group.add(star);
+
+    // Multi-color rainbow pulsing rings
+    const ringGeo = new THREE.TorusGeometry(0.7, 0.035, 8, 24);
+    const ring1 = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0x00E5FF }));
+    ring1.rotation.x = Math.PI / 2;
+    const ring2 = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xE040FB }));
+    ring2.rotation.y = Math.PI / 2;
+    group.add(ring1, ring2);
 
     const glow = new THREE.Mesh(
-      new THREE.SphereGeometry(0.65, 16, 16),
+      new THREE.SphereGeometry(0.85, 16, 16),
       new THREE.MeshBasicMaterial({ color: 0xFFD700, transparent: true, opacity: 0.4 })
     );
     group.add(glow);
 
-    group.userData = { powerupType: 'burger_mode', duration: 7, radius: 0.8 };
+    group.userData = { powerupType: 'invincible', duration: 12, radius: 0.9 };
     return group;
   }
+
+  // 🛵 DELIVERY SCOOTER POWERUP ICON
+  createDeliveryScooterPowerupItem() {
+    const group = new THREE.Group();
+    // Mini 3D scooter model
+    const bodyGeo = new THREE.BoxGeometry(0.4, 0.3, 0.9);
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: 0xFF6B00,
+      metalness: 0.7,
+      roughness: 0.2,
+      emissive: 0xE65100,
+      emissiveIntensity: 0.6
+    });
+    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    group.add(body);
+
+    // Rear courier thermal box
+    const boxGeo = new THREE.BoxGeometry(0.35, 0.35, 0.35);
+    const boxMat = new THREE.MeshStandardMaterial({
+      color: 0xFFD000,
+      emissive: 0xFF9900,
+      emissiveIntensity: 0.5
+    });
+    const box = new THREE.Mesh(boxGeo, boxMat);
+    box.position.set(0, 0.22, -0.28);
+    group.add(box);
+
+    // Orbiting golden star ring
+    const ringGeo = new THREE.TorusGeometry(0.72, 0.04, 8, 24);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xFFD700 });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 3;
+    group.add(ring);
+
+    // Soft glow halo
+    const glow = new THREE.Mesh(
+      new THREE.SphereGeometry(0.85, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xFF9800, transparent: true, opacity: 0.35 })
+    );
+    group.add(glow);
+
+    group.userData = { powerupType: 'delivery_scooter', duration: 18, radius: 0.9 };
+    return group;
+  }
+
+  // 🛵 DELIVERY SCOOTER VEHICLE (Ridden by player character during scooter power-up)
+  createDeliveryScooterVehicle() {
+    const scooter = new THREE.Group();
+    scooter.name = 'deliveryScooterVehicle';
+
+    // Vibrant WOF Orange & Yellow Body Chassis
+    const matScooterOrange = new THREE.MeshStandardMaterial({ color: 0xFF6B00, metalness: 0.5, roughness: 0.3 });
+    const matScooterYellow = new THREE.MeshStandardMaterial({ color: 0xFFD000, metalness: 0.5, roughness: 0.3 });
+    const matChrome = new THREE.MeshStandardMaterial({ color: 0xEEEEEE, metalness: 0.9, roughness: 0.1 });
+    const matBlack = new THREE.MeshLambertMaterial({ color: 0x1A1A1A });
+
+    // Chassis Footboard Platform
+    const deckGeo = new THREE.BoxGeometry(0.72, 0.14, 1.4);
+    const deck = new THREE.Mesh(deckGeo, matScooterOrange);
+    deck.position.set(0, 0.28, 0);
+    deck.castShadow = true;
+    scooter.add(deck);
+
+    // Front Fairing Cowl
+    const cowlGeo = new THREE.BoxGeometry(0.64, 0.85, 0.45);
+    const cowl = new THREE.Mesh(cowlGeo, matScooterOrange);
+    cowl.position.set(0, 0.72, 0.62);
+    scooter.add(cowl);
+
+    // Front Chrome Windshield / Visor
+    const shieldGeo = new THREE.BoxGeometry(0.52, 0.35, 0.04);
+    const shield = new THREE.Mesh(shieldGeo, new THREE.MeshLambertMaterial({ color: 0x81D4FA, transparent: true, opacity: 0.6 }));
+    shield.position.set(0, 1.25, 0.62);
+    shield.rotation.x = -0.2;
+    scooter.add(shield);
+
+    // Chrome Handlebars
+    const barGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.92, 12);
+    barGeo.rotateZ(Math.PI / 2);
+    const bar = new THREE.Mesh(barGeo, matChrome);
+    bar.position.set(0, 1.15, 0.48);
+    scooter.add(bar);
+
+    // Bright Headlight
+    const lightGeo = new THREE.CircleGeometry(0.14, 14);
+    const light = new THREE.Mesh(lightGeo, new THREE.MeshBasicMaterial({ color: 0xFFF9C4 }));
+    light.position.set(0, 0.88, 0.86);
+    scooter.add(light);
+
+    // Headlight Light Beam Cone
+    const beamGeo = new THREE.ConeGeometry(0.6, 2.5, 12, 1, true);
+    beamGeo.rotateX(-Math.PI / 2);
+    const beamMat = new THREE.MeshBasicMaterial({ color: 0xFFF9C4, transparent: true, opacity: 0.25, side: THREE.DoubleSide });
+    const beam = new THREE.Mesh(beamGeo, beamMat);
+    beam.position.set(0, 0.88, 2.1);
+    scooter.add(beam);
+
+    // Front & Rear Rubber Wheels with Chrome Spokes
+    const wheelGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.16, 16);
+    wheelGeo.rotateZ(Math.PI / 2);
+    const frontWheel = new THREE.Mesh(wheelGeo, matBlack);
+    frontWheel.position.set(0, 0.25, 0.75);
+    const rearWheel = new THREE.Mesh(wheelGeo, matBlack);
+    rearWheel.position.set(0, 0.25, -0.65);
+    scooter.add(frontWheel, rearWheel);
+
+    // 🎒 LARGE INSULATED REAR WOF DELIVERY HOT-BOX
+    const boxGeo = new THREE.BoxGeometry(0.62, 0.60, 0.55);
+    const box = new THREE.Mesh(boxGeo, matScooterYellow);
+    box.position.set(0, 0.72, -0.58);
+    box.castShadow = true;
+    scooter.add(box);
+
+    // "WOF DELIVERY" Decal on rear box
+    const decalGeo = new THREE.PlaneGeometry(0.55, 0.28);
+    const decalTex = createTextTexture('WOF', '#D32F2F', '#FFFFFF', 'EXPRESS');
+    const decal = new THREE.Mesh(decalGeo, new THREE.MeshBasicMaterial({ map: decalTex }));
+    decal.position.set(0, 0.72, -0.86);
+    decal.rotation.y = Math.PI;
+    scooter.add(decal);
+
+    return scooter;
+  }
+
+  // 🧍 ROADSIDE WAITING DELIVERY CUSTOMER (Waving on platform beside tracks)
+  createDeliveryCustomer(side = 'left') {
+    const customer = new THREE.Group();
+
+    const skinMat = new THREE.MeshLambertMaterial({ color: 0xD79A6D });
+    const hoodieColors = [0x54A0FF, 0x10AC84, 0xEE5253, 0xFF9F43, 0x9C27B0];
+    const jacketMat = new THREE.MeshLambertMaterial({ color: hoodieColors[Math.floor(Math.random() * hoodieColors.length)] });
+    const pantsMat = new THREE.MeshLambertMaterial({ color: 0x2C3E50 });
+    const shoeMat = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+
+    // Legs
+    [-0.14, 0.14].forEach(lx => {
+      const legGeo = new THREE.CylinderGeometry(0.09, 0.08, 0.78, 10);
+      const leg = new THREE.Mesh(legGeo, pantsMat);
+      leg.position.set(lx, 0.39, 0);
+      customer.add(leg);
+
+      const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.10, 0.26), shoeMat);
+      shoe.position.set(lx, 0.05, 0.04);
+      customer.add(shoe);
+    });
+
+    // Torso / Jacket
+    const torsoGeo = new THREE.CylinderGeometry(0.24, 0.22, 0.65, 12);
+    const torso = new THREE.Mesh(torsoGeo, jacketMat);
+    torso.position.y = 1.08;
+    torso.castShadow = true;
+    customer.add(torso);
+
+    // Head
+    const headGeo = new THREE.SphereGeometry(0.22, 14, 14);
+    const head = new THREE.Mesh(headGeo, skinMat);
+    head.position.y = 1.58;
+    customer.add(head);
+
+    // Friendly Cap
+    const capGeo = new THREE.SphereGeometry(0.23, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2);
+    const cap = new THREE.Mesh(capGeo, new THREE.MeshLambertMaterial({ color: 0x212121 }));
+    cap.position.y = 1.62;
+    customer.add(cap);
+
+    // Waving Arm (raised high, waving at runner)
+    const armGeo = new THREE.CylinderGeometry(0.07, 0.06, 0.55, 8);
+    const waveArm = new THREE.Mesh(armGeo, jacketMat);
+    waveArm.position.set(side === 'left' ? 0.32 : -0.32, 1.48, 0);
+    waveArm.rotation.z = side === 'left' ? -0.7 : 0.7;
+    customer.add(waveArm);
+
+    // 🍔 Floating Order Request Bubble ("WOF ORDER 🍔")
+    const bubbleGeo = new THREE.PlaneGeometry(1.6, 0.75);
+    const bubbleCanvas = document.createElement('canvas');
+    bubbleCanvas.width = 384;
+    bubbleCanvas.height = 180;
+    const bctx = bubbleCanvas.getContext('2d');
+    bctx.fillStyle = '#FFFFFF';
+    bctx.beginPath();
+    bctx.roundRect(8, 8, 368, 164, 24);
+    bctx.fill();
+    bctx.lineWidth = 6;
+    bctx.strokeStyle = '#FF6B00';
+    bctx.stroke();
+    bctx.fillStyle = '#D32F2F';
+    bctx.font = 'bold 38px sans-serif';
+    bctx.textAlign = 'center';
+    bctx.fillText('WOF ORDER 🍔', 192, 75);
+    bctx.fillStyle = '#212121';
+    bctx.font = 'bold 26px sans-serif';
+    bctx.fillText('WAITING HERE! 🛵', 192, 128);
+
+    const bubbleTex = new THREE.CanvasTexture(bubbleCanvas);
+    const bubbleMat = new THREE.MeshBasicMaterial({ map: bubbleTex, transparent: true, side: THREE.DoubleSide });
+    const bubble = new THREE.Mesh(bubbleGeo, bubbleMat);
+    bubble.position.set(0, 2.35, 0);
+    bubble.name = 'orderBubble';
+    customer.add(bubble);
+
+    // Face towards track
+    customer.rotation.y = side === 'left' ? Math.PI / 2 : -Math.PI / 2;
+
+    customer.userData = {
+      type: 'delivery_customer',
+      delivered: false,
+      side: side,
+      waveArm: waveArm,
+      orderBubble: bubble
+    };
+
+    return customer;
+  }
+
+  // Backward compatibility alias methods
+  createShieldPowerup() { return this.createInvinciblePowerupItem(); }
+  createMagnetPowerup() { return this.createCoinMagnetPowerupItem(); }
+  createTurboPowerup() { return this.createDeliveryScooterPowerupItem(); }
+  createBurgerModePowerup() { return this.createInvinciblePowerupItem(); }
 
   // --- 11. SCENERY: BUILDINGS & STREET ELEMENTS ---
 

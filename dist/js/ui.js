@@ -83,6 +83,7 @@ class UIManager {
     // HUD Elements
     this.hudScore = document.getElementById('hud-score');
     this.hudDistance = document.getElementById('hud-distance');
+    this.hudCoins = document.getElementById('hud-coins');
     this.hudMultiplier = document.getElementById('hud-multiplier');
     this.slotMain = document.getElementById('slot-main');
     this.slotSide = document.getElementById('slot-side');
@@ -105,6 +106,7 @@ class UIManager {
     // Game Over Elements
     this.finalScore = document.getElementById('final-score');
     this.finalDistance = document.getElementById('final-distance');
+    this.finalCoins = document.getElementById('final-coins');
     this.finalMeals = document.getElementById('final-meals');
     this.finalDeliveries = document.getElementById('final-deliveries');
     this.finalEasterEggs = document.getElementById('final-easter-eggs');
@@ -826,6 +828,9 @@ class UIManager {
 
     this.hudScore.textContent = Math.floor(g.score).toLocaleString();
     this.hudDistance.textContent = `${Math.floor(g.distance)}m`;
+    if (this.hudCoins) {
+      this.hudCoins.textContent = (g.coins || 0).toLocaleString();
+    }
 
     if (g.scoreMultiplier > 1) {
       this.hudMultiplier.textContent = `x${g.scoreMultiplier} COMBO!`;
@@ -918,16 +923,24 @@ class UIManager {
   // --- POWER-UP BADGES ---
   updatePowerupBadges(powerups) {
     let html = '';
-    if (powerups.shield.active) {
-      html += `<div class="powerup-badge shield">🛡️ SHIELD: ${Math.ceil(powerups.shield.timer)}s</div>`;
-    }
-    if (powerups.magnet.active) {
+    if (powerups.coin_magnet && powerups.coin_magnet.active) {
+      html += `<div class="powerup-badge magnet">🧲 COIN MAGNET: ${Math.ceil(powerups.coin_magnet.timer)}s</div>`;
+    } else if (powerups.magnet && powerups.magnet.active) {
       html += `<div class="powerup-badge magnet">🧲 MAGNET: ${Math.ceil(powerups.magnet.timer)}s</div>`;
     }
-    if (powerups.turbo.active) {
+    if (powerups.invincible && powerups.invincible.active) {
+      html += `<div class="powerup-badge invincible">⭐ INVINCIBLE: ${Math.ceil(powerups.invincible.timer)}s</div>`;
+    }
+    if (powerups.delivery_scooter && powerups.delivery_scooter.active) {
+      html += `<div class="powerup-badge scooter">🛵 WOF SCOOTER: ${Math.ceil(powerups.delivery_scooter.timer)}s</div>`;
+    }
+    if (powerups.shield && powerups.shield.active) {
+      html += `<div class="powerup-badge shield">🛡️ SHIELD: ${Math.ceil(powerups.shield.timer)}s</div>`;
+    }
+    if (powerups.turbo && powerups.turbo.active) {
       html += `<div class="powerup-badge turbo">⚡ TURBO: ${Math.ceil(powerups.turbo.timer)}s</div>`;
     }
-    if (powerups.burger_mode.active) {
+    if (powerups.burger_mode && powerups.burger_mode.active) {
       html += `<div class="powerup-badge burger">🍔 BURGER SMASH: ${Math.ceil(powerups.burger_mode.timer)}s</div>`;
     }
     this.powerupsContainer.innerHTML = html;
@@ -955,6 +968,9 @@ class UIManager {
 
     this.finalScore.textContent = stats.score.toLocaleString();
     this.finalDistance.textContent = `${stats.distance} m`;
+    if (this.finalCoins) {
+      this.finalCoins.textContent = (stats.coins || 0).toLocaleString();
+    }
     this.finalMeals.textContent = stats.meals;
     this.finalDeliveries.textContent = stats.deliveries;
     this.finalEasterEggs.textContent = stats.easterEggs;
@@ -1077,6 +1093,7 @@ class UIManager {
       phone: rawPhone,
       score: this.lastStats.score,
       distance: this.lastStats.distance,
+      coins: this.lastStats.coins || 0,
       meals: this.lastStats.meals,
       deliveries: this.lastStats.deliveries,
       couponCode: this.currentVoucher ? this.currentVoucher.code : null,

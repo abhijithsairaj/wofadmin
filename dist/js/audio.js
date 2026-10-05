@@ -64,6 +64,80 @@ class AudioManager {
 
   // --- SFX GENERATORS ---
 
+  playCoin(pitchMod = 0) {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    // Classic arcade coin chime: 987.77 Hz (B5) -> 1318.51 Hz (E6)
+    const baseB = 987.77 * Math.pow(1.05, Math.min(pitchMod, 12));
+    const baseE = 1318.51 * Math.pow(1.05, Math.min(pitchMod, 12));
+
+    const osc1 = this.ctx.createOscillator();
+    const gain1 = this.ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(baseB, now);
+    gain1.gain.setValueAtTime(0.25, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+    osc1.connect(gain1);
+    gain1.connect(this.sfxGain);
+    osc1.start(now);
+    osc1.stop(now + 0.09);
+
+    const osc2 = this.ctx.createOscillator();
+    const gain2 = this.ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(baseE, now + 0.07);
+    gain2.gain.setValueAtTime(0.3, now + 0.07);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+    osc2.connect(gain2);
+    gain2.connect(this.sfxGain);
+    osc2.start(now + 0.07);
+    osc2.stop(now + 0.3);
+  }
+
+  playScooterRev() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(90, now);
+    osc.frequency.exponentialRampToValueAtTime(240, now + 0.25);
+    osc.frequency.linearRampToValueAtTime(180, now + 0.45);
+
+    gain.gain.setValueAtTime(0.22, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(600, now);
+    filter.frequency.linearRampToValueAtTime(1400, now + 0.25);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.52);
+  }
+
+  playCustomerCheer() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    // Cheerful high delivery completion ring
+    [784, 1046.5, 1568].forEach((freq, idx) => {
+      const st = now + idx * 0.06;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, st);
+      gain.gain.setValueAtTime(0.3, st);
+      gain.gain.exponentialRampToValueAtTime(0.001, st + 0.35);
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(st);
+      osc.stop(st + 0.38);
+    });
+  }
+
   playPickup(streak = 0) {
     if (!this.ctx || this.isMuted) return;
     const now = this.ctx.currentTime;

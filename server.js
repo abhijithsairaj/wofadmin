@@ -235,6 +235,7 @@ const server = http.createServer((req, res) => {
           phone: String(data.phone).trim().replace(/[^\d]/g, '').slice(0, 15),
           score: Number(data.score) || 0,
           distance: Number(data.distance) || 0,
+          coins: Number(data.coins) || 0,
           meals: Number(data.meals) || 0,
           deliveries: Number(data.deliveries) || 0,
           couponCode: data.couponCode || null,

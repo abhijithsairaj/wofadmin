@@ -560,6 +560,8 @@ canvas {
 .powerup-badge.magnet { background: rgba(211, 47, 47, 0.3); border: 1px solid var(--wof-red); color: #FFEBEE; }
 .powerup-badge.turbo { background: rgba(118, 255, 3, 0.3); border: 1px solid #76FF03; color: #F1F8E9; }
 .powerup-badge.burger { background: rgba(255, 107, 0, 0.4); border: 1px solid var(--wof-orange); color: #FFF3E0; }
+.powerup-badge.invincible { background: rgba(255, 215, 0, 0.4); border: 1px solid #FFD700; color: #FFFDE7; box-shadow: 0 0 12px rgba(255, 215, 0, 0.6); }
+.powerup-badge.scooter { background: rgba(255, 107, 0, 0.4); border: 1px solid #FF6B00; color: #FFF3E0; box-shadow: 0 0 12px rgba(255, 107, 0, 0.6); }
 
 @keyframes pulsePowerup {
   0% { transform: scale(1); }
@@ -655,23 +657,25 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 30px 20px;
-  background: radial-gradient(circle at center, rgba(30, 20, 15, 0.95) 0%, rgba(10, 12, 16, 0.98) 100%);
+  justify-content: flex-start; /* FIX: Prevents top banner from clipping off-screen on mobile */
+  padding: 20px 14px 44px 14px;
+  background: radial-gradient(circle at center, rgba(30, 20, 15, 0.96) 0%, rgba(10, 12, 16, 0.98) 100%);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .game-over-card {
   width: 100%;
   max-width: 440px;
+  margin: auto 0; /* Perfectly centered when space permits, scrolls cleanly when taller */
   background: var(--wof-card-bg);
   border: 1px solid var(--wof-border);
   border-radius: 20px;
-  padding: 26px 22px;
+  padding: 22px 18px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
 }
 
 .game-over-header {
@@ -1103,21 +1107,17 @@ canvas {
 .submit-lead-inputs {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-@media (min-width: 480px) {
-  .submit-lead-inputs {
-    flex-direction: row;
-  }
+  gap: 10px;
+  width: 100%;
 }
 
 .submit-lead-inputs input {
-  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
   background: rgba(18, 21, 26, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
-  padding: 11px 14px;
+  padding: 12px 14px;
   color: #FFF;
   font-family: inherit;
   font-size: 14px;
@@ -1125,7 +1125,8 @@ canvas {
 }
 
 .phone-input-wrapper {
-  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   background: rgba(18, 21, 26, 0.85);
@@ -1141,23 +1142,42 @@ canvas {
 }
 
 .phone-prefix {
-  padding: 11px 10px 11px 12px;
+  padding: 12px 12px;
   font-size: 13px;
   font-weight: 800;
   color: #CFD8DC;
   background: rgba(255, 255, 255, 0.08);
   border-right: 1px solid rgba(255, 255, 255, 0.15);
   white-space: nowrap;
+  flex-shrink: 0;
   user-select: none;
 }
 
 .phone-input-wrapper input {
   flex: 1;
+  min-width: 0 !important;
+  width: auto !important;
   border: none !important;
   border-radius: 0 !important;
   background: transparent !important;
-  padding: 11px 12px !important;
+  padding: 12px 12px !important;
   box-shadow: none !important;
+  font-size: 14px;
+}
+
+.hud-coins-card {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  color: #FFD700;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
 }
 
 .submit-lead-inputs input:focus {
