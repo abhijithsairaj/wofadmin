@@ -104,10 +104,17 @@ class ModelFactory {
   createRunner() {
     const runner = new THREE.Group();
 
+    // Rotated 180° container so character, backpack, and scooter face FORWARD down the road (-Z),
+    // presenting the courier backpack and back of hoodie to the camera (+Z) as in classic Subway Surfers!
+    const runnerModel = new THREE.Group();
+    runnerModel.name = 'runnerModel';
+    runnerModel.rotation.y = Math.PI;
+    runner.add(runnerModel);
+
     // Pivot root for sliding / rolling / banking
     const bodyRoot = new THREE.Group();
     bodyRoot.name = 'bodyRoot';
-    runner.add(bodyRoot);
+    runnerModel.add(bodyRoot);
 
     // Subway Surfers / Arcade Materials (Jake Style with WOF Branding)
     const matSkin = new THREE.MeshLambertMaterial({ color: 0xF7D0B2 });
@@ -617,20 +624,20 @@ class ModelFactory {
     const shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
     shieldMesh.position.y = 1.3;
     shieldMesh.visible = false;
-    runner.add(shieldMesh);
+    runnerModel.add(shieldMesh);
 
     // Giant Burger Avatar for Burger Mode (initially hidden)
     const giantBurger = this.createBurgerItem(1.4);
     giantBurger.position.y = 1.2;
     giantBurger.visible = false;
     giantBurger.name = 'giantBurger';
-    runner.add(giantBurger);
+    runnerModel.add(giantBurger);
 
     // Scooter Vehicle Mount for Delivery Scooter Power-up (initially hidden)
     const scooterVehicle = this.createDeliveryScooterVehicle();
     scooterVehicle.position.set(0, 0, 0);
     scooterVehicle.visible = false;
-    runner.add(scooterVehicle);
+    runnerModel.add(scooterVehicle);
 
     // Invincible Aura Sphere (initially hidden)
     const invinGeo = new THREE.SphereGeometry(1.6, 20, 20);
@@ -646,10 +653,11 @@ class ModelFactory {
     const invincibleAura = new THREE.Mesh(invinGeo, invinMat);
     invincibleAura.position.y = 1.3;
     invincibleAura.visible = false;
-    runner.add(invincibleAura);
+    runnerModel.add(invincibleAura);
 
     // Store animation handles on runner object
     runner.userData = {
+      runnerModel,
       bodyRoot,
       headGroup,
       leftArmPivot,

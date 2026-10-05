@@ -305,115 +305,160 @@ class WOFGame {
     chunk.position.z = zPos;
 
     const overlapLen = this.chunkLength + 0.6;
-    const trackBedWidth = 8.2;
+    const roadWidth = 7.8;
 
-    // 1. Dark Ballast Stone Track Bed
-    const ballastGeo = new THREE.PlaneGeometry(trackBedWidth, overlapLen);
-    const ballastMat = new THREE.MeshLambertMaterial({ color: 0x263238 });
-    const ballast = new THREE.Mesh(ballastGeo, ballastMat);
-    ballast.rotation.x = -Math.PI / 2;
-    ballast.position.set(0, 0, -this.chunkLength / 2);
-    ballast.receiveShadow = true;
-    chunk.add(ballast);
+    // 1. Asphalt Road Tarmac
+    const roadGeo = new THREE.PlaneGeometry(roadWidth, overlapLen);
+    const roadMat = new THREE.MeshLambertMaterial({ color: 0x2A2E33 }); // Clean dark asphalt tarmac
+    const road = new THREE.Mesh(roadGeo, roadMat);
+    road.rotation.x = -Math.PI / 2;
+    road.position.set(0, 0, -this.chunkLength / 2);
+    road.receiveShadow = true;
+    chunk.add(road);
 
-    // 2. 3 Sets of Railway Tracks (Left: -2.2, Center: 0.0, Right: 2.2)
-    const sleeperGeo = new THREE.BoxGeometry(1.65, 0.08, 0.22);
-    const sleeperMat = new THREE.MeshLambertMaterial({ color: 0x3E2723 }); // Rustic wooden timber
-    const railGeo = new THREE.BoxGeometry(0.08, 0.12, overlapLen);
-    const railMat = new THREE.MeshStandardMaterial({ color: 0xCFD8DC, metalness: 0.88, roughness: 0.2 }); // Polished steel rails
-
-    this.lanes.forEach(laneX => {
-      // Wooden Railway Sleepers (Cross-ties) spaced every 1.6m
-      for (let z = 0.6; z < this.chunkLength; z += 1.6) {
-        const sleeper = new THREE.Mesh(sleeperGeo, sleeperMat);
-        sleeper.position.set(laneX, 0.04, -z);
-        sleeper.receiveShadow = true;
-        chunk.add(sleeper);
-      }
-
-      // Pair of Steel Rails
-      [-0.42, 0.42].forEach(rX => {
-        const rail = new THREE.Mesh(railGeo, railMat);
-        rail.position.set(laneX + rX, 0.10, -this.chunkLength / 2);
-        rail.castShadow = true;
-        chunk.add(rail);
-      });
+    // 2. White Outer Road Shoulder Stripes
+    const edgeGeo = new THREE.PlaneGeometry(0.18, overlapLen);
+    const edgeMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+    [-roadWidth / 2 + 0.16, roadWidth / 2 - 0.16].forEach(eX => {
+      const edge = new THREE.Mesh(edgeGeo, edgeMat);
+      edge.rotation.x = -Math.PI / 2;
+      edge.position.set(eX, 0.012, -this.chunkLength / 2);
+      chunk.add(edge);
     });
 
-    // 3. Side Stone Embankments & Balustrades (separating tracks from canal)
-    const balustradeWidth = 0.45;
-    const balustradeHeight = 0.85;
-    const stoneGeo = new THREE.BoxGeometry(balustradeWidth, balustradeHeight, overlapLen);
-    const stoneMat = new THREE.MeshLambertMaterial({ color: 0x78909C }); // Carved stone pier
+    // 3. Crisp Yellow Dashed Center Lane Dividers (Between the 3 lanes at x = -1.2 and +1.2)
+    const markerGeo = new THREE.PlaneGeometry(0.16, 2.5);
+    const markerMat = new THREE.MeshBasicMaterial({ color: 0xFFEB3B });
+    [-1.2, 1.2].forEach(laneX => {
+      for (let z = 0; z < this.chunkLength; z += 6) {
+        const marker = new THREE.Mesh(markerGeo, markerMat);
+        marker.rotation.x = -Math.PI / 2;
+        marker.position.set(laneX, 0.014, -z);
+        chunk.add(marker);
+      }
+    });
 
-    const leftPier = new THREE.Mesh(stoneGeo, stoneMat);
-    leftPier.position.set(-trackBedWidth / 2 - balustradeWidth / 2, balustradeHeight / 2, -this.chunkLength / 2);
-    const rightPier = new THREE.Mesh(stoneGeo, stoneMat);
-    rightPier.position.set(trackBedWidth / 2 + balustradeWidth / 2, balustradeHeight / 2, -this.chunkLength / 2);
-    chunk.add(leftPier, rightPier);
+    // 4. Pedestrian Zebra Crosswalk at start of chunk
+    if (!isFirstChunk) {
+      const zebraGeo = new THREE.PlaneGeometry(0.55, 3.4);
+      const zebraMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+      for (let x = -roadWidth / 2 + 0.7; x <= roadWidth / 2 - 0.7; x += 1.0) {
+        const stripe = new THREE.Mesh(zebraGeo, zebraMat);
+        stripe.rotation.x = -Math.PI / 2;
+        stripe.position.set(x, 0.015, -2.0);
+        chunk.add(stripe);
+      }
+    }
 
-    // Carved Coping Stone Top Rail
-    const capStoneGeo = new THREE.BoxGeometry(0.55, 0.10, overlapLen);
-    const capStoneMat = new THREE.MeshLambertMaterial({ color: 0x90A4AE });
-    const leftCap = new THREE.Mesh(capStoneGeo, capStoneMat);
-    leftCap.position.set(-trackBedWidth / 2 - balustradeWidth / 2, balustradeHeight + 0.05, -this.chunkLength / 2);
-    const rightCap = new THREE.Mesh(capStoneGeo, capStoneMat);
-    rightCap.position.set(trackBedWidth / 2 + balustradeWidth / 2, balustradeHeight + 0.05, -this.chunkLength / 2);
-    chunk.add(leftCap, rightCap);
+    // 5. Hazard Painted Curbs (Alternating Red & White blocks along road edge)
+    const curbWidth = 0.28;
+    const curbHeight = 0.26;
+    const curbGeo = new THREE.BoxGeometry(curbWidth, curbHeight, overlapLen);
+    const curbMat = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+    const leftCurb = new THREE.Mesh(curbGeo, curbMat);
+    leftCurb.position.set(-roadWidth / 2 - curbWidth / 2, curbHeight / 2, -this.chunkLength / 2);
+    const rightCurb = new THREE.Mesh(curbGeo, curbMat);
+    rightCurb.position.set(roadWidth / 2 + curbWidth / 2, curbHeight / 2, -this.chunkLength / 2);
+    chunk.add(leftCurb, rightCurb);
 
-    // 4. Side Water Canals (Chinese Canal City Style matching reference image)
-    const canalWidth = 14;
-    const canalGeo = new THREE.PlaneGeometry(canalWidth, overlapLen);
-    const canalMat = new THREE.MeshLambertMaterial({ color: 0x004D40 }); // Emerald canal water
-    const leftCanal = new THREE.Mesh(canalGeo, canalMat);
-    leftCanal.rotation.x = -Math.PI / 2;
-    leftCanal.position.set(-trackBedWidth / 2 - balustradeWidth - canalWidth / 2, 0.02, -this.chunkLength / 2);
-    const rightCanal = new THREE.Mesh(canalGeo, canalMat);
-    rightCanal.rotation.x = -Math.PI / 2;
-    rightCanal.position.set(trackBedWidth / 2 + balustradeWidth + canalWidth / 2, 0.02, -this.chunkLength / 2);
-    chunk.add(leftCanal, rightCanal);
+    // Red curb accent stripes spaced along the curb
+    const redAccentGeo = new THREE.BoxGeometry(curbWidth + 0.02, curbHeight + 0.02, 1.6);
+    const redAccentMat = new THREE.MeshLambertMaterial({ color: 0xD32F2F });
+    for (let z = 2.0; z < this.chunkLength; z += 3.6) {
+      const leftRed = new THREE.Mesh(redAccentGeo, redAccentMat);
+      leftRed.position.set(-roadWidth / 2 - curbWidth / 2, curbHeight / 2, -z);
+      const rightRed = new THREE.Mesh(redAccentGeo, redAccentMat);
+      rightRed.position.set(roadWidth / 2 + curbWidth / 2, curbHeight / 2, -z);
+      chunk.add(leftRed, rightRed);
+    }
 
-    // Outer Canal Embankment Promenade
-    const promGeo = new THREE.PlaneGeometry(24, overlapLen);
-    const promMat = new THREE.MeshLambertMaterial({ color: 0x546E7A });
-    const leftProm = new THREE.Mesh(promGeo, promMat);
-    leftProm.rotation.x = -Math.PI / 2;
-    leftProm.position.set(-trackBedWidth / 2 - balustradeWidth - canalWidth - 12, 0.04, -this.chunkLength / 2);
-    const rightProm = new THREE.Mesh(promGeo, promMat);
-    rightProm.rotation.x = -Math.PI / 2;
-    rightProm.position.set(trackBedWidth / 2 + balustradeWidth + canalWidth + 12, 0.04, -this.chunkLength / 2);
-    chunk.add(leftProm, rightProm);
+    // 6. Sidewalks (Left & Right) - Clean urban pedestrian sidewalk
+    const sidewalkWidth = 4.8;
+    const sidewalkGeo = new THREE.BoxGeometry(sidewalkWidth, 0.22, overlapLen);
+    const sidewalkMat = new THREE.MeshLambertMaterial({ color: 0xCFD8DC });
 
-    // 5. Overhead Catenary Gantry with Glowing Festival Lanterns
-    const gantry = window.modelFactory.createCatenaryGantry();
-    gantry.position.set(0, 0, -this.chunkLength * 0.5);
-    chunk.add(gantry);
+    const leftWalk = new THREE.Mesh(sidewalkGeo, sidewalkMat);
+    leftWalk.position.set(-roadWidth / 2 - curbWidth - sidewalkWidth / 2, 0.11, -this.chunkLength / 2);
+    const rightWalk = new THREE.Mesh(sidewalkGeo, sidewalkMat);
+    rightWalk.position.set(roadWidth / 2 + curbWidth + sidewalkWidth / 2, 0.11, -this.chunkLength / 2);
+    chunk.add(leftWalk, rightWalk);
 
-    // 6. Waterfront Buildings along the canal edge
+    // 7. Wide Ground Plaza extending outward under buildings (prevents voids at any screen aspect)
+    const sidePlazaGeo = new THREE.PlaneGeometry(42, overlapLen);
+    const sidePlazaMat = new THREE.MeshLambertMaterial({ color: 0xB0BEC5 });
+    const leftPlaza = new THREE.Mesh(sidePlazaGeo, sidePlazaMat);
+    leftPlaza.rotation.x = -Math.PI / 2;
+    leftPlaza.position.set(-roadWidth / 2 - curbWidth - sidewalkWidth - 21, 0.01, -this.chunkLength / 2);
+
+    const rightPlaza = new THREE.Mesh(sidePlazaGeo, sidePlazaMat);
+    rightPlaza.rotation.x = -Math.PI / 2;
+    rightPlaza.position.set(roadWidth / 2 + curbWidth + sidewalkWidth + 21, 0.01, -this.chunkLength / 2);
+    chunk.add(leftPlaza, rightPlaza);
+
+    // 8. Low Decorative Planters / Hedges along sidewalk outer edge
+    const hedgeGeo = new THREE.BoxGeometry(0.42, 0.52, overlapLen);
+    const hedgeMat = new THREE.MeshLambertMaterial({ color: 0x2E7D32 }); // Lush evergreen hedge
+    const leftHedge = new THREE.Mesh(hedgeGeo, hedgeMat);
+    leftHedge.position.set(-roadWidth / 2 - curbWidth - sidewalkWidth - 0.21, 0.26, -this.chunkLength / 2);
+    const rightHedge = new THREE.Mesh(hedgeGeo, hedgeMat);
+    rightHedge.position.set(roadWidth / 2 + curbWidth + sidewalkWidth + 0.21, 0.26, -this.chunkLength / 2);
+    chunk.add(leftHedge, rightHedge);
+
+    // Terracotta Rim along hedge tops
+    const rimGeo = new THREE.BoxGeometry(0.50, 0.07, overlapLen);
+    const rimMat = new THREE.MeshLambertMaterial({ color: 0xE65100 });
+    const leftRim = new THREE.Mesh(rimGeo, rimMat);
+    leftRim.position.set(-roadWidth / 2 - curbWidth - sidewalkWidth - 0.21, 0.55, -this.chunkLength / 2);
+    const rightRim = new THREE.Mesh(rimGeo, rimMat);
+    rightRim.position.set(roadWidth / 2 + curbWidth + sidewalkWidth + 0.21, 0.55, -this.chunkLength / 2);
+    chunk.add(leftRim, rightRim);
+
+    // 9. Streetlights (Placed along sidewalk)
+    const lampL = window.modelFactory.createStreetLamp('left');
+    lampL.position.set(-roadWidth / 2 - curbWidth - 0.5, 0, -this.chunkLength * 0.45);
+    const lampR = window.modelFactory.createStreetLamp('right');
+    lampR.position.set(roadWidth / 2 + curbWidth + 0.5, 0, -this.chunkLength * 0.90);
+    chunk.add(lampL, lampR);
+
+    // 10. Coimbatore Coconut Palm Trees along sidewalk
+    const treeL = window.modelFactory.createPalmTree();
+    treeL.position.set(-roadWidth / 2 - curbWidth - 2.8, 0, -this.chunkLength * 0.25);
+    const treeR = window.modelFactory.createPalmTree();
+    treeR.position.set(roadWidth / 2 + curbWidth + 2.8, 0, -this.chunkLength * 0.75);
+    chunk.add(treeL, treeR);
+
+    // 11. Overhead WOF Festive Street Banner (Every alternate chunk)
+    if (!isFirstChunk && Math.random() < 0.55) {
+      const banner = window.modelFactory.createRoadBanner('WOF RUSH - SELVAPURAM');
+      banner.position.set(0, 0, -this.chunkLength * 0.5);
+      chunk.add(banner);
+    }
+
+    // 12. Storefront Buildings along road (3 on left, 3 on right)
     const buildingZOffsets = [
-      -this.chunkLength * 0.20,
-      -this.chunkLength * 0.55,
-      -this.chunkLength * 0.85
+      -this.chunkLength * 0.18,
+      -this.chunkLength * 0.50,
+      -this.chunkLength * 0.82
     ];
     buildingZOffsets.forEach((zOff, bIdx) => {
       const varL = (bIdx * 2) % 6;
       const bLeft = window.modelFactory.createBuilding(varL, 'left');
-      bLeft.position.set(-trackBedWidth / 2 - balustradeWidth - canalWidth - 2.8, 0, zOff);
+      bLeft.position.set(-roadWidth / 2 - curbWidth - sidewalkWidth - 2.8, 0, zOff);
       chunk.add(bLeft);
 
       const varR = (bIdx * 2 + 1) % 6;
       const bRight = window.modelFactory.createBuilding(varR, 'right');
-      bRight.position.set(trackBedWidth / 2 + balustradeWidth + canalWidth + 2.8, 0, zOff);
+      bRight.position.set(roadWidth / 2 + curbWidth + sidewalkWidth + 2.8, 0, zOff);
       chunk.add(bRight);
     });
 
-    // 7. Roadside Delivery Customers (Waiting on the side platform for orders)
+    // 13. Roadside Delivery Customers (Waiting on the sidewalk for orders)
     if (!isFirstChunk && Math.random() < 0.65) {
       const custSide = Math.random() < 0.5 ? 'left' : 'right';
       const customer = window.modelFactory.createDeliveryCustomer(custSide);
-      const custX = custSide === 'left' ? -trackBedWidth / 2 - 0.9 : trackBedWidth / 2 + 0.9;
-      customer.position.set(custX, 0.1, -this.chunkLength * 0.35);
-      chunk.add(customer);
+      const custX = custSide === 'left' ? -roadWidth / 2 - curbWidth - 0.9 : roadWidth / 2 + curbWidth + 0.9;
+      customer.position.set(custX, 0.15, zPos - this.chunkLength * 0.35);
+      this.scene.add(customer);
       this.roadsideCustomers.push(customer);
     }
 
@@ -421,7 +466,7 @@ class WOFGame {
     chunk.userData = { zPos };
     this.chunks.push(chunk);
 
-    // Populate Obstacles & Collectibles (skip on the very first starting runway)
+    // Populate Obstacles & Collectibles
     if (!isFirstChunk) {
       this.populateChunkContents(zPos);
     }
@@ -462,21 +507,25 @@ class WOFGame {
         const r = Math.random();
         let obs;
 
-        if (r < 0.42) {
-          // Streamlined Subway Train! (Subway Surfers signature passenger train car)
-          obs = window.modelFactory.createTrainObstacle(Math.random() < 0.5 ? 0 : 1);
+        if (r < 0.36) {
+          // Coimbatore Auto-Rickshaw
+          obs = window.modelFactory.createRickshaw();
           obs.position.set(laneX, 0, spawnZ);
-        } else if (r < 0.68) {
-          // Jumpable Road Barrier
+        } else if (r < 0.60) {
+          // Jumpable Road Barrier (Construction barrier with flashing light)
           obs = window.modelFactory.createRoadBarrier();
           obs.position.set(laneX, 0, spawnZ);
-        } else if (r < 0.86) {
+        } else if (r < 0.78) {
+          // Roadside Tea / Food Vendor Cart
+          obs = window.modelFactory.createVendorCart();
+          obs.position.set(laneX, 0, spawnZ);
+        } else if (r < 0.90) {
           // Slide Barrier (Must Slide!)
           obs = window.modelFactory.createSlideBarrier();
           obs.position.set(laneX, 0, spawnZ);
         } else {
-          // Coimbatore Auto-Rickshaw
-          obs = window.modelFactory.createRickshaw();
+          // Traffic Cones Cluster
+          obs = window.modelFactory.createTrafficCones();
           obs.position.set(laneX, 0, spawnZ);
         }
 
@@ -1055,7 +1104,7 @@ class WOFGame {
       // Lateral anticipatory lean when switching lanes — more at higher speeds
       const laneDelta = this.targetX - this.playerX;
       const leanAmt = 0.22 + speedT * 0.1;
-      uData.bodyRoot.rotation.z = -laneDelta * leanAmt;
+      uData.bodyRoot.rotation.z = laneDelta * leanAmt;
     }
 
     // Invulnerability visual blink
